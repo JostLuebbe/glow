@@ -229,6 +229,10 @@ if (GLOW_BUILD_EXAMPLES)
   add_subdirectory(examples)
 endif()
 
+if (GLOW_WITH_BUNDLES)
+  add_subdirectory(examples)
+endif()
+
 if (GLOW_BUILD_PYTORCH_INTEGRATION)
   if(NOT EXISTS "${GLOW_THIRDPARTY_DIR}/pybind11")
     message(FATAL_ERROR "No pybind11 git submodule. Run: git submodule update --init --recursive")
