@@ -39,6 +39,7 @@ add_custom_command(
     model-compiler
     -g
     -model=${MODEL_DIR}/jost_model.onnx
+    -onnx-define-symbol=N,1
 #    -model-input=${MODEL_INPUT_NAME},float,[1,3,224,224]
     -backend=CPU -emit-bundle=${BUNDLE_OUTPUT_DIRECTORY}
     -bundle-api=dynamic
@@ -73,6 +74,7 @@ add_custom_command(
     -assert-all-nodes-quantized
     -keep-original-precision-for-nodes=SoftMax
     -model=${DLHA_BUNDLE_DIR}/jost_model.onnx
+    -onnx-define-symbol=N,1
 #    -model-input=${MODEL_INPUT_NAME},float,[1,3,224,224]
     -backend=CPU
     -emit-bundle=${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY}
