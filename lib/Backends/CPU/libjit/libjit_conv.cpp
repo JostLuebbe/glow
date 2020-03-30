@@ -261,6 +261,7 @@ void libjit_quantized_convolution_generic(
     int32_t inOffset, int32_t filterOffset, int32_t biasOffset, int32_t biasPre,
     int32_t biasPost, int32_t biasScale, int32_t outPre, int32_t outPost,
     int32_t outScale, unsigned depthUnroll, dim_t dilation) {
+
   dim_t inChannels = inWdims[3];
   dim_t outChannels = outWdims[3];
   dim_t inCperG = inChannels / group;
