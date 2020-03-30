@@ -25,12 +25,21 @@
 #include "glow/IR/Instrs.h"
 #include "glow/Optimizer/IROptimizer/IROptimizer.h"
 
+namespace glow {
+namespace runtime {
+extern unsigned GlowInterpreterMemory;
+}
+} // namespace glow
 using namespace glow;
 
 Expected<std::unique_ptr<CompiledFunction>>
 Interpreter::compile(Function *F, const BackendOptions &opts) const {
   TraceInfo traceInfo = buildManualTraceInfo(F);
   auto IR = generateAndOptimizeIR(F, *this, shouldShareBuffers());
+
+  if (!opts.backendSpecificOpts.empty()) {
+    parseBackendSpecificOptions(opts);
+  }
 
   if (opts.autoInstrument) {
     autoInstrument(traceInfo, IR.get());
@@ -91,7 +100,8 @@ bool Interpreter::isOpSupported(const NodeInfo &NI) const {
   case Kinded::Kind::ResizeNearestNodeKind:
     return NI.allInputsAndOutputsHaveSameElemKind(
         {ElemKind::FloatTy, ElemKind::Float16Ty, ElemKind::Int8QTy,
-         ElemKind::Int16QTy, ElemKind::Int32QTy});
+         ElemKind::Int16QTy, ElemKind::Int32QTy, ElemKind::Int32ITy,
+         ElemKind::Int64ITy});
 
   case Kinded::Kind::AvgPoolNodeKind:
   case Kinded::Kind::AdaptiveAvgPoolNodeKind:
@@ -146,7 +156,7 @@ bool Interpreter::isOpSupported(const NodeInfo &NI) const {
   case Kinded::Kind::SliceNodeKind:
     return NI.allInputsAndOutputsHaveSameElemKind(
         {ElemKind::FloatTy, ElemKind::Float16Ty, ElemKind::Int8QTy,
-         ElemKind::Int32QTy, ElemKind::Int64ITy});
+         ElemKind::Int32QTy, ElemKind::Int64ITy, ElemKind::Int32ITy});
   case Kinded::Kind::DivNodeKind:
   case Kinded::Kind::SpaceToDepthNodeKind:
     return NI.allInputsAndOutputsHaveSameElemKind(
@@ -698,6 +708,7 @@ bool Interpreter::verify(const IRFunction &IR) const {
 bool Interpreter::shouldLower(const Node *N) const {
   switch (N->getKind()) {
   case Kinded::Kind::ConvolutionNodeKind:
+  case Kinded::Kind::Convolution3DNodeKind:
   case Kinded::Kind::SparseLengthsSumNodeKind:
   case Kinded::Kind::FullyConnectedNodeKind:
     return false;
@@ -791,18 +802,32 @@ static bool channelwiseQuantizeFloatBias(
   auto biasQuantizedC = F->getParent()->createConstant(
       biasC->getName(), std::move(biasQuantizedT));
 
-  auto newChannelwiseConv = F->createChannelwiseQuantizedConv(
-      channelwiseConv.getName(), channelwiseConv.getInput(),
-      channelwiseConv.getFilter(), biasQuantizedC, channelwiseConv.getScales(),
-      channelwiseConv.getOffsets(), channelwiseConv.getResult().getType(),
-      channelwiseConv.getKernels(), channelwiseConv.getStrides(),
-      channelwiseConv.getPads(), channelwiseConv.getGroup());
+  bool isConv3d = (channelwiseConv.getInput().getType()->dims().size() == 5);
+  glow::ChannelwiseQuantizedConvolutionNode *newChannelwiseConv;
+  if (isConv3d) {
+    newChannelwiseConv = F->createChannelwiseQuantizedConv3D(
+        channelwiseConv.getName(), channelwiseConv.getInput(),
+        channelwiseConv.getFilter(), biasQuantizedC,
+        channelwiseConv.getScales(), channelwiseConv.getOffsets(),
+        channelwiseConv.getResult().getType(), channelwiseConv.getKernels(),
+        channelwiseConv.getStrides(), channelwiseConv.getPads(),
+        channelwiseConv.getGroup());
+
+  } else {
+    newChannelwiseConv = F->createChannelwiseQuantizedConv(
+        channelwiseConv.getName(), channelwiseConv.getInput(),
+        channelwiseConv.getFilter(), biasQuantizedC,
+        channelwiseConv.getScales(), channelwiseConv.getOffsets(),
+        channelwiseConv.getResult().getType(), channelwiseConv.getKernels(),
+        channelwiseConv.getStrides(), channelwiseConv.getPads(),
+        channelwiseConv.getGroup());
+  }
 
   channelwiseConv.getResult().replaceAllUsesOfWith(newChannelwiseConv);
   return true;
 }
 
-bool Interpreter::transformPostLowering(
+Expected<bool> Interpreter::transformPostLowering(
     Function *F, CompilationContext &cctx,
     const glow::runtime::DeviceInfo *devInfo) const {
   LOG_SCOPE(F->getLogContext(), "Interpreter::transformPostLowering")
@@ -818,4 +843,16 @@ bool Interpreter::transformPostLowering(
     }
   }
   return changed;
+}
+
+void Interpreter::parseBackendSpecificOptions(
+    const BackendOptions &opts) const {
+  auto interpreterMaxMemOpt =
+      opts.backendSpecificOpts.find("interpreter-memory");
+  if (interpreterMaxMemOpt != opts.backendSpecificOpts.end()) {
+    glow::runtime::GlowInterpreterMemory =
+        std::stoi(interpreterMaxMemOpt->second);
+    llvm::outs() << "Interpreter memory set to "
+                 << glow::runtime::GlowInterpreterMemory << "\n";
+  }
 }

@@ -654,6 +654,7 @@ static bool acceptsAnyInputLayout(const glow::Node *node) {
   case Kinded::Kind::ConcatNodeKind:
   case Kinded::Kind::BatchedReduceMeanNodeKind:
   case Kinded::Kind::BatchedAddNodeKind:
+  case Kinded::Kind::BatchedReduceAddNodeKind:
   case Kinded::Kind::BatchedReduceMinNodeKind:
   case Kinded::Kind::BatchNormalizationNodeKind:
   case Kinded::Kind::BatchNormalizationGradNodeKind:
@@ -664,6 +665,7 @@ static bool acceptsAnyInputLayout(const glow::Node *node) {
   case Kinded::Kind::FlipNodeKind:
   case Kinded::Kind::SliceNodeKind:
   case Kinded::Kind::TileNodeKind:
+  case Kinded::Kind::InsertTensorNodeKind:
   case Kinded::Kind::SGDNodeKind: {
     return true;
   }

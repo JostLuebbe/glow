@@ -149,8 +149,9 @@ static bool verifyConvolution(NodeValue src, NodeValue dest, NodeValue filter,
     // Quantization type check.
     if (src.getElementType() == ElemKind::Int8QTy) {
       isValid &=
-          expectCompareTrue("Bias type should be Int8 or Int32 for Conv",
-                            bias.getElementType() == ElemKind::Int8QTy ||
+          expectCompareTrue("Bias type should be float, Int8 or Int32 for Conv",
+                            bias.getElementType() == ElemKind::FloatTy ||
+                                bias.getElementType() == ElemKind::Int8QTy ||
                                 bias.getElementType() == ElemKind::Int32QTy,
                             true, parent);
     }
@@ -206,8 +207,9 @@ static bool verifyConvolution3D(NodeValue src, NodeValue dest, NodeValue filter,
   // Quantization type check.
   if (src.getElementType() == ElemKind::Int8QTy) {
     isValid &=
-        expectCompareTrue("Bias type should be Int8 or Int32 for Conv3D",
-                          bias.getElementType() == ElemKind::Int8QTy ||
+        expectCompareTrue("Bias type should be Float, Int8 or Int32 for Conv3D",
+                          bias.getElementType() == ElemKind::FloatTy ||
+                              bias.getElementType() == ElemKind::Int8QTy ||
                               bias.getElementType() == ElemKind::Int32QTy,
                           true, parent);
   }
@@ -554,10 +556,18 @@ bool ConvolutionNode::verify() const {
 }
 
 bool ChannelwiseQuantizedConvolutionNode::verify() const {
-  bool isValid =
-      verifyConvolution<ShapeNHWC>(getInput(), getResult(), getFilter(),
-                                   getBias(), Kernels_, Strides_, Pads_, Group_,
-                                   /* dilation */ 1, /* checkBiasType */ false);
+  auto input_dims = getInput().getType()->dims();
+  bool isValid = false;
+  bool isConv3D = (input_dims.size() == 5);
+  if (isConv3D) {
+    isValid = verifyConvolution3D(getInput(), getResult(), getFilter(),
+                                  getBias(), Kernels_, Strides_, Pads_, Group_);
+  } else {
+    isValid = verifyConvolution<ShapeNHWC>(
+        getInput(), getResult(), getFilter(), getBias(), Kernels_, Strides_,
+        Pads_, Group_,
+        /* dilation */ 1, /* checkBiasType */ false);
+  }
 
   isValid &=
       checkType(getBias(), {ElemKind::Int32QTy, ElemKind::FloatTy}, this);
@@ -576,10 +586,12 @@ bool ChannelwiseQuantizedConvolutionNode::verify() const {
   // check qparam sizes
   isValid &= expectCompareTrue(
       "There must be one filter offset qparam per output channel",
-      getOffsets().dims()[0], dim_t(getResult().dims()[3]), this);
+      getOffsets().dims()[0], dim_t(getResult().dims()[input_dims.size() - 1]),
+      this);
   isValid &= expectCompareTrue(
       "There must be one filter scale qparam per output channel",
-      getScales().dims()[0], dim_t(getResult().dims()[3]), this);
+      getScales().dims()[0], dim_t(getResult().dims()[input_dims.size() - 1]),
+      this);
   return isValid;
 }
 
@@ -1765,6 +1777,7 @@ bool SpaceToDepthNode::verify() const {
 
 bool ResizeNearestNode::verify() const {
   auto input = getInput();
+  auto scale = getScale();
   auto result = getResult();
   auto inputDims = input.dims();
   auto outputDims = result.dims();
@@ -1774,22 +1787,14 @@ bool ResizeNearestNode::verify() const {
                                size_t(4), this);
   isValid &= expectCompareTrue("Output must be a 4D tensor", outputDims.size(),
                                size_t(4), this);
-  isValid &= expectCompareTrue("Batch size must be the same", inputDims[0],
-                               outputDims[0], this);
-  isValid &= expectCompareTrue("Depth must be the same", inputDims[3],
-                               outputDims[0], this);
-  isValid &= expectCompareTrue(
-      "Unexpected output height",
-      dim_t(std::floor(inputDims[1] * getHeightScale())), outputDims[1], this);
-  isValid &= expectCompareTrue(
-      "Unexpected output width",
-      dim_t(std::floor(inputDims[2] * getWidthScale())), outputDims[2], this);
-  isValid &=
-      expectCompareTrue("Invalid height scale", getHeightScale(), float(0.0),
-                        this, CompareOperatorGreaterThan<float>());
-  isValid &=
-      expectCompareTrue("Invalid width scale", getWidthScale(), float(0.0),
-                        this, CompareOperatorGreaterThan<float>());
+
+  for (size_t i = 0, e = scale.size(); i < e; i++) {
+    isValid &= expectCompareTrue("Unexpected output",
+                                 dim_t(std::floor(inputDims[i] * scale[i])),
+                                 outputDims[i], this);
+    isValid &= expectCompareTrue("Invalid scale", scale[i], float(0.0), this,
+                                 CompareOperatorGreaterThan<float>());
+  }
 
   return isValid;
 }

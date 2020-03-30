@@ -478,6 +478,24 @@ public:
       llvm::ArrayRef<unsigned_t> kernels, llvm::ArrayRef<unsigned_t> strides,
       llvm::ArrayRef<unsigned_t> pads, unsigned_t group);
 
+  /// Creates a ChannelwiseQuantizedConvolutionNode with the given \p name
+  /// which convolves the 5D \p input with \p filter and \p bias. \p scales and
+  /// \p offsets provide individual quantization parameters for each filter
+  /// group in \p filter. \p kernels defines the size of the temporal_frame,
+  /// height and width dimensions of the filters. \p strides defines the number
+  /// of steps to take in the input for each output cell. \p pads defines how
+  /// many zero padding cells should be added to the input during convolution.
+  /// \p group defines the number of groups the input and output channels should
+  /// be divided into and convolved separately. If bias is FloatTy then it will
+  /// be quantized to Int32QTy automatically. NOTE:
+  /// ChannelwiseQuantizedConvolutionNode does not yet have an implementation
+  /// so attempting to run a graph containing this node fails.
+  ChannelwiseQuantizedConvolutionNode *createChannelwiseQuantizedConv3D(
+      llvm::StringRef name, NodeValue input, NodeValue filter, NodeValue bias,
+      NodeValue scales, NodeValue offsets, TypeRef outTy,
+      llvm::ArrayRef<unsigned_t> kernels, llvm::ArrayRef<unsigned_t> strides,
+      llvm::ArrayRef<unsigned_t> pads, unsigned_t group);
+
   /// Creates a ConvTransposeNode with the given \p name which does transposed
   /// convolution of the 4D \p input with \p filter and \bias. \p kernels define
   /// the size of the height and width dimensions of the filters. \p strides
@@ -881,6 +899,7 @@ public:
   /// with the use of BroadCast nodes. If axis is -1, it calculates it
   /// automatically for multi directional broadcast.
   DECLARE_CMP_BROADCAST_NODE(CmpLT)
+  DECLARE_CMP_BROADCAST_NODE(CmpEQ)
   DECLARE_CMP_BROADCAST_NODE(CmpLTE)
 
   /// Template function that creates a node and normalizes its input shapes
@@ -1263,12 +1282,14 @@ public:
                                        unsigned blockSize);
 
   /// Given \p input tensor of [N,H,W,C], where N is the batch, C is the channel
-  /// or depth, H is the height and W is the width, generates an Output tensor
-  /// with resized spatial dimensions using nearest neighbor interpolation. The
-  /// Output tensor is of shape [N, floor(H * \p heightScale), floor(W * \p
-  /// widthScale), C]
+  /// or depth, H is the height and W is the width, and \p scale tensor with
+  /// tensor format same as \p input then ResizeNearest generates an Output
+  /// tensor with resized spatial dimensions using nearest neighbor
+  /// interpolation. The Output tensor is of shape [floor(N * \p scale[0]),
+  /// floor(H * \p scale[1]), floor(W * \p scale[2]),
+  /// floor(C * \p scale[3])]
   ResizeNearestNode *createResizeNearest(llvm::StringRef name, NodeValue input,
-                                         float heightScale, float widthScale);
+                                         llvm::ArrayRef<float> scale);
 
   /// Create quantization node which transforms floating point tensor to a
   /// quantized one with given Scale and Offset. Scale and Offset params are
@@ -1733,10 +1754,18 @@ public:
   /// \returns the list of nodes that the Function owns.
   NodesList &getNodes() { return nodes_; }
 
+  const NodesList &getNodes() const { return nodes_; }
+
   /// \returns a node with the name \p name or nullptr if no node was found.
   Node *getNodeByName(llvm::StringRef name);
 
-  const NodesList &getNodes() const { return nodes_; }
+  /// \returns a node value using the \p name which has the same format as the
+  /// one used by the \ref NodeValue::generateNodeOutputName which is
+  /// "nodeName:outputNumber". The returned node value has a nullptr for the
+  /// node if not found in the Function or if the node has no outputs (for
+  /// example SaveNode). The searched node value can be one of a graph node,
+  /// constant or placeholder.
+  NodeValue getNodeValueByName(llvm::StringRef name);
 
   /// \returns pointer to the class member for the nodes list.
   static NodesList Function::*getNodesMemberPtr() { return &Function::nodes_; }

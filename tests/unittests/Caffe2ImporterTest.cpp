@@ -1189,8 +1189,11 @@ TEST_F(Caffe2ImporterTest, importResizeNearest) {
   ASSERT_TRUE(resizeNearestNode);
   // We have one input and one output.
   EXPECT_EQ(mod.getPlaceholders().size(), 2);
-  auto heightScale = resizeNearestNode->getHeightScale();
-  auto widthScale = resizeNearestNode->getWidthScale();
+  auto scale = resizeNearestNode->getScale();
+  EXPECT_EQ(scale[0], 1);
+  auto heightScale = scale[1];
+  auto widthScale = scale[2];
+  EXPECT_EQ(scale[3], 1);
   EXPECT_NEAR(heightScale, 2.0, 0.00001);
   EXPECT_NEAR(widthScale, 1.5, 0.00001);
 }
@@ -2173,6 +2176,86 @@ TEST_F(Caffe2ImporterTest, elementwiseLinearUnspecifiedAxis) {
   auto *XPH = llvm::dyn_cast<Placeholder>(mul->getRHS().getNode());
   EXPECT_EQ(XPH, mod.getPlaceholderByName("X"));
   auto *wTile = llvm::dyn_cast<TileNode>(mul->getLHS().getNode());
+  ASSERT_TRUE(wTile);
+  EXPECT_EQ(wTile->getAxis(), 0);
+  auto *bReshape = llvm::dyn_cast<ReshapeNode>(bTile->getInput().getNode());
+  ASSERT_TRUE(bReshape);
+  auto *wReshape = llvm::dyn_cast<ReshapeNode>(wTile->getInput().getNode());
+  ASSERT_TRUE(wReshape);
+  auto *wPH = llvm::dyn_cast<Placeholder>(wReshape->getInput().getNode());
+  EXPECT_EQ(wPH, mod.getPlaceholderByName("w"));
+  auto *bPH = llvm::dyn_cast<Placeholder>(bReshape->getInput().getNode());
+  EXPECT_EQ(bPH, mod.getPlaceholderByName("b"));
+
+  // We have three inputs and one output.
+  EXPECT_EQ(mod.getPlaceholders().size(), 4);
+}
+
+/// Test loading an ElementwiseLinear operator with implicit broadcast
+TEST_F(Caffe2ImporterTest, elementwiseImplicitBroadcast) {
+  ExecutionEngine EE{};
+  auto &mod = EE.getModule();
+  Function *F = mod.createFunction("main");
+
+  std::string NetDescFilename(
+      GLOW_DATA_PATH
+      "tests/models/caffe2Models/elementwise_linear_broadcast_net.pbtxt");
+  std::string NetWeightFilename(
+      GLOW_DATA_PATH "tests/models/caffe2Models/empty_init_net.pbtxt");
+
+  PlaceholderBindings bindings;
+  Placeholder *output;
+
+  // Since the loader will assume that axis = 1, the 0th dim of the shapes of w
+  // and b must match the 1st dim of X.
+  Tensor X(ElemKind::FloatTy, {5, 10});
+  Tensor w(ElemKind::FloatTy, {10}), b(ElemKind::FloatTy, {10});
+
+  // Destroy the loader after the graph is loaded since the following execution
+  // will not depend on anything from the loader.
+  {
+    Caffe2ModelLoader caffe2LD(NetDescFilename, NetWeightFilename,
+                               {"X", "w", "b"},
+                               {&X.getType(), &w.getType(), &b.getType()}, *F);
+    output = EXIT_ON_ERR(caffe2LD.getSingleOutput());
+  }
+
+  // Check that the shape of the output matches that of the input.
+  std::vector<dim_t> expectedDims = {5, 10};
+  EXPECT_TRUE(output->dims().vec() == expectedDims);
+
+  // High level checks on the content of the graph.
+  // It should look like this:
+  //
+  //            X           w            b
+  //            |           |            |
+  //            |           v            v
+  //            |        Reshape      Reshape
+  //            |           |            |
+  //            |           v            v
+  //            |         Tile         Tile
+  //            |         /             /
+  //            v  v------             /
+  //            Mul                   /
+  //             |   /---------------
+  //             v  v
+  //             Add
+  //              |
+  //              v
+  //             Save
+
+  EXPECT_EQ(F->getNodes().size(), 7);
+  auto *save = getSaveNodeFromDest(output);
+  auto *add = llvm::dyn_cast<AddNode>(save->getInput().getNode());
+  ASSERT_TRUE(add);
+  auto *mul = llvm::dyn_cast<MulNode>(add->getLHS().getNode());
+  ASSERT_TRUE(mul);
+  auto *bTile = llvm::dyn_cast<TileNode>(add->getRHS().getNode());
+  ASSERT_TRUE(bTile);
+  EXPECT_EQ(bTile->getAxis(), 0);
+  auto *XPH = llvm::dyn_cast<Placeholder>(mul->getLHS().getNode());
+  EXPECT_EQ(XPH, mod.getPlaceholderByName("X"));
+  auto *wTile = llvm::dyn_cast<TileNode>(mul->getRHS().getNode());
   ASSERT_TRUE(wTile);
   EXPECT_EQ(wTile->getAxis(), 0);
   auto *bReshape = llvm::dyn_cast<ReshapeNode>(bTile->getInput().getNode());
@@ -3247,4 +3330,119 @@ TEST_F(Caffe2ImporterTest, PrePartitionedMultiOpTest) {
 
   EXPECT_TRUE(resultPartitionedT->isBitwiseEqual(*resultUnpartitonedT,
                                                  /* verbose */ true));
+}
+
+/// Test importing a Caffe2 LayerNorm without weights and bias provided but with
+/// epsilon or axis.
+TEST_F(Caffe2ImporterTest, importLayerNormNoWeightBias) {
+  ExecutionEngine EE{};
+  auto &mod = EE.getModule();
+  Function *F = mod.createFunction("main");
+
+  std::string NetDescFilename(
+      GLOW_DATA_PATH "tests/models/caffe2Models/layernorm_pred_net.pbtxt");
+  std::string NetWeightFilename(
+      GLOW_DATA_PATH "tests/models/caffe2Models/empty_init_net.pbtxt");
+
+  Placeholder *output;
+  PlaceholderBindings bindings;
+
+  const ShapeVector inShape({4, 2, 5, 5});
+
+  // Destroy the loader after the graph is loaded since the following execution
+  // will not depend on anything from the loader.
+  {
+    Tensor data(ElemKind::FloatTy, inShape);
+    data.getHandle().randomize(-3.0, 3.0, mod.getPRNG());
+    Caffe2ModelLoader caffe2LD(NetDescFilename, NetWeightFilename, {"input"},
+                               {&data.getType()}, *F);
+    output = EXIT_ON_ERR(caffe2LD.getSingleOutput());
+
+    bindings.allocate(mod.getPlaceholders());
+    updateInputPlaceholdersByName(bindings, &mod, {"input"}, {&data});
+  }
+
+  // High level check on the content of the graph. We should have
+  // {Placeholder, Splat, Splat} => LayerNorm => Save
+  EXPECT_EQ(F->getNodes().size(), 4);
+  SaveNode *save = getSaveNodeFromDest(output);
+
+  auto *LN = llvm::dyn_cast<LayerNormalizationNode>(save->getInput().getNode());
+  ASSERT_TRUE(LN);
+  EXPECT_EQ(LN->getEpsilon(), 0.05f);
+  EXPECT_TRUE(LN->getInput().dims().equals(inShape));
+  EXPECT_TRUE(LN->getResult().dims().equals(inShape));
+
+  auto *scale = llvm::dyn_cast<SplatNode>(LN->getScale().getNode());
+  ASSERT_TRUE(scale);
+  EXPECT_EQ(scale->getValue(), 1.0f);
+
+  auto *bias = llvm::dyn_cast<SplatNode>(LN->getBias().getNode());
+  ASSERT_TRUE(bias);
+  EXPECT_EQ(bias->getValue(), 0.0f);
+
+  // Axis is 2, so check shape with second and third dims of inShape.
+  EXPECT_TRUE(scale->getResult().dims().equals({inShape[2], inShape[3]}));
+  EXPECT_TRUE(bias->getResult().dims().equals({inShape[2], inShape[3]}));
+
+  EE.compile(CompilationMode::Infer);
+  EE.run(bindings);
+}
+
+/// Test importing a Caffe2 LayerNorm with weights and bias provided but no
+/// epsilon or axis.
+TEST_F(Caffe2ImporterTest, importLayerNormWithWeightBias) {
+  ExecutionEngine EE{};
+  auto &mod = EE.getModule();
+  Function *F = mod.createFunction("main");
+
+  std::string NetDescFilename(
+      GLOW_DATA_PATH
+      "tests/models/caffe2Models/layernorm_weight_bias_pred_net.pbtxt");
+  std::string NetWeightFilename(
+      GLOW_DATA_PATH
+      "tests/models/caffe2Models/layernorm_weight_bias_init_net.pbtxt");
+
+  Placeholder *output;
+  PlaceholderBindings bindings;
+
+  const ShapeVector inShape({5, 4, 3});
+
+  // Destroy the loader after the graph is loaded since the following execution
+  // will not depend on anything from the loader.
+  {
+    Tensor data(ElemKind::FloatTy, inShape);
+    data.getHandle().randomize(-3.0, 3.0, mod.getPRNG());
+    Caffe2ModelLoader caffe2LD(NetDescFilename, NetWeightFilename, {"input"},
+                               {&data.getType()}, *F);
+    output = EXIT_ON_ERR(caffe2LD.getSingleOutput());
+
+    bindings.allocate(mod.getPlaceholders());
+    updateInputPlaceholdersByName(bindings, &mod, {"input"}, {&data});
+  }
+
+  // High level check on the content of the graph. We should have
+  // {Placeholder, Constant, Constant} => LayerNorm => Save
+  EXPECT_EQ(F->getNodes().size(), 2);
+  SaveNode *save = getSaveNodeFromDest(output);
+
+  auto *LN = llvm::dyn_cast<LayerNormalizationNode>(save->getInput().getNode());
+  ASSERT_TRUE(LN);
+  EXPECT_EQ(LN->getEpsilon(), 0.001f); // Caffe2 default.
+  EXPECT_TRUE(LN->getInput().dims().equals(inShape));
+  EXPECT_TRUE(LN->getResult().dims().equals(inShape));
+
+  auto *scale = llvm::dyn_cast<Constant>(LN->getScale().getNode());
+  ASSERT_TRUE(scale);
+
+  auto *bias = llvm::dyn_cast<Constant>(LN->getBias().getNode());
+  ASSERT_TRUE(bias);
+
+  // Default axis is 1 and it was unspecified in the input proto, so check shape
+  // with first and second dims of inShape.
+  EXPECT_TRUE(scale->getOutput().dims().equals({inShape[1], inShape[2]}));
+  EXPECT_TRUE(bias->getOutput().dims().equals({inShape[1], inShape[2]}));
+
+  EE.compile(CompilationMode::Infer);
+  EE.run(bindings);
 }
