@@ -56,6 +56,7 @@ add_custom_command(
         image-classifier ${IMAGES}/*.png
         -i=0to1
         -dump-profile=${DLHA_BUNDLE_DIR}/profile.yml
+        -onnx-define-symbol=N,1
         -model-input=${MODEL_INPUT_NAME},float,[1,1,32,32]
         -m=${MODEL_DIR}/jost_model.onnx
         -model-input-name=${MODEL_INPUT_NAME}
