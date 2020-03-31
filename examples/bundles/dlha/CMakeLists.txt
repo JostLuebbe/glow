@@ -11,9 +11,9 @@ set(BUNDLE_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dlha)
 set(QUANTIZED_BUNDLE_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/quantized_dlha)
 
 add_custom_target(DLHABundleDir ALL
-  COMMAND ${CMAKE_COMMAND} -E make_directory ${BUNDLE_OUTPUT_DIRECTORY}
-  COMMAND ${CMAKE_COMMAND} -E make_directory ${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY}
-)
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${BUNDLE_OUTPUT_DIRECTORY}
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY}
+        )
 
 # Final Executables
 # =================
@@ -33,54 +33,55 @@ add_dependencies(QuantizedDLHABundle QuantizedDLHABundleMain QuantizedDLHABundle
 # ============
 # Regular Bundle
 add_custom_command(
-  OUTPUT
-    ${BUNDLE_OUTPUT_DIRECTORY}/dlha.o
-  COMMAND
-    model-compiler
-    -g
-    -model=${MODEL_DIR}/jost_model.onnx
-    -onnx-define-symbol=N,1
-#    -model-input=${MODEL_INPUT_NAME},float,[1,3,224,224]
-    -backend=CPU -emit-bundle=${BUNDLE_OUTPUT_DIRECTORY}
-    -bundle-api=dynamic
-  DEPENDS
-    model-compiler DLHABundleDir
+        OUTPUT
+        ${BUNDLE_OUTPUT_DIRECTORY}/dlha.o
+        COMMAND
+        model-compiler
+        -g
+        -model=${MODEL_DIR}/jost_model.onnx
+        -onnx-define-symbol=N,1
+        -model-input=${MODEL_INPUT_NAME},int,[1,1,32,32]
+        -backend=CPU -emit-bundle=${BUNDLE_OUTPUT_DIRECTORY}
+        -bundle-api=dynamic
+        DEPENDS
+        model-compiler DLHABundleDir
 )
 add_custom_target(DLHABundleNet DEPENDS ${BUNDLE_OUTPUT_DIRECTORY}/dlha.o)
 
 # Quantization Profile
 add_custom_command(
-  OUTPUT
-    ${DLHA_BUNDLE_DIR}/profile.yml
-  COMMAND
-    image-classifier ${IMAGES}/*.png
-    -i=0to1
-    -dump-profile=${DLHA_BUNDLE_DIR}/profile.yml
-    -m=${MODEL_DIR}/jost_model.onnx
-    -model-input-name=${MODEL_INPUT_NAME}
-  DEPENDS
-  image-classifier
+        OUTPUT
+        ${DLHA_BUNDLE_DIR}/profile.yml
+        COMMAND
+        image-classifier ${IMAGES}/*.png
+        -i=0to1
+        -dump-profile=${DLHA_BUNDLE_DIR}/profile.yml
+        -model-input=${MODEL_INPUT_NAME},int,[1,1,32,32]
+        -m=${MODEL_DIR}/jost_model.onnx
+        -model-input-name=${MODEL_INPUT_NAME}
+        DEPENDS
+        image-classifier
 )
 add_custom_target(DLHABundleQuantizationProfile DEPENDS ${DLHA_BUNDLE_DIR}/profile.yml)
 
 # Quantized Bundle
 add_custom_command(
-  OUTPUT
-    ${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY}/dlha.o
-  COMMAND
-    model-compiler
-    -g
-    -load-profile=profile.yml
-    -assert-all-nodes-quantized
-    -keep-original-precision-for-nodes=SoftMax
-    -model=${MODEL_DIR}/jost_model.onnx
-    -onnx-define-symbol=N,1
-#    -model-input=${MODEL_INPUT_NAME},float,[1,3,224,224]
-    -backend=CPU
-    -emit-bundle=${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY}
-    -bundle-api=dynamic
-  DEPENDS
-    model-compiler DLHABundleDir
+        OUTPUT
+        ${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY}/dlha.o
+        COMMAND
+        model-compiler
+        -g
+        -load-profile=profile.yml
+        -assert-all-nodes-quantized
+        -keep-original-precision-for-nodes=SoftMax
+        -model=${MODEL_DIR}/jost_model.onnx
+        -onnx-define-symbol=N,1
+        -model-input=${MODEL_INPUT_NAME},int,[1,1,32,32]
+        -backend=CPU
+        -emit-bundle=${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY}
+        -bundle-api=dynamic
+        DEPENDS
+        model-compiler DLHABundleDir
 )
 add_custom_target(QuantizedDLHABundleNet DEPENDS ${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY}/dlha.o DLHABundleQuantizationProfile)
 
