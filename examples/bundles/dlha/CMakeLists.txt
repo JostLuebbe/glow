@@ -3,7 +3,7 @@ set(DLHA_BUNDLE_DIR ${GLOW_BINARY_DIR}/examples/bundles/dlha)
 #set(RESNET50_GLOW_S3 "http://fb-glow-assets.s3.amazonaws.com/models/resnet50")
 #set(RESNET50_NET_FILES predict_net.pbtxt predict_net.pb init_net.pb)
 set(MODEL_INPUT_NAME "input")
-set(MODEL_DIR /home/jost/DLHA/application/model/models)
+set(MODEL_DIR /home/jost/PycharmProjects/DLHA/application/model/models)
 set(IMAGES ${GLOW_SOURCE_DIR}/tests/images/dlha)
 
 # Output directories for regular and quantized outputs
