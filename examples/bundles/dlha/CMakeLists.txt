@@ -38,7 +38,7 @@ add_custom_command(
         COMMAND
         model-compiler
         -g
-        -model=${MODEL_DIR}/jost_model.onnx
+        -model=${MODEL_DIR}/dlha.onnx
         -onnx-define-symbol=N,1
         -model-input=${MODEL_INPUT_NAME},float,[1,1,32,32]
         -backend=CPU -emit-bundle=${BUNDLE_OUTPUT_DIRECTORY}
@@ -58,7 +58,7 @@ add_custom_command(
         -dump-profile=${DLHA_BUNDLE_DIR}/profile.yml
         -onnx-define-symbol=N,1
 #        -model-input=${MODEL_INPUT_NAME},float,[1,1,32,32]
-        -m=${MODEL_DIR}/jost_model.onnx
+        -m=${MODEL_DIR}/dlha.onnx
         -model-input-name=${MODEL_INPUT_NAME}
         DEPENDS
         image-classifier
@@ -75,7 +75,7 @@ add_custom_command(
         -load-profile=profile.yml
         -assert-all-nodes-quantized
         -keep-original-precision-for-nodes=SoftMax,Pow
-        -model=${MODEL_DIR}/jost_model.onnx
+        -model=${MODEL_DIR}/dlha.onnx
         -onnx-define-symbol=N,1
         -model-input=${MODEL_INPUT_NAME},float,[1,1,32,32]
         -backend=CPU
