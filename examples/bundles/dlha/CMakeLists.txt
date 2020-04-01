@@ -24,22 +24,20 @@ add_custom_target(DLHABundleDir ALL
 # Quantized
 add_executable(QuantizedDLHABundle $<TARGET_OBJECTS:QuantizedDLHABundleMain>)
 set_target_properties(QuantizedDLHABundle PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY})
-target_link_libraries(QuantizedDLHABundle PRIVATE ${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY}/dlha.o png PUBLIC Backends)
-#target_link_libraries(QuantizedDLHABundle
-#        PUBLIC
-#        #Backend
-#        Backends
-#        #Base
-#        #Converter
-#        #ExecutionEngine
-#        #Graph
-#        #GraphOptimizer
-#        #HostManager
-#        #Quantization
-#        #QuantizationBase
-#        #LLVMSupport
-#        #gtest
-#        )
+target_link_libraries(QuantizedDLHABundle PRIVATE ${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY}/dlha.o png PUBLIC
+        Backend
+        Backends
+        Base
+        Converter
+        ExecutionEngine
+        Graph
+        GraphOptimizer
+        HostManager
+        Quantization
+        QuantizationBase
+        LLVMSupport
+        gtest
+        )
 add_dependencies(QuantizedDLHABundle QuantizedDLHABundleMain QuantizedDLHABundleNet)
 
 # Glow Bundles
