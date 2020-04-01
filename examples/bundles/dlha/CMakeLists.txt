@@ -115,5 +115,5 @@ add_dependencies(DLHABundleMain DLHABundleNet)
 # Driver program with main function for quantized bundle
 add_library(QuantizedDLHABundleMain OBJECT main.cpp)
 target_compile_options(QuantizedDLHABundleMain PRIVATE -std=c++11 -g)
-target_include_directories(QuantizedDLHABundleMain PUBLIC ${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY})
+target_include_directories(QuantizedDLHABundleMain PUBLIC ${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY} Backends)
 add_dependencies(QuantizedDLHABundleMain QuantizedDLHABundleNet)
