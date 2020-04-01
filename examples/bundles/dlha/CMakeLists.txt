@@ -74,7 +74,7 @@ add_custom_command(
         -g
         -load-profile=profile.yml
         -assert-all-nodes-quantized
-        -keep-original-precision-for-nodes=SoftMax
+        -keep-original-precision-for-nodes=SoftMax,Pow
         -model=${MODEL_DIR}/jost_model.onnx
         -onnx-define-symbol=N,1
         -model-input=${MODEL_INPUT_NAME},float,[1,1,32,32]
