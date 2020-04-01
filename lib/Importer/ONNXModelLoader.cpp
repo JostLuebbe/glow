@@ -3418,9 +3418,10 @@ Error ONNXModelLoader::checkInputs(ONNX_NAMESPACE::GraphProto &net, llvm::ArrayR
 
             // Allow batch dimensions to be different.
             for (size_t k = 1; k < dims.size(); k++) {
-                printf("\ndims: [%d,%d,%d,%d]\ndimsProto: [%d,%d,%d,%d]",
+/*                printf("\ndims: [%d,%d,%d,%d]\ndimsProto: [%d,%d,%d,%d]",
                         dims[0], dims[1], dims[2], dims[3],
-                        dimsProto[0], dimsProto[1], dimsProto[2], dimsProto[3]);
+                        dimsProto[0], dimsProto[1], dimsProto[2], dimsProto[3]);*/
+                LOG(INFO) << dims[k] << "," << dimsProto[k] << "\n"
                 RETURN_ERR_IF_NOT(dims[k] == dimsProto[k], "Mismatch between input image and ONNX input shape");
             }
 
