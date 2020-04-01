@@ -37,8 +37,8 @@ add_custom_command(
         ${BUNDLE_OUTPUT_DIRECTORY}/dlha.o
         COMMAND
         model-compiler
-        -target=arm
-        -mcpu=cortex-m0
+#        -target=arm
+#        -mcpu=cortex-m0
         -verbose
         -g
         -model=${MODEL_DIR}/dlha.onnx
