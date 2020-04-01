@@ -24,7 +24,7 @@ add_custom_target(DLHABundleDir ALL
 # Quantized
 add_executable(QuantizedDLHABundle $<TARGET_OBJECTS:QuantizedDLHABundleMain>)
 set_target_properties(QuantizedDLHABundle PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY})
-target_link_libraries(QuantizedDLHABundle ${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY}/dlha.o png Public)
+target_link_libraries(QuantizedDLHABundle ${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY}/dlha.o png)
 target_link_libraries(QuantizedDLHABundle
         PUBLIC
         #Backend
