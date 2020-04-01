@@ -1,7 +1,5 @@
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${GLOW_BINARY_DIR}/bundles)
 set(DLHA_BUNDLE_DIR ${GLOW_BINARY_DIR}/examples/bundles/dlha)
-#set(RESNET50_GLOW_S3 "http://fb-glow-assets.s3.amazonaws.com/models/resnet50")
-#set(RESNET50_NET_FILES predict_net.pbtxt predict_net.pb init_net.pb)
 set(MODEL_INPUT_NAME "input")
 set(MODEL_DIR /home/jost/PycharmProjects/DLHA/application/model/models)
 set(IMAGES ${GLOW_SOURCE_DIR}/tests/images/dlha)
@@ -18,10 +16,10 @@ add_custom_target(DLHABundleDir ALL
 # Final Executables
 # =================
 # Regular
-add_executable(DLHABundle $<TARGET_OBJECTS:DLHABundleMain>)
-set_target_properties(DLHABundle PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${BUNDLE_OUTPUT_DIRECTORY})
-target_link_libraries(DLHABundle ${BUNDLE_OUTPUT_DIRECTORY}/dlha.o png)
-add_dependencies(DLHABundle DLHABundleMain DLHABundleNet)
+#add_executable(DLHABundle $<TARGET_OBJECTS:DLHABundleMain>)
+#set_target_properties(DLHABundle PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${BUNDLE_OUTPUT_DIRECTORY})
+#target_link_libraries(DLHABundle ${BUNDLE_OUTPUT_DIRECTORY}/dlha.o png)
+#add_dependencies(DLHABundle DLHABundleMain DLHABundleNet)
 
 # Quantized
 add_executable(QuantizedDLHABundle $<TARGET_OBJECTS:QuantizedDLHABundleMain>)
@@ -37,8 +35,9 @@ add_custom_command(
         ${BUNDLE_OUTPUT_DIRECTORY}/dlha.o
         COMMAND
         model-compiler
-#        -target=arm
-#        -mcpu=cortex-m0
+        -target=arm
+        -mcpu=cortex-a9
+        -float-abi=hard
         -verbose
         -g
         -model=${MODEL_DIR}/dlha.onnx
@@ -92,8 +91,6 @@ add_custom_command(
 )
 add_custom_target(QuantizedDLHABundleNet DEPENDS ${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY}/dlha.o DLHABundleQuantizationProfile)
 
-# Other
-# =====
 # Driver program with main function for regular bundle
 add_library(DLHABundleMain OBJECT main.cpp)
 target_compile_options(DLHABundleMain PRIVATE -std=c++11 -g)
@@ -105,16 +102,3 @@ add_library(QuantizedDLHABundleMain OBJECT main.cpp)
 target_compile_options(QuantizedDLHABundleMain PRIVATE -std=c++11 -g)
 target_include_directories(QuantizedDLHABundleMain PUBLIC ${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY})
 add_dependencies(QuantizedDLHABundleMain QuantizedDLHABundleNet)
-
-# Network structure and weight files
-#foreach(file ${RESNET50_NET_FILES})
-#    add_custom_command(
-#    OUTPUT
-#      ${file}
-#    COMMAND
-#      wget
-#    ARGS
-#      "${RESNET50_GLOW_S3}/${file}" -P ${RESNET50_BUNDLE_DIR}/resnet50 -nc
-#)
-#endforeach()
-#add_custom_target(ResNet50BundleNetFiles DEPENDS ${RESNET50_NET_FILES})
