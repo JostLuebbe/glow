@@ -36,7 +36,6 @@ target_link_libraries(QuantizedDLHABundle PRIVATE ${QUANTIZED_BUNDLE_OUTPUT_DIRE
         Quantization
         QuantizationBase
         LLVMSupport
-        gtest
         )
 add_dependencies(QuantizedDLHABundle QuantizedDLHABundleMain QuantizedDLHABundleNet)
 
