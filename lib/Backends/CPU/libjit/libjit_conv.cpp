@@ -249,7 +249,23 @@ void libjit_convDKKC8_foreach_xy_pixels_filter(
     }     // For each Y in the output.
   }       // For each X in the output.
 }
-
+// ** Our print matrix
+#define debug 1
+#ifdef debug
+void print_matrix(int rows, int cols, const signed char* matrix){
+    for(int i = 0; i < rows ; i++){
+        printf("[");
+        for(int j = 0; j < cols; j++){
+            if(j < cols - 1)
+                 printf("%d ", matrix[i*rows + j]);
+            else
+                printf("%d", matrix[i*rows + j]);
+        }
+            printf("]");
+            printf("\n");
+    }
+}
+#endif //debug
 /// Generic template for quantized convolution. The template allows choosing
 /// element type and bias type.
 template <typename ElemTy, typename BiasElemTy>
@@ -272,6 +288,27 @@ void libjit_quantized_convolution_generic(
   size_t stride_w = strides[1];
   size_t kernel_h = kernelSizes[0];
   size_t kernel_w = kernelSizes[1];
+
+#ifdef debug
+
+  printf("\n********************** PRINTING STRIDE ********************************\n");
+  printf("[STRIDE] row: %zu and col: %zu\n", stride_h, stride_w);
+
+  printf("\n********************** PRINTING KERNEL ********************************\n");
+ 
+  printf("[FILTER] row: %zu and col: %zu\n", kernel_h, kernel_w);
+  print_matrix(kernel_h, kernel_w, filterW);
+  
+  printf("\n********************** PRINTING INPUT IMAGE ***************************\n");
+  printf("[INPUT] image row: %zu and col: %zu\n", inWdims[1], inWdims[2]);
+  print_matrix(inWdims[1], inWdims[2] , inW);
+ 
+  printf("\n********************** PRINTING OUTPUT IMAGE: BEFORE **************************\n");
+  printf("[OUTPUT] image row: %zu and col: %zu\n", outWdims[1], outWdims[2]);
+  print_matrix(outWdims[1], outWdims[2], outW);
+ 
+#endif //debug
+
   // For each input in the batch:
   for (size_t n = 0; n < inWdims[0]; n++) {
     // For each group of input channels:
@@ -298,7 +335,8 @@ void libjit_quantized_convolution_generic(
               for (size_t fy = 0; fy < kernel_w; fy++) {
                 ssize_t ox = x + fx * dilation;
                 ssize_t oy = y + fy * dilation;
-
+		
+		// **Equivalent to our in-bound function. 
                 // Ignore index access below zero (this is due to padding).
                 if (ox < 0 || oy < 0 || ox >= (ssize_t)inWdims[1] ||
                     oy >= (ssize_t)inWdims[2]) {
@@ -348,6 +386,12 @@ void libjit_quantized_convolution_generic(
       }     // C
     }       // G
   }         // N
+#ifdef debug
+  printf("\n********************** PRINTING OUTPUT IMAGE: AFTER **************************\n");
+  printf("[OUTPUT] image row: %zu and col: %zu\n", outWdims[1], outWdims[2]);
+  print_matrix(outWdims[1], outWdims[2], outW);
+ 
+#endif //debug
 }
 } // namespace
 
