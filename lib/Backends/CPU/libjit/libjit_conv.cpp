@@ -263,90 +263,87 @@ void libjit_quantized_convolution_generic(
     int32_t biasPost, int32_t biasScale, int32_t outPre, int32_t outPost,
     int32_t outScale, unsigned depthUnroll, dim_t dilation) {
 
-  dim_t inChannels = inWdims[3];
-  dim_t outChannels = outWdims[3];
-  dim_t inCperG = inChannels / group;
-  dim_t outCperG = outChannels / group;
-  dim_t pad_t = pads[0];
-  dim_t pad_l = pads[1];
-  dim_t stride_h = strides[0];
-  size_t stride_w = strides[1];
-  size_t kernel_h = kernelSizes[0];
-  size_t kernel_w = kernelSizes[1];
+    dim_t inChannels = inWdims[3];
+    dim_t outChannels = outWdims[3];
+    dim_t inCperG = inChannels / group;
+    dim_t outCperG = outChannels / group;
+    dim_t pad_t = pads[0];
+    dim_t pad_l = pads[1];
+    dim_t stride_h = strides[0];
+    size_t stride_w = strides[1];
+    size_t kernel_h = kernelSizes[0];
+    size_t kernel_w = kernelSizes[1];
 
 #ifdef debug
 
-  printf("\n********************** PRINTING STRIDE ********************************\n");
-  printf("[STRIDE] row: %zu and col: %zu\n", stride_h, stride_w);
+    printf("\n********************** PRINTING STRIDE ********************************\n");
+    printf("[STRIDE] row: %zu and col: %zu\n", stride_h, stride_w);
 
-  printf("\n********************** PRINTING KERNEL ********************************\n");
- 
-  printf("[FILTER] row: %zu and col: %zu\n", kernel_h, kernel_w);
-  print_matrix(kernel_h, kernel_w, filterW);
-  
-  printf("\n********************** PRINTING INPUT IMAGE ***************************\n");
-  printf("[INPUT] image row: %zu and col: %zu\n", inWdims[1], inWdims[2]);
-  print_matrix(inWdims[1], inWdims[2] , inW);
- 
-  printf("\n********************** PRINTING OUTPUT IMAGE: BEFORE **************************\n");
-  printf("[OUTPUT] image row: %zu and col: %zu\n", outWdims[1], outWdims[2]);
-  print_matrix(outWdims[1], outWdims[2], outW);
- 
-#endif //debug
+    printf("\n********************** PRINTING KERNEL ********************************\n");
 
-  // For each input in the batch:
-  for (size_t n = 0; n < inWdims[0]; n++) {
-    // For each group of input channels:
-    for (size_t g = 0; g < group; g++) {
+    printf("[FILTER] row: %zu and col: %zu\n", kernel_h, kernel_w);
+    print_matrix(kernel_h, kernel_w, filterW);
 
-      // For each output channel in the group. Process 'depthUnroll' output
-      // layers together.
-      for (size_t d = g * outCperG; d < (g + 1) * outCperG; d += depthUnroll) {
-        // For each convolution 'jump' in the input tensor:
-        ssize_t x = -(ssize_t)pad_t;
-        for (size_t ax = 0; ax < outWdims[1]; x += stride_h, ax++) {
-          ssize_t y = -(ssize_t)pad_l;
-          for (size_t ay = 0; ay < outWdims[2]; y += stride_w, ay++) {
-            int32_t sum[depthUnroll];
+    printf("\n********************** PRINTING INPUT IMAGE ***************************\n");
+    printf("[INPUT] image row: %zu and col: %zu\n", inWdims[1], inWdims[2]);
+    print_matrix(inWdims[1], inWdims[2], inW);
 
-            for (unsigned i = 0; i < depthUnroll; i++) {
-              // Scale the bias to match the scale of the matrix multiplication.
-              sum[i] = libjit_scale_i32i8((int32_t)biasW[d + i] - biasOffset,
-                                          biasPre, biasPost, biasScale, 0);
-            }
+    printf("\n********************** PRINTING OUTPUT IMAGE: BEFORE **************************\n");
+    printf("[OUTPUT] image row: %zu and col: %zu\n", outWdims[1], outWdims[2]);
+    print_matrix(outWdims[1], outWdims[2], outW);
 
-            // For each element in the convolution-filter:
-            for (size_t fx = 0; fx < kernel_h; fx++) {
-              for (size_t fy = 0; fy < kernel_w; fy++) {
-                ssize_t ox = x + fx * dilation;
-                ssize_t oy = y + fy * dilation;
-		
-		// **Equivalent to our in-bound function. 
-                // Ignore index access below zero (this is due to padding).
-                if (ox < 0 || oy < 0 || ox >= (ssize_t)inWdims[1] ||
-                    oy >= (ssize_t)inWdims[2]) {
-                  continue;
-                }
+#endif // debug
 
+    // For each input in the batch:
+    for (size_t n = 0; n < inWdims[0]; n++) {
+        // For each group of input channels:
+        for (size_t g = 0; g < group; g++) {
 
-            for (unsigned i = 0; i < depthUnroll; i++) {
-              // Scale the result back to the expected destination scale.
-              int32_t scaledSum = libjit_scale_i32i8(sum[i], outPre, outPost,
-                                                     outScale, outOffset);
-              outW[libjit_getXYZW(outWdims, n, ax, ay, d + i)] =
-                  libjit_clip(scaledSum);
-            }
-          } // W
-        }   // H
-      }     // C
-    }       // G
-  }         // N
+            // For each output channel in the group. Process 'depthUnroll' output
+            // layers together.
+            for (size_t d = g * outCperG; d < (g + 1) * outCperG; d += depthUnroll) {
+                // For each convolution 'jump' in the input tensor:
+                ssize_t x = -(ssize_t)pad_t;
+                for (size_t ax = 0; ax < outWdims[1]; x += stride_h, ax++) {
+                    ssize_t y = -(ssize_t)pad_l;
+                    for (size_t ay = 0; ay < outWdims[2]; y += stride_w, ay++) {
+                        int32_t sum[depthUnroll];
+
+                        for (unsigned i = 0; i < depthUnroll; i++) {
+                            // Scale the bias to match the scale of the matrix multiplication.
+                            sum[i] = libjit_scale_i32i8((int32_t)biasW[d + i] - biasOffset, biasPre, biasPost, biasScale, 0);
+                        }
+
+                        // For each element in the convolution-filter:
+                        for (size_t fx = 0; fx < kernel_h; fx++) {
+                            for (size_t fy = 0; fy < kernel_w; fy++) {
+                                ssize_t ox = x + fx * dilation;
+                                ssize_t oy = y + fy * dilation;
+
+                                // **Equivalent to our in-bound function.
+                                // Ignore index access below zero (this is due to padding).
+                                if (ox < 0 || oy < 0 || ox >= (ssize_t)inWdims[1] || oy >= (ssize_t)inWdims[2]) {
+                                    continue;
+                                }
+
+                                for (unsigned i = 0; i < depthUnroll; i++) {
+                                    // Scale the result back to the expected destination scale.
+                                    int32_t scaledSum = libjit_scale_i32i8(sum[i], outPre, outPost, outScale, outOffset);
+                                    outW[libjit_getXYZW(outWdims, n, ax, ay, d + i)] = libjit_clip(scaledSum);
+                                }
+                            } // W
+                        }     // H
+                    }         // C
+                }             // G
+            }                 // N
+        }
 #ifdef debug
-  printf("\n********************** PRINTING OUTPUT IMAGE: AFTER **************************\n");
-  printf("[OUTPUT] image row: %zu and col: %zu\n", outWdims[1], outWdims[2]);
-  print_matrix(outWdims[1], outWdims[2], outW);
- 
-#endif //debug
+        printf("\n********************** PRINTING OUTPUT IMAGE: AFTER **************************\n");
+        printf("[OUTPUT] image row: %zu and col: %zu\n", outWdims[1], outWdims[2]);
+        print_matrix(outWdims[1], outWdims[2], outW);
+
+#endif // debug
+    }
 }
 } // namespace
 
