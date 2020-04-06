@@ -326,7 +326,7 @@ void print_matrix(dim_t rows, dim_t cols, const signed char *matrix) {
 //        printf("[");
         for (int j = 0; j < cols; j++) {
             if (j < cols - 1)
-                printf("%d, ", matrix[i * rows + j]);
+                printf("%d ", matrix[i * rows + j]);
             else
                 printf("%d", matrix[i * rows + j]);
         }
