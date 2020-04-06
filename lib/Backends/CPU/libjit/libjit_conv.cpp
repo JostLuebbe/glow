@@ -234,6 +234,8 @@ void libjit_convDKKC8_foreach_xy_pixels_filter(
     }     // For each Y in the output.
   }       // For each X in the output.
 }
+
+
 // ** Our print matrix
 #define debug 1
 #ifdef debug
@@ -251,6 +253,7 @@ void print_matrix(int8_t rows, int8_t cols, const signed char* matrix){
     }
 }
 #endif //debug
+
 /// Generic template for quantized convolution. The template allows choosing
 /// element type and bias type.
 /// i8_i32 call uses ElemTy: int8_t & BiasElemTy: int32_t
