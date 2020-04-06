@@ -323,14 +323,14 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 #ifdef debug
 void print_matrix(dim_t rows, dim_t cols, const signed char *matrix) {
     for (int i = 0; i < rows; i++) {
-        printf("[");
+//        printf("[");
         for (int j = 0; j < cols; j++) {
             if (j < cols - 1)
-                printf("%d ", matrix[i * rows + j]);
+                printf("%d, ", matrix[i * rows + j]);
             else
                 printf("%d", matrix[i * rows + j]);
         }
-        printf("]");
+//        printf("]");
         printf("\n");
     }
 }
