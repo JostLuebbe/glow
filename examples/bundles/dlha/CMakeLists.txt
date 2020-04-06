@@ -70,10 +70,10 @@ add_custom_command(
         COMMAND
         image-classifier ${IMAGES}/*.png
         -verbose
-        -i=0to1
+        -i=0to255
         -dump-profile=${DLHA_BUNDLE_DIR}/profile.yml
         -onnx-define-symbol=N,1
-#        -model-input=${MODEL_INPUT_NAME},float,[1,1,32,32]
+        -model-input=${MODEL_INPUT_NAME},int,[1,1,32,32]
         -m=${MODEL_DIR}/dlha.onnx
         -model-input-name=${MODEL_INPUT_NAME}
         DEPENDS
