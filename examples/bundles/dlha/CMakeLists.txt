@@ -75,7 +75,7 @@ add_custom_command(
         -image-layout=NCHW
         -dump-profile=${DLHA_BUNDLE_DIR}/profile.yml
         -onnx-define-symbol=N,1
-        -model-input=${MODEL_INPUT_NAME},uint8,[1,1,32,32]
+#        -model-input=${MODEL_INPUT_NAME},uint8,[1,1,32,32]
         -m=${MODEL_DIR}/dlha.onnx
         -model-input-name=${MODEL_INPUT_NAME}
         DEPENDS
