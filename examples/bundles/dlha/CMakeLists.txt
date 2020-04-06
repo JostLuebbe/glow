@@ -69,6 +69,7 @@ add_custom_command(
         ${DLHA_BUNDLE_DIR}/profile.yml
         COMMAND
         image-classifier ${IMAGES}/*.png
+        -g
         -verbose
         -quantization-schema=symmetric_with_uint8
         -quantization-precision=Int8
@@ -77,7 +78,7 @@ add_custom_command(
         -image-layout=NCHW
         -dump-profile=${DLHA_BUNDLE_DIR}/profile.yml
         -onnx-define-symbol=N,1
-        -model-input=${MODEL_INPUT_NAME},int32,[1,1,32,32]
+        -model-input=${MODEL_INPUT_NAME},float,[1,1,32,32]
         -m=${MODEL_DIR}/dlha.onnx
         -model-input-name=${MODEL_INPUT_NAME}
         DEPENDS
