@@ -71,7 +71,7 @@ add_custom_command(
         image-classifier ${IMAGES}/*.png
         -verbose
         -quantization-schema=symmetric_with_uint8
-        -quantization-precision=int8
+        -quantization-precision=Int8
         -image-mode=0to255
         -image-channel-order=RGB
         -image-layout=NCHW
