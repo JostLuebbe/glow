@@ -367,9 +367,9 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
     printf("[INPUT] image row: %zu and col: %zu\n", inWdims[1], inWdims[2]);
     print_matrix(inWdims[1], inWdims[2], inW);
 
-    printf("\n********************** PRINTING OUTPUT IMAGE: BEFORE **************************\n");
+/*    printf("\n********************** PRINTING OUTPUT IMAGE: BEFORE **************************\n");
     printf("[OUTPUT] image row: %zu and col: %zu\n", outWdims[1], outWdims[2]);
-    print_matrix(outWdims[1], outWdims[2], outW);
+    print_matrix(outWdims[1], outWdims[2], outW);*/
 
 #endif // debug
 
