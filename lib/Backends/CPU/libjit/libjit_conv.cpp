@@ -188,84 +188,75 @@ void libjit_convDKKC8_foreach_xy_filter_pixels(size_t sampleN, dim_t outChannel,
 // Process the input buffer in the convolution by iterating on the input buffer
 // and then on the filter. This means that we process the whole input filter for
 // each pixel in the input buffer.
-void libjit_convDKKC8_foreach_xy_pixels_filter(
-    size_t sampleN, dim_t outChannel, unsigned numDepthRegs,
-    unsigned depthStrips, unsigned sizeGroupY, dim_t numChannels, float *outW,
-    const float *inW, const float *filterW, const float *biasW,
-    const dim_t *outWdims, const dim_t *inWdims, const dim_t *filterWdims,
-    const dim_t *biasWdims, const dim_t *kernelSizes, const dim_t *strides,
-    const dim_t *pads, dim_t group, dim_t endChannelIndex) {
+void libjit_convDKKC8_foreach_xy_pixels_filter(size_t sampleN, dim_t outChannel, unsigned numDepthRegs, unsigned depthStrips, unsigned sizeGroupY,
+                                               dim_t numChannels, float *outW, const float *inW, const float *filterW, const float *biasW,
+                                               const dim_t *outWdims, const dim_t *inWdims, const dim_t *filterWdims, const dim_t *biasWdims,
+                                               const dim_t *kernelSizes, const dim_t *strides, const dim_t *pads, dim_t group,
+                                               dim_t endChannelIndex) {
 
-  dim_t pad_t = pads[0];
-  dim_t pad_l = pads[1];
-  dim_t stride_h = strides[0];
-  dim_t stride_w = strides[1];
-  dim_t kernel_h = kernelSizes[0];
-  dim_t kernel_w = kernelSizes[1];
-  // For each (x,y) step in the input/output tensor:
-  for (dim_t outx = 0; outx < outWdims[1]; outx++) {
-    for (dim_t outy = 0; outy < outWdims[2]; outy++) {
+    dim_t pad_t = pads[0];
+    dim_t pad_l = pads[1];
+    dim_t stride_h = strides[0];
+    dim_t stride_w = strides[1];
+    dim_t kernel_h = kernelSizes[0];
+    dim_t kernel_w = kernelSizes[1];
+    // For each (x,y) step in the input/output tensor:
+    for (dim_t outx = 0; outx < outWdims[1]; outx++) {
+        for (dim_t outy = 0; outy < outWdims[2]; outy++) {
 
-      // For each element in the convolution-filter:
-      for (dim_t fx = 0; fx < kernel_h; fx++) {
-        for (dim_t fy = 0; fy < kernel_w; fy++) {
+            // For each element in the convolution-filter:
+            for (dim_t fx = 0; fx < kernel_h; fx++) {
+                for (dim_t fy = 0; fy < kernel_w; fy++) {
 
-          // Calculate the specific input x,y that we process in this
-          // iteration.
-          dim_t inx = (dim_t)outx * stride_h - pad_t + fx;
-          dim_t iny = (dim_t)outy * stride_w - pad_l + fy;
+                    // Calculate the specific input x,y that we process in this
+                    // iteration.
+                    dim_t inx = (dim_t)outx * stride_h - pad_t + fx;
+                    dim_t iny = (dim_t)outy * stride_w - pad_l + fy;
 
-          // Ignore index access below zero (this is due to padding).
-          if (inx < 0 || iny < 0 || inx >= inWdims[1] || iny >= inWdims[2]) {
-            continue;
-          }
+                    // Ignore index access below zero (this is due to padding).
+                    if (inx < 0 || iny < 0 || inx >= inWdims[1] || iny >= inWdims[2]) {
+                        continue;
+                    }
 
-          dim_t outC = outChannel;
-          for (unsigned strip = 0;
-               strip < depthStrips && outC < endChannelIndex; strip++) {
-            libjit_convDKKC8_convolve_channel(
-                outW, inW, filterW, outWdims, inWdims, filterWdims, sampleN,
-                outC, numDepthRegs, 1, numChannels, inx, iny, outx, outy, fx,
-                fy, stride_w, group);
-            outC += numDepthRegs * 8;
-          }
-        } // For each Y in the filter.
-      }   // For each X in the filter.
-    }     // For each Y in the output.
-  }       // For each X in the output.
+                    dim_t outC = outChannel;
+                    for (unsigned strip = 0; strip < depthStrips && outC < endChannelIndex; strip++) {
+                        libjit_convDKKC8_convolve_channel(outW, inW, filterW, outWdims, inWdims, filterWdims, sampleN, outC, numDepthRegs, 1,
+                                                          numChannels, inx, iny, outx, outy, fx, fy, stride_w, group);
+                        outC += numDepthRegs * 8;
+                    }
+                } // For each Y in the filter.
+            }     // For each X in the filter.
+        }         // For each Y in the output.
+    }             // For each X in the output.
 }
-
 
 // ** Our print matrix
 #define debug 1
 #ifdef debug
-void print_matrix(int8_t rows, int8_t cols, const signed char* matrix){
-    for(int i = 0; i < rows ; i++){
+void print_matrix(int8_t rows, int8_t cols, int8_t *matrix) {
+    for (int i = 0; i < rows; i++) {
         printf("[");
-        for(int j = 0; j < cols; j++){
-            if(j < cols - 1)
-                 printf("%d ", matrix[i*rows + j]);
+        for (int j = 0; j < cols; j++) {
+            if (j < cols - 1)
+                printf("%d ", matrix[i * rows + j]);
             else
-                printf("%d", matrix[i*rows + j]);
+                printf("%d", matrix[i * rows + j]);
         }
-            printf("]");
-            printf("\n");
+        printf("]");
+        printf("\n");
     }
 }
-#endif //debug
+#endif // debug
 
 /// Generic template for quantized convolution. The template allows choosing
 /// element type and bias type.
 /// i8_i32 call uses ElemTy: int8_t & BiasElemTy: int32_t
 template <typename ElemTy, typename BiasElemTy>
-void libjit_quantized_convolution_generic(
-    ElemTy *outW, const ElemTy *inW, const ElemTy *filterW,
-    const BiasElemTy *biasW, const dim_t *outWdims, const dim_t *inWdims,
-    const dim_t *filterWdims, const dim_t *biasWdims, const dim_t *kernelSizes,
-    const dim_t *strides, const dim_t *pads, dim_t group, int32_t outOffset,
-    int32_t inOffset, int32_t filterOffset, int32_t biasOffset, int32_t biasPre,
-    int32_t biasPost, int32_t biasScale, int32_t outPre, int32_t outPost,
-    int32_t outScale, unsigned depthUnroll, dim_t dilation) {
+void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const BiasElemTy *biasW, const dim_t *outWdims,
+                                          const dim_t *inWdims, const dim_t *filterWdims, const dim_t *biasWdims, const dim_t *kernelSizes,
+                                          const dim_t *strides, const dim_t *pads, dim_t group, int32_t outOffset, int32_t inOffset,
+                                          int32_t filterOffset, int32_t biasOffset, int32_t biasPre, int32_t biasPost, int32_t biasScale,
+                                          int32_t outPre, int32_t outPost, int32_t outScale, unsigned depthUnroll, dim_t dilation) {
 
     dim_t inChannels = inWdims[3];
     dim_t outChannels = outWdims[3];
@@ -500,19 +491,19 @@ void libjit_convolution_f(float *outW, const float *inW, const float *filterW, c
         }                 // For each group in the input channel.
     }                     // For each N, the sample in the batch.
 }
+
 void libjit_convolution_i8_i32(int32_t *outW, const int32_t *inW, const int32_t *filterW, const int32_t *biasW, const dim_t *outWdims,
                                const dim_t *inWdims, const dim_t *filterWdims, const dim_t *biasWdims, const dim_t *kernelSizes, const dim_t *strides,
                                const dim_t *pads, dim_t group, int32_t outOffset, int32_t inOffset, int32_t filterOffset, int32_t biasOffset,
                                int32_t biasPre, int32_t biasPost, int32_t biasScale, int32_t outPre, int32_t outPost, int32_t outScale,
                                unsigned depthUnroll, dim_t dilation) {
     printf("JOST IN libjit_convolution_i8_i32\n");
-   // libjit_quantized_convolution_generic<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides,
-     //                                                     pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale,
-       //                                                   outPre, outPost, outScale, depthUnroll, dilation);
-     libjit_quantized_convolution_generic<int32_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides,
-                                                          pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale,
-                                                          outPre, outPost, outScale, depthUnroll, dilation);
-
+//    libjit_quantized_convolution_generic<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides,
+//                                                          pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale,
+//                                                          outPre, outPost, outScale, depthUnroll, dilation);
+    libjit_quantized_convolution_generic<int32_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides,
+                                                           pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale,
+                                                           outPre, outPost, outScale, depthUnroll, dilation);
 }
 
 /*void libjit_convolution_i8_i32(int8_t *outW, const int8_t *inW, const int8_t *filterW, const int32_t *biasW, const dim_t *outWdims,
@@ -521,12 +512,12 @@ void libjit_convolution_i8_i32(int32_t *outW, const int32_t *inW, const int32_t 
                                int32_t biasPre, int32_t biasPost, int32_t biasScale, int32_t outPre, int32_t outPost, int32_t outScale,
                                unsigned depthUnroll, dim_t dilation) {
     printf("JOST IN libjit_convolution_i8_i32\n");
-   // libjit_quantized_convolution_generic<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides,
+   // libjit_quantized_convolution_generic<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes,
+strides,
      //                                                     pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale,
        //                                                   outPre, outPost, outScale, depthUnroll, dilation);
-     libjit_quantized_convolution_generic<int32_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides,
-                                                          pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale,
-                                                          outPre, outPost, outScale, depthUnroll, dilation);
+     libjit_quantized_convolution_generic<int32_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes,
+strides, pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale, outPre, outPost, outScale, depthUnroll, dilation);
 
 }*/
 
