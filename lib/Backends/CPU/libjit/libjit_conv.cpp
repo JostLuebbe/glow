@@ -363,10 +363,6 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
     printf("[FILTER] row: %zu and col: %zu\n", kernel_h, kernel_w);
     print_matrix(kernel_h, kernel_w, filterW);
 
-    printf("\n********************** PRINTING INPUT IMAGE ***************************\n");
-    printf("[INPUT] image row: %zu and col: %zu\n", inWdims[1], inWdims[2]);
-    print_matrix(inWdims[1], inWdims[2], inW);
-
 /*    printf("\n********************** PRINTING OUTPUT IMAGE: BEFORE **************************\n");
     printf("[OUTPUT] image row: %zu and col: %zu\n", outWdims[1], outWdims[2]);
     print_matrix(outWdims[1], outWdims[2], outW);*/
@@ -409,7 +405,11 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
                                 size_t inIdx = libjit_getXYZW(inWdims, n, (size_t)ox, (size_t)oy, g * inCperG);
                                 size_t filterIdx = libjit_getXYZW(filterWdims, d, fx, fy, 0);
                                 size_t sliceSize = filterWdims[1] * filterWdims[2] * filterWdims[3];
-
+#ifdef debug
+                                printf("\n********************** PRINTING INPUT IMAGE ***************************\n");
+                                printf("[INPUT] image row: %zu and col: %zu\n", inWdims[1], inWdims[2]);
+                                print_matrix(inWdims[1], inWdims[2], inW);
+#endif // debug
                                 // Perform the innermost loop of the convolution using 4 vector
                                 // registers.
                                 for (size_t fd = 0; fd < inCperG; fd++) {
@@ -427,6 +427,13 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
                                             sum[i] += (filterW[filterIdx + (sliceSize * i) + fd] - filterOffset) * in;
                                         }
                                     }
+
+#ifdef debug
+                                printf("\n********************** PRINTING OUTPUT IMAGE: AFTER **************************\n");
+                                printf("[OUTPUT] image row: %zu and col: %zu\n", outWdims[1], outWdims[2]);
+                                print_matrix(outWdims[1], outWdims[2], outW);
+
+#endif // debug
                             }
                         }
 
@@ -440,12 +447,6 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
             }         // C
         }             // G
     }                 // N
-#ifdef debug
-    printf("\n********************** PRINTING OUTPUT IMAGE: AFTER **************************\n");
-    printf("[OUTPUT] image row: %zu and col: %zu\n", outWdims[1], outWdims[2]);
-    print_matrix(outWdims[1], outWdims[2], outW);
-
-#endif // debug
 }
 
 } // namespace
