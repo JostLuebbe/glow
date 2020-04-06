@@ -233,7 +233,7 @@ void libjit_convDKKC8_foreach_xy_pixels_filter(size_t sampleN, dim_t outChannel,
 // ** Our print matrix
 #define debug 1
 #ifdef debug
-void print_matrix(int32_t rows, int32_t cols, int32_t *matrix) {
+void print_matrix(dim_t rows, dim_t cols, int32_t *matrix) {
     for (int i = 0; i < rows; i++) {
         printf("[");
         for (int j = 0; j < cols; j++) {
