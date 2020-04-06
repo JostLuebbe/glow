@@ -270,7 +270,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
     size_t kernel_w = kernelSizes[1];
 
 #ifdef debug
-    printf("%s\n", ElemTy);
+    printf("%s\n", decltype(inW));
 
     printf("\n********************** PRINTING STRIDE ********************************\n");
     printf("[STRIDE] row: %zu and col: %zu\n", stride_h, stride_w);
