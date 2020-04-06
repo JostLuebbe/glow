@@ -97,7 +97,7 @@ add_custom_command(
         -keep-original-precision-for-nodes=SoftMax,Pow
         -model=${MODEL_DIR}/dlha.onnx
         -onnx-define-symbol=N,1
-        -model-input=${MODEL_INPUT_NAME},uint,[1,1,32,32]
+        -model-input=${MODEL_INPUT_NAME},uint8,[1,1,32,32]
         -backend=CPU
         -emit-bundle=${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY}
         -bundle-api=dynamic
