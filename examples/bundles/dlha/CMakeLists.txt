@@ -91,12 +91,13 @@ add_custom_command(
         model-compiler
         -verbose
         -g
+        -quantization-schema=symmetric_with_uint8
         -load-profile=profile.yml
         -assert-all-nodes-quantized
         -keep-original-precision-for-nodes=SoftMax,Pow
         -model=${MODEL_DIR}/dlha.onnx
         -onnx-define-symbol=N,1
-        -model-input=${MODEL_INPUT_NAME},float,[1,1,32,32]
+        -model-input=${MODEL_INPUT_NAME},uint,[1,1,32,32]
         -backend=CPU
         -emit-bundle=${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY}
         -bundle-api=dynamic
