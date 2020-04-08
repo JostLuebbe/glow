@@ -358,7 +358,7 @@ int ** read_matrix(size_t rows, size_t cols, FILE *matrix_file){
 }
 
 int main(int argc, char **argv) {
-    printf("argc: %d\n", argc);
+/*    printf("argc: %d\n", argc);
     printf("%s\n", argv[1]);
 
     FILE *img_file;
@@ -366,7 +366,7 @@ int main(int argc, char **argv) {
     img_file = fopen(argv[1], "r");
 
     int** img = read_matrix(32,32,img_file);
-    print_matrix(32,32,img);
+    print_matrix(32,32,img);*/
 
     parseCommandLineOptions(argc, argv);
     // Allocate and initialize constant and mutable weights.
