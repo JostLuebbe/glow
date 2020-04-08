@@ -450,6 +450,23 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 
 } // namespace
 
+#define debug 1
+#ifdef debug
+void print_float_matrix(dim_t rows, dim_t cols, const float *matrix) {
+    for (int i = 0; i < rows; i++) {
+//        printf("[");
+        for (int j = 0; j < cols; j++) {
+            if (j < cols - 1)
+                printf("%d ", (int) matrix[i * rows + j]);
+            else
+                printf("%d", (int) matrix[i * rows + j]);
+        }
+//        printf("]");
+        printf("\n");
+    }
+}
+#endif // debug
+
 extern "C" {
 void libjit_convDKKC8_f(float *outW, const float *inW, const float *filterW, const float *biasW, const dim_t *outWdims, const dim_t *inWdims,
                         const dim_t *filterWdims, const dim_t *biasWdims, const dim_t *kernelSizes, const dim_t *strides, const dim_t *pads,
@@ -459,6 +476,10 @@ void libjit_convDKKC8_f(float *outW, const float *inW, const float *filterW, con
     dim_t outChannels = outWdims[3];
     dim_t inCperG = inChannels / group;
     dim_t outCperG = outChannels / group;
+
+    printf("\n********************** PRINTING INPUT IMAGE ***************************\n");
+    printf("[INPUT] image row: %zu and col: %zu\n", inWdims[1], inWdims[2]);
+    print_float_matrix(inWdims[1], inWdims[2], inW);
 
     // Select the order in which we iterate over the pixels in the picture.
     auto eachPixelConv = (pixelScanFirst ? &libjit_convDKKC8_foreach_xy_pixels_filter : &libjit_convDKKC8_foreach_xy_filter_pixels);
