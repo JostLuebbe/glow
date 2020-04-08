@@ -306,6 +306,7 @@ static uint8_t *initActivations(const BundleConfig &config) { return static_cast
 
 int main(int argc, char **argv) {
     printf("argc: %d\n", argc);
+    printf("%s\n", argv[1]);
 
     parseCommandLineOptions(argc, argv);
     // Allocate and initialize constant and mutable weights.
