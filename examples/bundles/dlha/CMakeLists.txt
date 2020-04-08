@@ -74,11 +74,11 @@ add_custom_command(
 #        -quantization-schema=symmetric_with_uint8
 #        -quantization-precision=Int8
         -image-mode=0to255
-        -image-channel-order=RGB
-        -image-layout=NCHW
+#        -image-channel-order=RGB
+#        -image-layout=NCHW
         -dump-profile=${DLHA_BUNDLE_DIR}/profile.yml
         -onnx-define-symbol=N,1
-        -model-input=${MODEL_INPUT_NAME},float,[1,1,32,32]
+#        -model-input=${MODEL_INPUT_NAME},int32,[1,1,32,32]
         -m=${MODEL_DIR}/dlha.onnx
         -model-input-name=${MODEL_INPUT_NAME}
         DEPENDS
