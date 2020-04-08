@@ -306,7 +306,7 @@ static uint8_t *initActivations(const BundleConfig &config) { return static_cast
 
 #define debug 1
 #ifdef debug
-void print_matrix(dim_t rows, dim_t cols, const signed char *matrix) {
+void print_matrix(int rows, int cols, const signed char *matrix) {
     for (int i = 0; i < rows; i++) {
 //        printf("[");
         for (int j = 0; j < cols; j++) {
@@ -322,12 +322,12 @@ void print_matrix(dim_t rows, dim_t cols, const signed char *matrix) {
 #endif // debug
 
 
-int8_t ** read_matrix(size_t rows, size_t cols, FILE *matrix_file){
+int ** read_matrix(size_t rows, size_t cols, FILE *matrix_file){
 
-    int8_t ** matrix = malloc(sizeof(int8_t *) * rows);
+    int ** matrix = malloc(sizeof(int *) * rows);
 
     for (int r = 0; r<rows; r++){
-        matrix[r] = malloc(sizeof(int8_t) * cols);
+        matrix[r] = malloc(sizeof(int) * cols);
         for (int c = 0; c<cols; c++){
             fscanf(matrix_file, "%d", &matrix[r][c]);
         }
@@ -342,7 +342,7 @@ int main(int argc, char **argv) {
 
     img_file = fopen(argv[1], "r");
 
-    int8_t** img = read_matrix(32,32,img_file);
+    int** img = read_matrix(32,32,img_file);
     print_matrix(32,32,img);
 
     parseCommandLineOptions(argc, argv);
