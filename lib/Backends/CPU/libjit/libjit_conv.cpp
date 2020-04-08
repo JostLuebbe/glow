@@ -454,6 +454,7 @@ extern "C" {
 void libjit_convDKKC8_f(float *outW, const float *inW, const float *filterW, const float *biasW, const dim_t *outWdims, const dim_t *inWdims,
                         const dim_t *filterWdims, const dim_t *biasWdims, const dim_t *kernelSizes, const dim_t *strides, const dim_t *pads,
                         dim_t group, unsigned pixelScanFirst, unsigned numDepthRegs, unsigned sizeGroupY, unsigned depthStrips) {
+    printf("JOST IN libjit_convDKKC8_f\n");
     dim_t inChannels = inWdims[3];
     dim_t outChannels = outWdims[3];
     dim_t inCperG = inChannels / group;
@@ -490,6 +491,7 @@ void libjit_convDKKC8_f(float *outW, const float *inW, const float *filterW, con
 void libjit_convolution_f(float *outW, const float *inW, const float *filterW, const float *biasW, const dim_t *outWdims, const dim_t *inWdims,
                           const dim_t *filterWdims, const dim_t *biasWdims, const dim_t *kernelSizes, const dim_t *strides, const dim_t *pads,
                           dim_t group, unsigned depthUnroll, dim_t dilation) {
+    printf("JOST IN libjit_convolution_f\n");
     dim_t inChannels = inWdims[3];
     dim_t outChannels = outWdims[3];
     dim_t inCperG = inChannels / group;
