@@ -324,7 +324,7 @@ void print_matrix(int rows, int cols, int *matrix) {
 
 int ** read_matrix(size_t rows, size_t cols, FILE *matrix_file){
 
-    int ** matrix = malloc(sizeof(int *) * rows);
+    int ** matrix = (int **) malloc(sizeof(int *) * rows);
 
     for (int r = 0; r<rows; r++){
         matrix[r] = malloc(sizeof(int) * cols);
