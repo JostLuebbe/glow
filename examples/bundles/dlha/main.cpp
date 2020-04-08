@@ -305,6 +305,8 @@ static uint8_t *initMutableWeightVars(const BundleConfig &config) {
 static uint8_t *initActivations(const BundleConfig &config) { return static_cast<uint8_t *>(alignedAlloc(config, config.activationsMemSize)); }
 
 int main(int argc, char **argv) {
+    printf("argc: %d\n", argc);
+
     parseCommandLineOptions(argc, argv);
     // Allocate and initialize constant and mutable weights.
     uint8_t *constantWeightVarsAddr = initConstantWeights("dlha.weights.bin", dlha_config);
