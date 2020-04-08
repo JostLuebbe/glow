@@ -306,7 +306,7 @@ static uint8_t *initActivations(const BundleConfig &config) { return static_cast
 
 #define debug 1
 #ifdef debug
-void print_matrix(int rows, int cols, const signed char *matrix) {
+void print_matrix(int rows, int cols, int *matrix) {
     for (int i = 0; i < rows; i++) {
 //        printf("[");
         for (int j = 0; j < cols; j++) {
