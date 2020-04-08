@@ -326,9 +326,9 @@ void print_matrix(dim_t rows, dim_t cols, const signed char *matrix) {
 //        printf("[");
         for (int j = 0; j < cols; j++) {
             if (j < cols - 1)
-                printf("%d ", (int) matrix[i * rows + j]);
+                printf("%u ", matrix[i * rows + j]);
             else
-                printf("%d", (int) matrix[i * rows + j]);
+                printf("%u", matrix[i * rows + j]);
         }
 //        printf("]");
         printf("\n");
@@ -457,9 +457,9 @@ void print_float_matrix(dim_t rows, dim_t cols, const float *matrix) {
 //        printf("[");
         for (int j = 0; j < cols; j++) {
             if (j < cols - 1)
-                printf("%d ", (int) matrix[i * rows + j]);
+                printf("%f ", matrix[i * rows + j]);
             else
-                printf("%d", (int) matrix[i * rows + j]);
+                printf("%f", matrix[i * rows + j]);
         }
 //        printf("]");
         printf("\n");
