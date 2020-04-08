@@ -304,7 +304,7 @@ static uint8_t *initMutableWeightVars(const BundleConfig &config) {
 
 static uint8_t *initActivations(const BundleConfig &config) { return static_cast<uint8_t *>(alignedAlloc(config, config.activationsMemSize)); }
 
-#define debug 1
+/*#define debug 1
 #ifdef debug
 void print_matrix(int rows, int cols, int *matrix) {
     for (int i = 0; i < rows; i++) {
@@ -319,7 +319,28 @@ void print_matrix(int rows, int cols, int *matrix) {
         printf("\n");
     }
 }
-#endif // debug
+#endif // debug*/
+
+void print_matrix(size_t rows, size_t cols, int ** a) {
+    printf("[");
+    for (size_t r = 0; r<rows; r++){
+        if (r == 0)
+            printf("[");
+        else
+            printf(" [");
+        for (size_t c = 0; c<cols; c++){
+            if (c < cols - 1)
+                printf("%d ",  a[r][c]);
+            else
+                printf("%d",  a[r][c]);
+        }
+        printf("]");
+        if (r < rows - 1)
+            printf("\n");
+    }
+    printf("]");
+    printf("\n");
+}
 
 
 int ** read_matrix(size_t rows, size_t cols, FILE *matrix_file){
