@@ -304,9 +304,46 @@ static uint8_t *initMutableWeightVars(const BundleConfig &config) {
 
 static uint8_t *initActivations(const BundleConfig &config) { return static_cast<uint8_t *>(alignedAlloc(config, config.activationsMemSize)); }
 
+#define debug 1
+#ifdef debug
+void print_matrix(dim_t rows, dim_t cols, const signed char *matrix) {
+    for (int i = 0; i < rows; i++) {
+//        printf("[");
+        for (int j = 0; j < cols; j++) {
+            if (j < cols - 1)
+                printf("%d ", matrix[i * rows + j]);
+            else
+                printf("%d", matrix[i * rows + j]);
+        }
+//        printf("]");
+        printf("\n");
+    }
+}
+#endif // debug
+
+
+int8_t ** read_matrix(size_t rows, size_t cols, FILE *matrix_file){
+
+    int8_t ** matrix = malloc(sizeof(int8_t *) * rows);
+
+    for (int r = 0; r<rows; r++){
+        matrix[r] = malloc(sizeof(int8_t) * cols);
+        for (int c = 0; c<cols; c++){
+            fscanf(matrix_file, "%d", &matrix[r][c]);
+        }
+    }
+
+    return matrix;
+}
+
 int main(int argc, char **argv) {
     printf("argc: %d\n", argc);
     printf("%s\n", argv[1]);
+
+    img_file = fopen(argv[1], "r");
+
+    int8_t** img = read_matrix(32,32,img_file);
+    print_matrix(32,32,img);
 
     parseCommandLineOptions(argc, argv);
     // Allocate and initialize constant and mutable weights.
