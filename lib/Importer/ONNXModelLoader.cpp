@@ -3414,6 +3414,7 @@ Error ONNXModelLoader::checkInputs(ONNX_NAMESPACE::GraphProto &net, llvm::ArrayR
             ASSIGN_VALUE_OR_RETURN_ERR(dimsProto, getProtoShape(valueInfo.type().tensor_type().shape()));
 
             // Check if the number of dimensions is consistent.
+            LOG(INFO) << dims.size() << "," << dimsProto.size() << "\n";
             RETURN_ERR_IF_NOT(dims.size() == dimsProto.size(), "Mismatch between input image and ONNX input shape");
 
             // Allow batch dimensions to be different.
