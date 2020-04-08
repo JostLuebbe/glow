@@ -73,7 +73,7 @@ add_custom_command(
         -verbose
 #        -quantization-schema=symmetric_with_uint8
 #        -quantization-precision=Int8
-#        -image-mode=0to255
+        -image-mode=0to255
         -image-channel-order=RGB
         -image-layout=NCHW
         -dump-profile=${DLHA_BUNDLE_DIR}/profile.yml
