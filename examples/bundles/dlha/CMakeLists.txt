@@ -95,6 +95,8 @@ add_custom_command(
         -verbose
         -g
         -load-profile=profile.yml
+        -quantization-schema=symmetric_with_uint8
+        -dump-graph-DAG=dlha_graph2.dot
         -assert-all-nodes-quantized
         -keep-original-precision-for-nodes=SoftMax,Pow
         -model=${MODEL_DIR}/dlha.onnx
