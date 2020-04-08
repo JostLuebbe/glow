@@ -71,7 +71,7 @@ add_custom_command(
         image-classifier ${IMAGES}/*.png
         -g
         -verbose
-        -dump-graph
+#        -dump-graph
         -dump-graph-DAG=dlha_graph2.dot
 #        -quantization-schema=symmetric_with_uint8
 #        -quantization-precision=Int8
