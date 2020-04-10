@@ -360,6 +360,8 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
     printf("outChannels: %lu\n", outChannels);
     printf("inCperG: %lu\n", inCperG);
     printf("outCperG: %lu\n", outCperG);
+    printf("pad_t: %lu\n", pad_t);
+    printf("pad_l: %lu\n", pad_l);
 
 /*    printf("\n********************** PRINTING STRIDE ********************************\n");
     printf("[STRIDE] row: %zu and col: %zu\n", stride_h, stride_w);
@@ -392,7 +394,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
             for (size_t d = 0; d < outCperG; d += depthUnroll) {
                 // For each convolution 'jump' in the input tensor:
                 ssize_t x = -(ssize_t) pad_t;
-                printf("x: %ld", x);
+                printf("x: %ld\n", x);
                 for (size_t ax = 0; ax < outWdims[1]; x += stride_h, ax++) {
                     ssize_t y = -(ssize_t)pad_l;
                     for (size_t ay = 0; ay < outWdims[2]; y += stride_w, ay++) {
