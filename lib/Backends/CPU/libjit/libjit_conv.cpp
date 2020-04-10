@@ -422,10 +422,13 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
                     for (size_t ay = 0; ay < outWdims[2]; y += stride_w, ay++) {
                         int32_t sum[depthUnroll];
 
+                        printf("Before: ");
                         for (unsigned i = 0; i < depthUnroll; i++) { // 0 - 8
+                            printf("%d,", sum[i]);
                             // Scale the bias to match the scale of the matrix multiplication.
                             sum[i] = libjit_scale_i32i8((int32_t)biasW[d + i] - biasOffset, biasPre, biasPost, biasScale, 0);
                         }
+                        printf("\n");
 
                         // For each element in the convolution-filter:
                         for (size_t fx = 0; fx < kernel_h; fx++) {
@@ -468,9 +471,10 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
                             }
                         }
 
+                        printf("After: ");
                         for (unsigned i = 0; i < depthUnroll; i++) {
                             // Scale the result back to the expected destination scale.
-                            printf("%d," sum[i]);
+                            printf("%d,", sum[i]);
                             int32_t scaledSum = libjit_scale_i32i8(sum[i], outPre, outPost, outScale, outOffset);
                             outW[libjit_getXYZW(outWdims, n, ax, ay, d + i)] = libjit_clip(scaledSum);
                         }
