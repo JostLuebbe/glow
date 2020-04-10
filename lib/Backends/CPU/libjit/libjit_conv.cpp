@@ -476,7 +476,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
                             // Scale the result back to the expected destination scale.
 //                            printf("%d,", sum[i]);
                             int32_t scaledSum = libjit_scale_i32i8(sum[i], outPre, outPost, outScale, outOffset);
-                            printf("%d,", sum[i]);
+                            printf("%d,", scaledSum);
                             outW[libjit_getXYZW(outWdims, n, ax, ay, d + i)] = libjit_clip(scaledSum);
 
                         }
