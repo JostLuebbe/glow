@@ -355,7 +355,12 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 
 #ifdef debug
 
-    printf("\n********************** PRINTING STRIDE ********************************\n");
+    printf("inChannels: %d\n", inChannels);
+    printf("outChannels: %d\n", outChannels);
+    printf("inCperG: %d\n", inCperG);
+    printf("outCperG: %d\n", outCperG);
+
+/*    printf("\n********************** PRINTING STRIDE ********************************\n");
     printf("[STRIDE] row: %zu and col: %zu\n", stride_h, stride_w);
 
     printf("\n********************** PRINTING KERNEL ********************************\n");
@@ -365,7 +370,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 
     printf("\n********************** PRINTING INPUT IMAGE ***************************\n");
     printf("[INPUT] image row: %zu and col: %zu\n", inWdims[1], inWdims[2]);
-    print_matrix(inWdims[1], inWdims[2], inW);
+    print_matrix(inWdims[1], inWdims[2], inW);*/
 
 /*    printf("\n********************** PRINTING OUTPUT IMAGE: BEFORE **************************\n");
     printf("[OUTPUT] image row: %zu and col: %zu\n", outWdims[1], outWdims[2]);
