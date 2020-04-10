@@ -377,11 +377,15 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
     }
     printf("\n");
 
-    printf("Filter: ");
-    for (int i = 0; i < filterWdims[0] * filterWdims[1] * filterWdims[2] + 1; i++){
+    for (int i = 0; i < filterWdims[0] * filterWdims[1] * filterWdims[2]; i++){
+        if (!(filterW[i] == filterW[i+576])) printf("HERE\n");
+    }
+
+/*    printf("Filter: ");
+    for (int i = 0; i < filterWdims[0] * filterWdims[1] * filterWdims[2]; i++){
         printf("%d,", filterW[i]);
     }
-    printf("\n");
+    printf("\n");*/
 
 /*    printf("\n********************** PRINTING STRIDE ********************************\n");
     printf("[STRIDE] row: %zu and col: %zu\n", stride_h, stride_w);
@@ -776,7 +780,7 @@ void libjit_convolution_i8_i32(int8_t *outW, const int8_t *inW, const int8_t *fi
                                                          pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale,
                                                          outPre, outPost, outScale, depthUnroll, dilation);*/
 
-    if (inWdims[3] == 1){
+    if (inWdims[3] == 32){
         libjit_quantized_convolution_generic<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides,
                                                       pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale,
                                                       outPre, outPost, outScale, depthUnroll, dilation);
