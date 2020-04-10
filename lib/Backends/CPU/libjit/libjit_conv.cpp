@@ -449,7 +449,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
                                 for (size_t fd = 0; fd < inCperG; fd++) {
 //                                    printf("inIdx: %lu\n", inIdx + fd);
                                     int32_t in = inW[inIdx + fd] - inOffset;
-                                    if (in != 0 ) printf("in: %d\n", in);
+//                                    if (in != 0 ) printf("in: %d\n", in);
                                     for (unsigned i = 0; i < MIN(4, depthUnroll); i++) {
                                         sum[i] += (filterW[filterIdx + (sliceSize * i) + fd] - filterOffset) * in;
                                     }
@@ -459,7 +459,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
                                 if (depthUnroll > 4) { // depthUnroll = 8
                                     for (size_t fd = 0; fd < inCperG; fd++) {
                                         int32_t in = inW[inIdx + fd] - inOffset;
-                                        if (in != 0 ) printf("in: %d\n", in);
+//                                        if (in != 0 ) printf("in: %d\n", in);
                                         for (unsigned i = 4; i < MIN(8, depthUnroll); i++) {
                                             sum[i] += (filterW[filterIdx + (sliceSize * i) + fd] - filterOffset) * in;
                                         }
@@ -470,9 +470,11 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 
                         for (unsigned i = 0; i < depthUnroll; i++) {
                             // Scale the result back to the expected destination scale.
+                            printf("%d," sum[i]);
                             int32_t scaledSum = libjit_scale_i32i8(sum[i], outPre, outPost, outScale, outOffset);
                             outW[libjit_getXYZW(outWdims, n, ax, ay, d + i)] = libjit_clip(scaledSum);
                         }
+                        printf("\n");
                     } // W
                 }     // H
             }         // C
