@@ -471,7 +471,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
                             }
                         }
 
-                        printf("After: ");
+                        printf("After:  ");
                         for (unsigned i = 0; i < depthUnroll; i++) {
                             // Scale the result back to the expected destination scale.
                             printf("%d,", sum[i]);
