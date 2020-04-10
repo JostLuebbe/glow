@@ -447,7 +447,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
                                 // Perform the innermost loop of the convolution using 4 vector
                                 // registers.
                                 for (size_t fd = 0; fd < inCperG; fd++) {
-                                    printf("inIdx: %lu\n", inIdx + fd);
+//                                    printf("inIdx: %lu\n", inIdx + fd);
                                     int32_t in = inW[inIdx + fd] - inOffset;
                                     for (unsigned i = 0; i < MIN(4, depthUnroll); i++) {
                                         sum[i] += (filterW[filterIdx + (sliceSize * i) + fd] - filterOffset) * in;
@@ -455,13 +455,14 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
                                 }
 
                                 // And perform the innermost loop again with 4 more registers.
-                                if (depthUnroll > 4)
+                                if (depthUnroll > 4) {
                                     for (size_t fd = 0; fd < inCperG; fd++) {
                                         int32_t in = inW[inIdx + fd] - inOffset;
                                         for (unsigned i = 4; i < MIN(8, depthUnroll); i++) {
                                             sum[i] += (filterW[filterIdx + (sliceSize * i) + fd] - filterOffset) * in;
                                         }
                                     }
+                                }
                             }
                         }
 
