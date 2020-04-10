@@ -143,9 +143,9 @@ bool readPngImage(const char *filename, std::pair<float, float> range, float *&i
     for (int i = 0; i < 32; i++) {
         for (int j = 0; j < 32; j++) {
             if (j < 32 - 1)
-                printf("%f ", imageT[i * 32 + j]);
+                printf("%.1f ", imageT[i * 32 + j] * 255);
             else
-                printf("%f", imageT[i * 32 + j]);
+                printf("%.1f", imageT[i * 32 + j] * 255);
         }
         printf("\n");
     }
