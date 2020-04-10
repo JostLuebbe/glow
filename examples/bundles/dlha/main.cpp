@@ -147,7 +147,7 @@ bool readPngImage(const char *filename, std::pair<float, float> range, float *&i
         for (size_t col_n = 0; col_n < width; col_n++) {
             png_byte *ptr = &(row[col_n * (hasAlpha ? (numChannels + 1) : numChannels)]);
             if (isGray) {
-                imageT[getXYZ(imageDims, row_n, col_n, 0)] = float(ptr[0]) * scale + bias;
+                imageT[getXYZ(imageDims, row_n, col_n, 0)] = float(ptr[0]);
             } else {
                 imageT[getXYZ(imageDims, row_n, col_n, 0)] = float(ptr[0]) * scale + bias;
                 imageT[getXYZ(imageDims, row_n, col_n, 1)] = float(ptr[1]) * scale + bias;
