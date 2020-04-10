@@ -456,11 +456,11 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
                                 // Perform the innermost loop of the convolution using 4 vector
                                 // registers.
                                 for (size_t fd = 0; fd < inCperG; fd++) {
-//                                    printf("inIdx: %lu\n", inIdx + fd);
+                                    printf("inIdx: %lu,", inIdx + fd);
                                     int32_t in = inW[inIdx + fd] - inOffset;
 //                                    if (in != 0 ) printf("in: %d\n", in);
                                     for (unsigned i = 0; i < MIN(4, depthUnroll); i++) {
-                                        printf("%d,", filterIdx + (sliceSize * i) + fd);
+//                                        printf("%d,", filterIdx + (sliceSize * i) + fd);
                                         sum[i] += (filterW[filterIdx + (sliceSize * i) + fd] - filterOffset) * in;
                                     }
                                 }
