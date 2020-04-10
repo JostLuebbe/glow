@@ -378,11 +378,13 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 
 #endif // debug
 
+    size_t g = 1;
+
 
     // For each input in the batch:
     for (size_t n = 0; n < inChannels; n++) {
         // For each group of input channels:
-        for (size_t g = 0; g < group; g++) {
+//        for (size_t g = 0; g < group; g++) {
 
             // For each output channel in the group. Process 'depthUnroll' output
             // layers together.
@@ -443,7 +445,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
                     } // W
                 }     // H
             }         // C
-        }             // G
+//        }             // G
     }                 // N
 #ifdef debug
 /*    printf("\n********************** PRINTING OUTPUT IMAGE: AFTER **************************\n");
@@ -549,7 +551,6 @@ void their_old_conv(
         }       // G
     }         // N
 }
-
 } // namespace
 
 #define debug 1
