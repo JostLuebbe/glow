@@ -366,8 +366,10 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
     printf("pad_t: %lu\n", pad_t); // always 1
     printf("pad_l: %lu\n", pad_l); // always 1
     printf("dilation: %lu\n", dilation); // always 1
-    printf("kernelSizes[2]: %lu\n", kernelSizes[2]);
-    printf("kernelSizes[3]: %lu\n", kernelSizes[3]);
+    printf("kernelSizes[0]: %lu\n", filterWdims[0]);
+    printf("kernelSizes[1]: %lu\n", filterWdims[1]);
+    printf("kernelSizes[2]: %lu\n", filterWdims[2]);
+    printf("kernelSizes[3]: %lu\n", filterWdims[3]);
 
     printf("Bias: ");
     for (int i = 0; i < biasWdims[0]; i++){
@@ -446,7 +448,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
                                     int32_t in = inW[inIdx + fd] - inOffset;
 //                                    if (in != 0 ) printf("in: %d\n", in);
                                     for (unsigned i = 0; i < MIN(4, depthUnroll); i++) {
-                                        printf("%d,",filterIdx + (sliceSize * i) + fd);
+//                                        printf("%d,", filterIdx + (sliceSize * i) + fd);
                                         sum[i] += (filterW[filterIdx + (sliceSize * i) + fd] - filterOffset) * in;
                                     }
                                 }
