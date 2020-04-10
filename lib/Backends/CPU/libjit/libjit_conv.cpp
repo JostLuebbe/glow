@@ -389,7 +389,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 
             // For each output channel in the group. Process 'depthUnroll' output
             // layers together.
-            for (size_t d = g * outCperG; d < (g + 1) * outCperG; d += depthUnroll) {
+            for (size_t d = outCperG; d < outCperG; d += depthUnroll) {
                 // For each convolution 'jump' in the input tensor:
                 ssize_t x = -(ssize_t) pad_t;
                 for (size_t ax = 0; ax < outWdims[1]; x += stride_h, ax++) {
