@@ -376,10 +376,10 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
         printf("%d,", biasW[i]);
     }
     printf("\n");
-
+/*
     for (int i = 0; i < filterWdims[0] * filterWdims[1] * filterWdims[2]; i++){
         if (!(filterW[i] == filterW[i+576])) printf("HERE\n");
-    }
+    }*/
 
 /*    printf("Filter: ");
     for (int i = 0; i < filterWdims[0] * filterWdims[1] * filterWdims[2]; i++){
@@ -448,6 +448,9 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
                                 size_t inIdx = libjit_getXYZW(inWdims, n, (size_t) ox, (size_t) oy, g * inCperG);
 
                                 size_t filterIdx = libjit_getXYZW(filterWdims, d, fx, fy, 0);
+
+                                printf("%d,", filterIdx);
+
                                 size_t sliceSize = filterWdims[1] * filterWdims[2] * filterWdims[3];
 
                                 // Perform the innermost loop of the convolution using 4 vector
@@ -780,7 +783,7 @@ void libjit_convolution_i8_i32(int8_t *outW, const int8_t *inW, const int8_t *fi
                                                          pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale,
                                                          outPre, outPost, outScale, depthUnroll, dilation);*/
 
-    if (inWdims[3] == 32){
+    if (inWdims[3] == 1){
         libjit_quantized_convolution_generic<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides,
                                                       pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale,
                                                       outPre, outPost, outScale, depthUnroll, dilation);
