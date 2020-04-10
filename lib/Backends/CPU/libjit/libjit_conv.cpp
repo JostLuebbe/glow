@@ -378,7 +378,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
     printf("\n");
 
     printf("Filter: ");
-    for (int i = 0; i < filterWdims[0] * filterWdims[1] * filterWdims[2]; i++){
+    for (int i = 0; i < filterWdims[0] * filterWdims[1] * filterWdims[2] + 1; i++){
         printf("%d,", filterW[i]);
     }
     printf("\n");
