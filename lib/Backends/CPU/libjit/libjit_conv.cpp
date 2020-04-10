@@ -370,15 +370,15 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
     // size_t == lu == unsigned long
 
 #ifdef debug
-    printf("group: %lu\n", group);
-    printf("inOffset: %d\n", inOffset);
-    printf("depthUnroll: %u\n", depthUnroll);
-    printf("inChannels: %lu\n", inChannels);
-    printf("outChannels: %lu\n", outChannels);
-    printf("inCperG: %lu\n", inCperG);
-    printf("outCperG: %lu\n", outCperG);
-    printf("pad_t: %lu\n", pad_t);
-    printf("pad_l: %lu\n", pad_l);
+    printf("group: %lu\n", group); // 1
+    printf("inOffset: %d\n", inOffset); // -128
+    printf("depthUnroll: %u\n", depthUnroll); // 8
+    printf("inChannels: %lu\n", inChannels); // 1
+    printf("outChannels: %lu\n", outChannels); // 32
+    printf("inCperG: %lu\n", inCperG); // 1
+    printf("outCperG: %lu\n", outCperG); // 32
+    printf("pad_t: %lu\n", pad_t); // 1
+    printf("pad_l: %lu\n", pad_l); // 1
 
 //    printf("[BIAS] row: %lu and col: %lu\n", biasWdims[0], biasWdims[1]);
 //    print_bias_matrix(32,  32, biasW);
@@ -393,9 +393,9 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 
     printf("\n********************** PRINTING INPUT IMAGE ***************************\n");
     printf("[INPUT] image row: %zu and col: %zu\n", inWdims[1], inWdims[2]);
-    print_matrix(inWdims[1], inWdims[2], inW);*/
+    print_matrix(inWdims[1], inWdims[2], inW);
 
-/*    printf("\n********************** PRINTING OUTPUT IMAGE: BEFORE **************************\n");
+    printf("\n********************** PRINTING OUTPUT IMAGE: BEFORE **************************\n");
     printf("[OUTPUT] image row: %zu and col: %zu\n", outWdims[1], outWdims[2]);
     print_matrix(outWdims[1], outWdims[2], outW);*/
 
@@ -422,7 +422,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
                     for (size_t ay = 0; ay < outWdims[2]; y += stride_w, ay++) {
                         int32_t sum[depthUnroll];
 
-                        for (unsigned i = 0; i < depthUnroll; i++) {
+                        for (unsigned i = 0; i < depthUnroll; i++) { // 0 - 8
                             // Scale the bias to match the scale of the matrix multiplication.
                             sum[i] = libjit_scale_i32i8((int32_t)biasW[d + i] - biasOffset, biasPre, biasPost, biasScale, 0);
                         }
@@ -449,15 +449,17 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
                                 for (size_t fd = 0; fd < inCperG; fd++) {
 //                                    printf("inIdx: %lu\n", inIdx + fd);
                                     int32_t in = inW[inIdx + fd] - inOffset;
+                                    printf("in: %d\n", in);
                                     for (unsigned i = 0; i < MIN(4, depthUnroll); i++) {
                                         sum[i] += (filterW[filterIdx + (sliceSize * i) + fd] - filterOffset) * in;
                                     }
                                 }
 
                                 // And perform the innermost loop again with 4 more registers.
-                                if (depthUnroll > 4) {
+                                if (depthUnroll > 4) { // depthUnroll = 8
                                     for (size_t fd = 0; fd < inCperG; fd++) {
                                         int32_t in = inW[inIdx + fd] - inOffset;
+                                        printf("in: %d\n", in);
                                         for (unsigned i = 4; i < MIN(8, depthUnroll); i++) {
                                             sum[i] += (filterW[filterIdx + (sliceSize * i) + fd] - filterOffset) * in;
                                         }
