@@ -99,7 +99,7 @@ add_custom_command(
         -quantization-precision=Int16
         -dump-graph-DAG=dlha_graph2.dot
         -assert-all-nodes-quantized
-        -keep-original-precision-for-nodes=SoftMax,Pow,Add,Div,Sub,Mul,Min,Max,Splat,InsertTensor,Reshape,BatchedAdd
+        -keep-original-precision-for-nodes=SoftMax,Pow,Add,Div,Sub,Mul,Min,Max,Splat,InsertTensor,Reshape,BatchedAdd,MatMul
         -model=${MODEL_DIR}/dlha.onnx
         -onnx-define-symbol=N,1
         -model-input=${MODEL_INPUT_NAME},float,[1,1,32,32]
