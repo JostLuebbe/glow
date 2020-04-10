@@ -426,11 +426,11 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
                         int32_t sum[depthUnroll];
 
 //                        printf("Before: ");
-/*                        for (unsigned i = 0; i < depthUnroll; i++) { // 0 - 8
+                        for (unsigned i = 0; i < depthUnroll; i++) { // 0 - 8
                             // Scale the bias to match the scale of the matrix multiplication.
                             sum[i] = libjit_scale_i32i8((int32_t) biasW[d + i] - biasOffset, biasPre, biasPost, biasScale, 0);
 //                            printf("%d,", sum[i]);
-                        }*/
+                        }
 //                        printf("\n");
 
                         // For each element in the convolution-filter:

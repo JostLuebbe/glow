@@ -331,7 +331,7 @@ int main(int argc, char **argv) {
     dumpInferenceResults(dlha_config, mutableWeightVarsAddr);
 
     // Free all resources.
-    free(activationsAddr);
-    free(constantWeightVarsAddr);
-    free(mutableWeightVarsAddr);
+//    free(activationsAddr);
+//    free(constantWeightVarsAddr);
+//    free(mutableWeightVarsAddr);
 }
