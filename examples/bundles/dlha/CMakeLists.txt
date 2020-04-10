@@ -75,7 +75,7 @@ add_custom_command(
         -dump-graph-DAG=dlha_graph2.dot
         -image-mode=0to255
 #        -image-channel-order=RGB
-        -image-layout=NCHW
+#        -image-layout=NCHW
         -dump-profile=${DLHA_BUNDLE_DIR}/profile.yml
         -onnx-define-symbol=N,1
         -model-input=${MODEL_INPUT_NAME},int32,[1,1,32,32]
@@ -95,10 +95,11 @@ add_custom_command(
         -verbose
         -g
         -load-profile=profile.yml
-        -quantization-schema=symmetric_with_uint8
+#        -quantization-schema=symmetric_with_uint8
+        -quantization-precision=Int16
         -dump-graph-DAG=dlha_graph2.dot
         -assert-all-nodes-quantized
-        -keep-original-precision-for-nodes=SoftMax,Pow
+        -keep-original-precision-for-nodes=SoftMax,Pow,Add,Div
         -model=${MODEL_DIR}/dlha.onnx
         -onnx-define-symbol=N,1
         -model-input=${MODEL_INPUT_NAME},float,[1,1,32,32]
