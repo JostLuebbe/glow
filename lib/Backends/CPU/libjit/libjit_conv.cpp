@@ -353,7 +353,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
     size_t kernel_h = kernelSizes[0];
     size_t kernel_w = kernelSizes[1];
 
-    // size_t == lu == unsigned long
+    // dim_t == size_t == lu == unsigned long
 
 #ifdef debug
     printf("group: %lu\n", group); // 1
@@ -365,6 +365,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
     printf("outCperG: %lu\n", outCperG); // 32
     printf("pad_t: %lu\n", pad_t); // 1
     printf("pad_l: %lu\n", pad_l); // 1
+    printf("dilation: %lu", dilation);
 
     printf("Bias: ");
     for (int i = 0; i < biasWdims[0]; i++){
@@ -431,7 +432,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
                                 }
 
                                 // Calculate the indices into the Filter and Input buffers.
-                                size_t inIdx = libjit_getXYZW(inWdims, n, (size_t)ox, (size_t)oy, g * inCperG);
+                                size_t inIdx = libjit_getXYZW(inWdims, n, (size_t) ox, (size_t) oy, g * inCperG);
 
                                 size_t filterIdx = libjit_getXYZW(filterWdims, d, fx, fy, 0);
                                 size_t sliceSize = filterWdims[1] * filterWdims[2] * filterWdims[3];
