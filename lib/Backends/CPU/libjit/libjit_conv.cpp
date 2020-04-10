@@ -366,14 +366,20 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
     printf("pad_t: %lu\n", pad_t); // always 1
     printf("pad_l: %lu\n", pad_l); // always 1
     printf("dilation: %lu\n", dilation); // always 1
-    printf("kernelSizes[0]: %lu\n", filterWdims[0]);
-    printf("kernelSizes[1]: %lu\n", filterWdims[1]);
-    printf("kernelSizes[2]: %lu\n", filterWdims[2]);
-    printf("kernelSizes[3]: %lu\n", filterWdims[3]);
+    printf("filterWdims[0]: %lu\n", filterWdims[0]);
+    printf("filterWdims[1]: %lu\n", filterWdims[1]);
+    printf("filterWdims[2]: %lu\n", filterWdims[2]);
+    printf("filterWdims[3]: %lu\n", filterWdims[3]);
 
     printf("Bias: ");
     for (int i = 0; i < biasWdims[0]; i++){
         printf("%d,", biasW[i]);
+    }
+    printf("\n");
+
+    printf("Filter: ");
+    for (int i = 0; i < filterWdims[0] * filterWdims[1] * filterWdims[2]; i++){
+        printf("%d,", filterW[i]);
     }
     printf("\n");
 
@@ -399,13 +405,12 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 
 
     // For each input in the batch:
-    for (size_t n = 0; n < inChannels; n++) { // 1
+    for (size_t n = 0; n < inChannels; n++) { // n: 0 -> 1
         // For each group of input channels:
 //        for (size_t g = 0; g < group; g++) {
 
-            // For each output channel in the group. Process 'depthUnroll' output
-            // layers together.
-            for (size_t d = 0; d < outCperG; d += depthUnroll) { // 32
+            // For each output channel in the group. Process 'depthUnroll' output layers together.
+            for (size_t d = 0; d < outCperG; d += depthUnroll) { // d: 0 -> 8 -> 16 -> 32
                 // For each convolution 'jump' in the input tensor:
                 ssize_t x = -(ssize_t) pad_t;
 //                printf("x: %ld\n", x);
