@@ -96,10 +96,10 @@ add_custom_command(
         -g
         -load-profile=profile.yml
 #        -quantization-schema=symmetric_with_uint8
-        -quantization-precision=Int16
+        -quantization-precision=Int8
         -dump-graph-DAG=dlha_graph2.dot
         -assert-all-nodes-quantized
-        -keep-original-precision-for-nodes=SoftMax,Pow,Add,Div,Sub,Mul,Min,Max,Splat,InsertTensor,Reshape,BatchedAdd,MatMul,MaxPool,Convolution
+        -keep-original-precision-for-nodes=SoftMax,Pow,Add,Div,Sub,Mul,Min,Max,Splat,InsertTensor,Reshape,BatchedAdd,MatMul,MaxPool
         -model=${MODEL_DIR}/dlha.onnx
         -onnx-define-symbol=N,1
         -model-input=${MODEL_INPUT_NAME},float,[1,1,32,32]
