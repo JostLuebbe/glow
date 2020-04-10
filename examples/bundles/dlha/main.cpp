@@ -140,6 +140,17 @@ bool readPngImage(const char *filename, std::pair<float, float> range, float *&i
         }
     }
 
+    for (int i = 0; i < 32; i++) {
+        for (int j = 0; j < 32; j++) {
+            if (j < cols - 1)
+                printf("%f ", imageT[i * rows + j]);
+            else
+                printf("%f", imageT[i * rows + j]);
+        }
+        printf("\n");
+    }
+    printf("\n");
+
     for (size_t y = 0; y < height; y++) {
         free(row_pointers[y]);
     }
