@@ -378,7 +378,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 
 #endif // debug
 
-    size_t g = 1;
+    size_t g = 0;
 
 
     // For each input in the batch:
