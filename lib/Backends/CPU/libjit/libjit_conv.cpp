@@ -354,11 +354,11 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
     size_t kernel_w = kernelSizes[1];
 
 #ifdef debug
-
-    printf("inChannels: %d\n", inChannels);
-    printf("outChannels: %d\n", outChannels);
-    printf("inCperG: %d\n", inCperG);
-    printf("outCperG: %d\n", outCperG);
+    printf("group: %u\n", group);
+    printf("inChannels: %u\n", inChannels);
+    printf("outChannels: %u\n", outChannels);
+    printf("inCperG: %u\n", inCperG);
+    printf("outCperG: %u\n", outCperG);
 
 /*    printf("\n********************** PRINTING STRIDE ********************************\n");
     printf("[STRIDE] row: %zu and col: %zu\n", stride_h, stride_w);
@@ -380,7 +380,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 
 
     // For each input in the batch:
-    for (size_t n = 0; n < inWdims[0]; n++) {
+    for (size_t n = 0; n < inChannels; n++) {
         // For each group of input channels:
         for (size_t g = 0; g < group; g++) {
 
@@ -446,9 +446,9 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
         }             // G
     }                 // N
 #ifdef debug
-    printf("\n********************** PRINTING OUTPUT IMAGE: AFTER **************************\n");
+/*    printf("\n********************** PRINTING OUTPUT IMAGE: AFTER **************************\n");
     printf("[OUTPUT] image row: %zu and col: %zu\n", outWdims[1], outWdims[2]);
-    print_matrix(outWdims[1], outWdims[2], outW);
+    print_matrix(outWdims[1], outWdims[2], outW);*/
 
 #endif // debug
 }
