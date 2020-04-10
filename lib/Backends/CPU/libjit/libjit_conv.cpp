@@ -445,7 +445,10 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
                                 }
 
                                 // Calculate the indices into the Filter and Input buffers.
-                                size_t inIdx = libjit_getXYZW(inWdims, n, (size_t) ox, (size_t) oy, g * inCperG);
+//                                size_t inIdx = libjit_getXYZW(inWdims, n, (size_t) ox, (size_t) oy, g * inCperG);
+                                size_t inIdx = (n * inWdims[1] * inWdims[2] * inWdims[3]) + (ox * inWdims[2] * inWdims[3]) + (oy * inWdims[3]) + (g * inCperG)
+                                //dim_t libjit_getXYZW(const dim_t *dims, dim_t x, dim_t y, dim_t z, dim_t w)
+                                // return (x * dims[1] * dims[2] * dims[3]) + (y * dims[2] * dims[3]) + (z * dims[3]) + w;
 
                                 size_t filterIdx = libjit_getXYZW(filterWdims, d, fx, fy, 0);
 
