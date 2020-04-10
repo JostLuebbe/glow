@@ -334,6 +334,20 @@ void print_matrix(dim_t rows, dim_t cols, const signed char *matrix) {
         printf("\n");
     }
 }
+
+void print_bias(dim_t rows, dim_t cols, const signed int *matrix) {
+    for (int i = 0; i < rows; i++) {
+//        printf("[");
+        for (int j = 0; j < cols; j++) {
+            if (j < cols - 1)
+                printf("%d ", matrix[i * rows + j]);
+            else
+                printf("%d", matrix[i * rows + j]);
+        }
+//        printf("]");
+        printf("\n");
+    }
+}
 #endif // debug
 
 template <typename ElemTy, typename BiasElemTy>
@@ -364,7 +378,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
     printf("pad_l: %lu\n", pad_l);
 
     printf("[BIAS] row: %zu and col: %zu\n", biasWdims[1], biasWdims[2]);
-    print_matrix(biasW, biasWdims[1],  biasWdims[2]);
+    print_bias(biasWdims[1],  biasWdims[2], biasW);
 
 /*    printf("\n********************** PRINTING STRIDE ********************************\n");
     printf("[STRIDE] row: %zu and col: %zu\n", stride_h, stride_w);
