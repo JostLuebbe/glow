@@ -377,8 +377,8 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
     printf("pad_t: %lu\n", pad_t);
     printf("pad_l: %lu\n", pad_l);
 
-    printf("[BIAS] row: %lu and col: %lu\n", biasWdims[0], biasWdims[1]);
-    print_bias_matrix(biasWdims[0],  biasWdims[1], biasW);
+//    printf("[BIAS] row: %lu and col: %lu\n", biasWdims[0], biasWdims[1]);
+    print_bias_matrix(32,  32, biasW);
 
 /*    printf("\n********************** PRINTING STRIDE ********************************\n");
     printf("[STRIDE] row: %zu and col: %zu\n", stride_h, stride_w);
