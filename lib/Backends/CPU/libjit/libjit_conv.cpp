@@ -449,7 +449,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 
                                 size_t filterIdx = libjit_getXYZW(filterWdims, d, fx, fy, 0);
 
-                                printf("%d,", filterIdx);
+//                                printf("%lu,", filterIdx);
 
                                 size_t sliceSize = filterWdims[1] * filterWdims[2] * filterWdims[3];
 
@@ -460,7 +460,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
                                     int32_t in = inW[inIdx + fd] - inOffset;
 //                                    if (in != 0 ) printf("in: %d\n", in);
                                     for (unsigned i = 0; i < MIN(4, depthUnroll); i++) {
-//                                        printf("%d,", filterIdx + (sliceSize * i) + fd);
+                                        printf("%d,", filterIdx + (sliceSize * i) + fd);
                                         sum[i] += (filterW[filterIdx + (sliceSize * i) + fd] - filterOffset) * in;
                                     }
                                 }
