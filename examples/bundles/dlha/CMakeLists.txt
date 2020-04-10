@@ -73,7 +73,7 @@ add_custom_command(
         -verbose
 #        -dump-graph
         -dump-graph-DAG=dlha_graph2.dot
-        -image-mode=neg128to127
+#        -image-mode=neg128to127
 #        -image-channel-order=RGB
 #        -image-layout=NCHW
         -dump-profile=${DLHA_BUNDLE_DIR}/profile.yml
