@@ -126,6 +126,22 @@ bool readPngImage(const char *filename, std::pair<float, float> range, float *&i
     float scale = ((range.second - range.first) / 255.0);
     float bias = range.first;
 
+/*    for (size_t row_n = 0; row_n < height; row_n++) {
+        png_byte *row = row_pointers[row_n];
+        for (size_t col_n = 0; col_n < width; col_n++) {
+            png_byte *ptr = &(row[col_n * (hasAlpha ? (numChannels + 1) : numChannels)]);
+            if (isGray) {
+                imageT[getXYZ(imageDims, row_n, col_n, 0)] = float(ptr[0]) * scale + bias;
+            } else {
+                imageT[getXYZ(imageDims, row_n, col_n, 0)] = float(ptr[0]) * scale + bias;
+                imageT[getXYZ(imageDims, row_n, col_n, 1)] = float(ptr[1]) * scale + bias;
+                imageT[getXYZ(imageDims, row_n, col_n, 2)] = float(ptr[2]) * scale + bias;
+            }
+        }
+    }*/
+
+    printf("[%f,%f]\n", scale, bias);
+
     for (size_t row_n = 0; row_n < height; row_n++) {
         png_byte *row = row_pointers[row_n];
         for (size_t col_n = 0; col_n < width; col_n++) {
