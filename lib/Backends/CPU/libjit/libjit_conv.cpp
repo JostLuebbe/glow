@@ -540,8 +540,7 @@ void their_old_conv(
 
                         for (unsigned i = 0; i < depthUnroll; i++) {
                             // Scale the bias to match the scale of the matrix multiplication.
-                            sum[i] = libjit_scale_i32i8((int32_t)biasW[d + i] - biasOffset,
-                                                        biasPre, biasPost, biasScale, 0);
+                            sum[i] = libjit_scale_i32i8((int32_t)biasW[d + i] - biasOffset, biasPre, biasPost, biasScale, 0);
                         }
 
                         // For each element in the convolution-filter:
@@ -795,7 +794,7 @@ void libjit_convolution_i8_i32(int8_t *outW, const int8_t *inW, const int8_t *fi
                                                          pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale,
                                                          outPre, outPost, outScale, depthUnroll, dilation);*/
 
-/*    if (inWdims[3] == 1){
+    if (inWdims[3] == 1){
         libjit_quantized_convolution_generic<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides,
                                                       pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale,
                                                       outPre, outPost, outScale, depthUnroll, dilation);
@@ -804,7 +803,7 @@ void libjit_convolution_i8_i32(int8_t *outW, const int8_t *inW, const int8_t *fi
         their_old_conv<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides,
                                         pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale,
                                         outPre, outPost, outScale, depthUnroll, dilation);
-    }*/
+    }
 }
 
 /*void libjit_convolution_i8_i8(int8_t *outW, const int8_t *inW, const int8_t *filterW, const int8_t *biasW, const dim_t *outWdims,
