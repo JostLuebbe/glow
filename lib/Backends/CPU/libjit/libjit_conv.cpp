@@ -356,16 +356,17 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
     // dim_t == size_t == lu == unsigned long
 
 #ifdef debug
-    printf("group: %lu\n", group); // 1
-    printf("inOffset: %d\n", inOffset); // -128
-    printf("depthUnroll: %u\n", depthUnroll); // 8
-    printf("inChannels: %lu\n", inChannels); // 1
-    printf("outChannels: %lu\n", outChannels); // 32
-    printf("inCperG: %lu\n", inCperG); // 1
-    printf("outCperG: %lu\n", outCperG); // 32
-    printf("pad_t: %lu\n", pad_t); // 1
-    printf("pad_l: %lu\n", pad_l); // 1
-    printf("dilation: %lu\n", dilation); // 1
+    printf("group: %lu\n", group); // always 0
+    printf("inOffset: %d\n", inOffset); // -128 > -106 > -60
+    printf("depthUnroll: %u\n", depthUnroll); // always 8
+    printf("inChannels: %lu\n", inChannels); // 1 > 32 >  64
+    printf("outChannels: %lu\n", outChannels); // 32 > 64 > 128
+    printf("inCperG: %lu\n", inCperG); // 1 > 32 >  64
+    printf("outCperG: %lu\n", outCperG); // 32 > 64 > 128
+    printf("pad_t: %lu\n", pad_t); // always 1
+    printf("pad_l: %lu\n", pad_l); // always 1
+    printf("dilation: %lu\n", dilation); // always 1
+    printf("kernelSizes[2]: %lu\n", kernelSizes[2]);
 
     printf("Bias: ");
     for (int i = 0; i < biasWdims[0]; i++){
@@ -395,27 +396,27 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 
 
     // For each input in the batch:
-    for (size_t n = 0; n < inChannels; n++) {
+    for (size_t n = 0; n < inChannels; n++) { // 1
         // For each group of input channels:
 //        for (size_t g = 0; g < group; g++) {
 
             // For each output channel in the group. Process 'depthUnroll' output
             // layers together.
-            for (size_t d = 0; d < outCperG; d += depthUnroll) {
+            for (size_t d = 0; d < outCperG; d += depthUnroll) { // 32
                 // For each convolution 'jump' in the input tensor:
                 ssize_t x = -(ssize_t) pad_t;
 //                printf("x: %ld\n", x);
-                for (size_t ax = 0; ax < outWdims[1]; x += stride_h, ax++) {
+                for (size_t ax = 0; ax < outWdims[1]; x += stride_h, ax++) { // 32
 
                     ssize_t y = -(ssize_t) pad_l;
 
-                    for (size_t ay = 0; ay < outWdims[2]; y += stride_w, ay++) {
+                    for (size_t ay = 0; ay < outWdims[2]; y += stride_w, ay++) { // 32
                         int32_t sum[depthUnroll];
 
 //                        printf("Before: ");
                         for (unsigned i = 0; i < depthUnroll; i++) { // 0 - 8
                             // Scale the bias to match the scale of the matrix multiplication.
-                            sum[i] = libjit_scale_i32i8((int32_t)biasW[d + i] - biasOffset, biasPre, biasPost, biasScale, 0);
+                            sum[i] = libjit_scale_i32i8((int32_t) biasW[d + i] - biasOffset, biasPre, biasPost, biasScale, 0);
 //                            printf("%d,", sum[i]);
                         }
 //                        printf("\n");
@@ -423,11 +424,11 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 /*                        // For each element in the convolution-filter:
                         for (size_t fx = 0; fx < kernel_h; fx++) {
                             for (size_t fy = 0; fy < kernel_w; fy++) {
-                                ssize_t ox = x + fx * dilation;
-                                ssize_t oy = y + fy * dilation;
+                                ssize_t ox = x + fx; // * dilation;
+                                ssize_t oy = y + fy; // * dilation;
 
                                 // Ignore index access below zero (this is due to padding).
-                                if (ox < 0 || oy < 0 || ox >= (ssize_t)inWdims[1] || oy >= (ssize_t)inWdims[2]) {
+                                if (ox < 0 || oy < 0 || ox >= (ssize_t) inWdims[1] || oy >= (ssize_t) inWdims[2]) {
                                     continue;
                                 }
 
