@@ -370,14 +370,21 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
     printf("filterWdims[1]: %lu\n", filterWdims[1]);
     printf("filterWdims[2]: %lu\n", filterWdims[2]);
     printf("filterWdims[3]: %lu\n", filterWdims[3]);
-    printf("biasOffset: %d\n", biasOffset);
-    printf("biasPre: %d\n", biasPre);
-    printf("biasPost: %d\n", biasPost);
-    printf("biasScale: %d\n", biasScale);
-    printf("outOffset: %d\n", outOffset);
-    printf("outPre: %d\n", outPre);
-    printf("outPost: %d\n", outPost);
-    printf("outScale: %d\n", outScale);
+
+    printf("biasWdims[0]: %lu\n", biasWdims[0]);
+    printf("biasWdims[1]: %lu\n", biasWdims[1]);
+    printf("biasWdims[2]: %lu\n", biasWdims[2]);
+    printf("biasWdims[3]: %lu\n", biasWdims[3]);
+
+    printf("biasOffset: %d\n", biasOffset); // 0
+    printf("biasPre: %d\n", biasPre);       // 0
+    printf("biasPost: %d\n", biasPost);     // 0
+    printf("biasScale: %d\n", biasScale);   // 1
+
+    printf("outOffset: %d\n", outOffset);   // -22
+    printf("outPre: %d\n", outPre);         // 3
+    printf("outPost: %d\n", outPost);       // 15
+    printf("outScale: %d\n", outScale);     // 300
 
     printf("Bias: ");
     for (int i = 0; i < biasWdims[0]; i++){
