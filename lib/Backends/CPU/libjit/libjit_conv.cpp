@@ -491,6 +491,8 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 //                                size_t inIdx = libjit_getXYZW(inWdims, n, (size_t) ox, (size_t) oy, g * inCperG);
                                 size_t inIdx = (n * inWdims[1] * inWdims[2] * inWdims[3]) + (ox * inWdims[2] * inWdims[3]) + (oy * inWdims[3]) + (g * inCperG);
 
+                                printf("%lu ", inIdx);
+
 //                                size_t filterIdx = libjit_getXYZW(filterWdims, d, fx, fy, 0);
                                 size_t filterIdx = (d * filterWdims[1] * filterWdims[2] * filterWdims[3]) + (fx * filterWdims[2] * filterWdims[3]) + (fy * filterWdims[3]);
 
