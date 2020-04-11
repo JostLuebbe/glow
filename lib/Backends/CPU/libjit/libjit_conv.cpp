@@ -434,7 +434,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 //                        printf("\n");
 
                         // For each element in the convolution-filter:
-                        for (size_t fx = 0; fx < kernel_h; fx++) {
+/*                        for (size_t fx = 0; fx < kernel_h; fx++) {
                             for (size_t fy = 0; fy < kernel_w; fy++) {
                                 ssize_t ox = x + fx; // * dilation; ox: -1, 0, 1
                                 ssize_t oy = y + fy; // * dilation; oy: -1, 0, 1
@@ -477,7 +477,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
                                     }
                                 }
                             }
-                        }
+                        }*/
 
 //                        printf("After:  ");
                         for (unsigned i = 0; i < depthUnroll; i++) {
