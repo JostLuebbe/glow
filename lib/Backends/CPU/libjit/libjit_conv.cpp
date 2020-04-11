@@ -653,6 +653,8 @@ void their_old_conv(
     printf("\n********************** PRINTING OUTPUT IMAGE: AFTER **************************\n");
     printf("[OUTPUT] image row: %zu and col: %zu\n", outWdims[1], outWdims[2]);
     print_matrix(outWdims[1], outWdims[2], outW);
+
+    write_matrix(outWdims[1], outWdims[2], outW);
 #endif // debug
 }
 
