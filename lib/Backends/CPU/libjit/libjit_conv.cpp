@@ -504,8 +504,8 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 //                                    if (in != 0 ) printf("in: %d\n", in);
                                     for (unsigned i = 0; i < depthUnroll; i++) { // 8
 //                                        printf("%d,", (filterW[filterIdx + (sliceSize * i) + fd] - filterOffset) * in);
-                                        printf("%d ", filterIdx + (sliceSize * i) + fd);
-//                                        if (i == 0) fprintf(kernel_file, "%lu\n", (filterIdx + (sliceSize * i) + fd));
+//                                        printf("%d ", filterIdx + (sliceSize * i) + fd);
+                                        fprintf(kernel_file, "%lu\n", (filterIdx + (sliceSize * i) + fd));
                                         sum[i] += (filterW[filterIdx + (sliceSize * i) + fd] - filterOffset) * in;
                                     }
                                 }
