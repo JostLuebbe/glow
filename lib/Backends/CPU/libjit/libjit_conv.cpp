@@ -391,6 +391,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
         for (int i = 0; i < biasWdims[0]; i++){
             printf("%d ", biasW[i]);
         }
+        printf("\n");
     }
     printf("\n");
 /*
