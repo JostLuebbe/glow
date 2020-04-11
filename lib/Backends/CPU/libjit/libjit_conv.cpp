@@ -545,11 +545,12 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
                             if (jump % 1024 == 0) printf("\n");
                             jump++;*/
 
-                            fprintf(img_file, "%04d ", outW[libjit_getXYZW(outWdims, n, ax, ay, d + i)]);
-                            if (jump % 32 == 0) fprintf(img_file, "\n");
-                            if (jump % 1024 == 0) fprintf(img_file, "\n");
-                            jump++;
-
+                            if (i == 0){
+                                if (jump % 32 == 0) fprintf(img_file, "\n");
+                                fprintf(img_file, "%04d ", outW[libjit_getXYZW(outWdims, n, ax, ay, d + i)]);
+                                if (jump % 1024 == 0) fprintf(img_file, "\n");
+                                jump++;
+                            }
                         }
 //                        printf("\n");
                     } // W
