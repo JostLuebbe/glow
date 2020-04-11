@@ -462,7 +462,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
             for (size_t d = 0; d < outCperG; d += depthUnroll) { // d: 0 -> 8 -> 16 -> 24
                 // For each convolution 'jump' in the input tensor:
                 ssize_t x = -(ssize_t) pad_t;
-                printf("x: %ld,", x);
+                printf("%ld,", x);
                 for (size_t ax = 0; ax < outWdims[1]; x += stride_h, ax++) { // 32
 
                     ssize_t y = -(ssize_t) pad_l;
