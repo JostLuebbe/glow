@@ -504,7 +504,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 //                                    if (in != 0 ) printf("in: %d\n", in);
                                     for (unsigned i = 0; i < depthUnroll; i++) { // 8
 //                                        printf("%d,", (filterW[filterIdx + (sliceSize * i) + fd] - filterOffset) * in);
-//                                        printf("%d, ", filterIdx + (sliceSize * i) + fd);
+                                        printf("%d, ", filterIdx + (sliceSize * i) + fd);
 //                                        if (i == 0) fprintf(kernel_file, "%lu\n", (filterIdx + (sliceSize * i) + fd));
                                         sum[i] += (filterW[filterIdx + (sliceSize * i) + fd] - filterOffset) * in;
                                     }
@@ -564,9 +564,9 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
     fclose(kernel_file);
     fclose(img_file);
 #ifdef debug
-    printf("\n********************** PRINTING OUTPUT IMAGE: AFTER **************************\n");
+/*    printf("\n********************** PRINTING OUTPUT IMAGE: AFTER **************************\n");
     printf("[OUTPUT] image row: %zu and col: %zu\n", outWdims[1], outWdims[2]);
-    print_matrix(outWdims[1], outWdims[2], outW);
+    print_matrix(outWdims[1], outWdims[2], outW);*/
 //    printf("\n");
 //    print_matrix(outWdims[1], outWdims[2], outW + 32);
 #endif // debug
