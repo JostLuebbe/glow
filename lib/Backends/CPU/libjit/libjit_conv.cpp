@@ -324,41 +324,35 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 void print_matrix(dim_t rows, dim_t cols, const signed char *matrix) {
     for (int k = 0; k < rows * rows * rows; k += rows * rows){
         for (int i = 0; i < rows; i++) {
-//        printf("[");
             for (int j = 0; j < cols; j++) {
                 if (j < cols - 1)
                     printf("%04d ", matrix[k + i * rows + j]);
                 else
                     printf("%04d", matrix[k + i * rows + j]);
             }
-//        printf("]");
             printf("\n");
         }
         printf("\n");
-
-/*        for (int i = 0; i < rows; i++){
-            if (i < rows - 1)
-                printf("%d ", matrix[i + k]);
-            else
-                printf("%d", matrix[i + k]);
-        }
-        printf("\n");*/
     }
+}
 
-/*
-    for (int k = 0; k < rows; k++ ){
+void write_matrix(dim_t rows, dim_t cols, const signed char *matrix) {
+    FILE *img_file = fopen("jost_output.txt", "a");
+
+    for (int k = 0; k < rows * rows * rows; k += rows * rows){
         for (int i = 0; i < rows; i++) {
-//        printf("[");
             for (int j = 0; j < cols; j++) {
                 if (j < cols - 1)
-                    printf("%d ", matrix[i * rows + j]);
+                    fprintf(img_file, "%04d ", matrix[k + i * rows + j]);
                 else
-                    printf("%d", matrix[i * rows + j]);
+                    fprintf(img_file, "%04d", matrix[k + i * rows + j]);
             }
-//        printf("]");
-            printf("\n");
+            fprintf(img_file, "\n");
         }
-    }*/
+        fprintf(img_file, "\n");
+    }
+
+    fclose(img_file);
 }
 #endif // debug
 
