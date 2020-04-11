@@ -358,6 +358,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 #ifdef debug
     printf("group: %lu\n", group); // always 0
     printf("inOffset: %d\n", inOffset); // -128 > -106 > -60
+    printf("filterOffset: %d\n", filterOffset); //
     printf("depthUnroll: %u\n", depthUnroll); // always 8
     printf("inChannels: %lu\n", inChannels); // 1 > 32 >  64
     printf("outChannels: %lu\n", outChannels); // 32 > 64 > 128
@@ -366,6 +367,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
     printf("pad_t: %lu\n", pad_t); // always 1
     printf("pad_l: %lu\n", pad_l); // always 1
     printf("dilation: %lu\n", dilation); // always 1
+
     printf("filterWdims[0]: %lu\n", filterWdims[0]);
     printf("filterWdims[1]: %lu\n", filterWdims[1]);
     printf("filterWdims[2]: %lu\n", filterWdims[2]);
@@ -478,7 +480,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
                                     int32_t in = inW[inIdx + fd] - inOffset;
 //                                    if (in != 0 ) printf("in: %d\n", in);
                                     for (unsigned i = 0; i < depthUnroll; i++) {
-                                        printf("%d,", (filterW[filterIdx + (sliceSize * i) + fd] - filterOffset) * in);
+//                                        printf("%d,", (filterW[filterIdx + (sliceSize * i) + fd] - filterOffset) * in);
                                         sum[i] += (filterW[filterIdx + (sliceSize * i) + fd] - filterOffset) * in;
                                     }
                                 }
