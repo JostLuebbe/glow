@@ -455,15 +455,14 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
     int jump = 0;
 
     // For each input in the batch:
-    for (size_t n = 0; n < inChannels; n++) { // n: 0 -> 1
+    for (size_t n = 0; n < inChannels; n++) { // n: 0
         // For each group of input channels:
 //        for (size_t g = 0; g < group; g++) {
-
             // For each output channel in the group. Process 'depthUnroll' output layers together.
             for (size_t d = 0; d < outCperG; d += depthUnroll) { // d: 0 -> 8 -> 16 -> 24
                 // For each convolution 'jump' in the input tensor:
                 ssize_t x = -(ssize_t) pad_t;
-//                printf("x: %ld\n", x);
+                printf("x: %ld,", x);
                 for (size_t ax = 0; ax < outWdims[1]; x += stride_h, ax++) { // 32
 
                     ssize_t y = -(ssize_t) pad_l;
@@ -490,12 +489,19 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 
                                 // Calculate the indices into the Filter and Input buffers.
 //                                size_t inIdx = libjit_getXYZW(inWdims, n, (size_t) ox, (size_t) oy, g * inCperG);
-                                size_t inIdx = (n * inWdims[1] * inWdims[2] * inWdims[3]) + (ox * inWdims[2] * inWdims[3]) + (oy * inWdims[3]) + (g * inCperG);
+                                size_t inIdx =
+                                    (n * inWdims[1] * inWdims[2] * inWdims[3]) + // 0 * 32 * 32 * 1
+                                    (ox * inWdims[2] * inWdims[3]) + // ? * 32 * 1
+                                    (oy * inWdims[3]) + // ? * 1
+                                    (g * inCperG); // 1 * 1
 
-                                printf("%lu ", inIdx);
+//                                printf("%lu ", inIdx);
 
 //                                size_t filterIdx = libjit_getXYZW(filterWdims, d, fx, fy, 0);
-                                size_t filterIdx = (d * filterWdims[1] * filterWdims[2] * filterWdims[3]) + (fx * filterWdims[2] * filterWdims[3]) + (fy * filterWdims[3]);
+                                size_t filterIdx =
+                                    (d * filterWdims[1] * filterWdims[2] * filterWdims[3]) +
+                                    (fx * filterWdims[2] * filterWdims[3]) +
+                                    (fy * filterWdims[3]);
 
 //                                printf("%lu,", filterIdx);
 
