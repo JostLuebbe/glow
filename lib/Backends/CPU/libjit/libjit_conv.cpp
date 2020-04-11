@@ -465,17 +465,14 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
                     for (size_t ay = 0; ay < outWdims[2]; y += stride_w, ay++) { // 32
                         int32_t sum[depthUnroll];
 
-//                        printf("Before: ");
-                            for (unsigned i = 0; i < depthUnroll; i++) { // 0 - 7
+                        for (unsigned i = 0; i < depthUnroll; i++) { // 0 - 7
                             // Scale the bias to match the scale of the matrix multiplication.
                             sum[i] = libjit_scale_i32i8((int32_t) biasW[d + i] - biasOffset, biasPre, biasPost, biasScale, 0);
-//                            printf("%d,", sum[i]);
                         }
-//                        printf("\n");
 
                         // For each element in the convolution-filter:
-                        for (size_t fx = 0; fx < kernel_h; fx++) {
-                            for (size_t fy = 0; fy < kernel_w; fy++) {
+                        for (size_t fx = 0; fx < kernel_h; fx++) { // 3
+                            for (size_t fy = 0; fy < kernel_w; fy++) { // 3
                                 ssize_t ox = x + fx; // * dilation; ox: -1, 0, 1
                                 ssize_t oy = y + fy; // * dilation; oy: -1, 0, 1
 
@@ -495,12 +492,13 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 
                                 size_t sliceSize = filterWdims[1] * filterWdims[2] * filterWdims[3]; // 3 * 3 * 1
 
-                                for (size_t fd = 0; fd < inCperG; fd++) {
+                                for (size_t fd = 0; fd < inCperG; fd++) { // 0
 //                                    printf("%lu,", inIdx + fd);
                                     int32_t in = inW[inIdx + fd] - inOffset;
 //                                    if (in != 0 ) printf("in: %d\n", in);
-                                    for (unsigned i = 0; i < depthUnroll; i++) {
+                                    for (unsigned i = 0; i < depthUnroll; i++) { // 8
 //                                        printf("%d,", (filterW[filterIdx + (sliceSize * i) + fd] - filterOffset) * in);
+                                        printf("%d, ", filterIdx + (sliceSize * i) + fd);
                                         sum[i] += (filterW[filterIdx + (sliceSize * i) + fd] - filterOffset) * in;
                                     }
                                 }
@@ -545,8 +543,8 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
     }                 // N
 #ifdef debug
     printf("\n********************** PRINTING OUTPUT IMAGE: AFTER **************************\n");
-    printf("[OUTPUT] image row: %zu and col: %zu\n", outWdims[1], outWdims[2]);
-    print_matrix(outWdims[1], outWdims[2], outW);
+//    printf("[OUTPUT] image row: %zu and col: %zu\n", outWdims[1], outWdims[2]);
+//    print_matrix(outWdims[1], outWdims[2], outW);
 //    printf("\n");
 //    print_matrix(outWdims[1], outWdims[2], outW + 32);
 #endif // debug
@@ -641,8 +639,7 @@ void their_old_conv(
                             // Scale the result back to the expected destination scale.
                             int32_t scaledSum = libjit_scale_i32i8(sum[i], outPre, outPost,
                                                                    outScale, outOffset);
-                            outW[libjit_getXYZW(outWdims, n, ax, ay, d + i)] =
-                                libjit_clip(scaledSum);
+                            outW[libjit_getXYZW(outWdims, n, ax, ay, d + i)] = libjit_clip(scaledSum);
                         }
                     } // W
                 }   // H
@@ -841,15 +838,15 @@ void libjit_convolution_i8_i32(int8_t *outW, const int8_t *inW, const int8_t *fi
                                unsigned depthUnroll, dim_t dilation) {
     printf("JOST IN libjit_convolution_i8_i32\n");
 
-    their_old_conv<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides,
+/*    their_old_conv<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides,
                                     pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale,
-                                    outPre, outPost, outScale, depthUnroll, dilation);
+                                    outPre, outPost, outScale, depthUnroll, dilation);*/
 
 /*    libjit_quantized_convolution_generic<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides,
                                                          pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale,
                                                          outPre, outPost, outScale, depthUnroll, dilation);*/
 
-/*    if (inWdims[3] == 1){
+    if (inWdims[3] == 1){
         libjit_quantized_convolution_generic<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides,
                                                       pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale,
                                                       outPre, outPost, outScale, depthUnroll, dilation);
@@ -858,7 +855,7 @@ void libjit_convolution_i8_i32(int8_t *outW, const int8_t *inW, const int8_t *fi
         their_old_conv<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides,
                                         pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale,
                                         outPre, outPost, outScale, depthUnroll, dilation);
-    }*/
+    }
 }
 
 /*void libjit_convolution_i8_i8(int8_t *outW, const int8_t *inW, const int8_t *filterW, const int8_t *biasW, const dim_t *outWdims,
