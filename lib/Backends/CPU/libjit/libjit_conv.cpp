@@ -545,7 +545,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 
                         if (jump % 32 == 0) fprintf(img_file, "\n");
                         if (jump % 1024 == 0) fprintf(img_file, "\n");
-                        fprintf(img_file, "%04d ", outW[libjit_getXYZW(outWdims, n, ax, ay, d + i)]);
+                        fprintf(img_file, "%04d ", outW[libjit_getXYZW(outWdims, n, ax, ay, d)]);
                         jump++;
 
 /*                        for (unsigned i = 0; i < depthUnroll; i++) {
