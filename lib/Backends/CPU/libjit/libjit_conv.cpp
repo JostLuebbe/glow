@@ -456,126 +456,70 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 
     // For each input in the batch:
     for (size_t n = 0; n < inChannels; n++) { // n: 0
-        // For each group of input channels:
-//        for (size_t g = 0; g < group; g++) {
-            // For each output channel in the group. Process 'depthUnroll' output layers together.
-            for (size_t d = 0; d < 1; d += depthUnroll) { // d: 0 -> 8 -> 16 -> 24 // outCperG
-                // For each convolution 'jump' in the input tensor:
-                ssize_t x = -(ssize_t) pad_t; // -1 -> 30
+        // For each output channel in the group. Process 'depthUnroll' output layers together.
+        for (size_t d = 0; d < 1; d += depthUnroll) { // d: 0 -> 8 -> 16 -> 24 // outCperG
+            // For each convolution 'jump' in the input tensor:
+            ssize_t x = -(ssize_t) pad_t; // -1 -> 30
 
-                for (size_t ax = 0; ax < outWdims[1]; x += stride_h, ax++) { // 32
+            for (size_t ax = 0; ax < outWdims[1]; x += stride_h, ax++) { // 32
 
-                    ssize_t y = -(ssize_t) pad_l;
+                ssize_t y = -(ssize_t) pad_l;
 
-                    for (size_t ay = 0; ay < outWdims[2]; y += stride_w, ay++) { // 32
-                        int32_t sum; // int32_t sum[depthUnroll];
+                for (size_t ay = 0; ay < outWdims[2]; y += stride_w, ay++) { // 32
+                    int32_t sum; // int32_t sum[depthUnroll];
 
-                        sum = libjit_scale_i32i8((int32_t) biasW[d] - biasOffset, biasPre, biasPost, biasScale, 0);
-/*                        for (unsigned i = 0; i < depthUnroll; i++) { // 0 - 7
-                            // Scale the bias to match the scale of the matrix multiplication.
-                            // sum[i] = libjit_scale_i32i8((int32_t) biasW[d + i] - biasOffset, biasPre, biasPost, biasScale, 0);
-                            sum = libjit_scale_i32i8((int32_t) biasW[d + i] - biasOffset, biasPre, biasPost, biasScale, 0);
-                        }*/
-                        // For each element in the convolution-filter:
-/*                        for (size_t fx = 0; fx < kernel_h; fx++) { // 0, 1, 2
-                            for (size_t fy = 0; fy < kernel_w; fy++) { // 0, 1, 2
-                                ssize_t ox = x + fx; // * dilation; ox: -1 -> 32
-                                ssize_t oy = y + fy; // * dilation; oy: -1 -> 32
+                    sum = libjit_scale_i32i8((int32_t) biasW[d] - biasOffset, biasPre, biasPost, biasScale, 0);
 
-                                // Ignore index access below zero (this is due to padding).
-                                if (ox < 0 || oy < 0 || ox >= (ssize_t) inWdims[1] || oy >= (ssize_t) inWdims[2]) {
-                                    continue;
-                                }
+                    // For each element in the convolution-filter:
+                    for (size_t fx = 0; fx < kernel_h; fx++) { // 0, 1, 2
+                        for (size_t fy = 0; fy < kernel_w; fy++) { // 0, 1, 2
+                            ssize_t ox = x + fx; // * dilation; ox: -1 -> 32
+                            ssize_t oy = y + fy; // * dilation; oy: -1 -> 32
 
-                                // Calculate the indices into the Filter and Input buffers.
+                            // Ignore index access below zero (this is due to padding).
+                            if (ox < 0 || oy < 0 || ox >= (ssize_t) inWdims[1] || oy >= (ssize_t) inWdims[2]) {
+                                continue;
+                            }
+
+                            // Calculate the indices into the Filter and Input buffers.
 //                                size_t inIdx = libjit_getXYZW(inWdims, n, (size_t) ox, (size_t) oy, g * inCperG);
-                                size_t inIdx =
-                                    (n * inWdims[1] * inWdims[2] * inWdims[3]) + // 0 * 32 * 32 * 1
-                                    (ox * inWdims[2] * inWdims[3]) + // (0 -> 31) * 32 * 1
-                                    (oy * inWdims[3]) + // (0 -> 31) * 1
-                                    (g * inCperG); // 0 * 1
+                            size_t inIdx =
+                                (n * inWdims[1] * inWdims[2] * inWdims[3]) + // 0 * 32 * 32 * 1
+                                (ox * inWdims[2] * inWdims[3]) + // (0 -> 31) * 32 * 1
+                                (oy * inWdims[3]) + // (0 -> 31) * 1
+                                (g * inCperG); // 0 * 1
 
-//                                printf("%lu ", inIdx);
+                            printf("%lu ", inIdx);
 
 //                                size_t filterIdx = libjit_getXYZW(filterWdims, d, fx, fy, 0);
-                                size_t filterIdx =
-                                    (d * filterWdims[1] * filterWdims[2] * filterWdims[3]) +
-                                    (fx * filterWdims[2] * filterWdims[3]) +
-                                    (fy * filterWdims[3]);
+                            size_t filterIdx =
+                                (d * filterWdims[1] * filterWdims[2] * filterWdims[3]) +
+                                (fx * filterWdims[2] * filterWdims[3]) +
+                                (fy * filterWdims[3]);
 
 //                                printf("%lu,", filterIdx);
 
-                                size_t sliceSize = filterWdims[1] * filterWdims[2] * filterWdims[3]; // 3 * 3 * 1
+                            size_t sliceSize = filterWdims[1] * filterWdims[2] * filterWdims[3]; // 3 * 3 * 1
 
-                                for (size_t fd = 0; fd < inCperG; fd++) { // 0
-//                                    printf("%lu,", inIdx + fd);
-                                    int32_t in = inW[inIdx + fd] - inOffset;
-                                    sum += (filterW[filterIdx + fd] - filterOffset) * in;
-//                                    if (in != 0 ) printf("in: %d\n", in);
-*//*                                    for (unsigned i = 0; i < depthUnroll; i++) { // 8
-//                                        printf("%d,", (filterW[filterIdx + (sliceSize * i) + fd] - filterOffset) * in);
-//                                        printf("%d ", filterIdx + (sliceSize * i) + fd);
-                                        fprintf(kernel_file, "[%lu,%d]\n", (filterIdx + (sliceSize * i) + fd), filterW[filterIdx + (sliceSize * i) + fd]);
-                                        sum[i] += (filterW[filterIdx + (sliceSize * i) + fd] - filterOffset) * in;
-                                    }*//*
-                                }
-*//*                                // Perform the innermost loop of the convolution using 4 vector registers.
-                                for (size_t fd = 0; fd < inCperG; fd++) {
-//                                    printf("%lu,", inIdx + fd);
-                                    int32_t in = inW[inIdx + fd] - inOffset;
-//                                    if (in != 0 ) printf("in: %d\n", in);
-                                    for (unsigned i = 0; i < MIN(4, depthUnroll); i++) {
-//                                        printf("%d,", filterIdx + (sliceSize * i) + fd);
-                                        sum[i] += (filterW[filterIdx + (sliceSize * i) + fd] - filterOffset) * in;
-                                    }
-                                }
-
-                                // And perform the innermost loop again with 4 more registers.
-                                if (depthUnroll > 4) { // depthUnroll = 8
-                                    for (size_t fd = 0; fd < inCperG; fd++) {
-                                        int32_t in = inW[inIdx + fd] - inOffset;
-//                                        if (in != 0 ) printf("in: %d\n", in);
-                                        for (unsigned i = 4; i < MIN(8, depthUnroll); i++) {
-                                            sum[i] += (filterW[filterIdx + (sliceSize * i) + fd] - filterOffset) * in;
-                                        }
-                                    }
-                                }*//*
+                            for (size_t fd = 0; fd < inCperG; fd++) { // 0
+                                int32_t in = inW[inIdx + fd] - inOffset;
+                                sum += (filterW[filterIdx + fd] - filterOffset) * in;
                             }
-                        }*/
+                        }
+                    }
 
-                        int32_t scaledSum = libjit_scale_i32i8(sum, outPre, outPost, outScale, outOffset);
-//                            printf("%d,", scaledSum);
-                        outW[libjit_getXYZW(outWdims, n, ax, ay, d)] = libjit_clip(scaledSum);
+                    int32_t scaledSum = libjit_scale_i32i8(sum, outPre, outPost, outScale, outOffset);
 
-                        if (jump % 32 == 0) fprintf(img_file, "\n");
-                        if (jump % 1024 == 0) fprintf(img_file, "\n");
-                        fprintf(img_file, "%04d ", outW[libjit_getXYZW(outWdims, n, ax, ay, d)]);
-                        jump++;
+                    outW[libjit_getXYZW(outWdims, n, ax, ay, d)] = libjit_clip(scaledSum);
 
-/*                        for (unsigned i = 0; i < depthUnroll; i++) {
-                             Scale the result back to the expected destination scale.
-                            printf("%d,", sum[i]);
-                            int32_t scaledSum = libjit_scale_i32i8(sum[i], outPre, outPost, outScale, outOffset);
-                            printf("%d,", scaledSum);
-                            outW[libjit_getXYZW(outWdims, n, ax, ay, d + i)] = libjit_clip(scaledSum);
-
-                            printf("%04d ", outW[libjit_getXYZW(outWdims, n, ax, ay, d + i)]);
-                            if (jump % 32 == 0) printf("\n");
-                            if (jump % 1024 == 0) printf("\n");
-                            jump++;
-
-                            if (i == 0){
-                                if (jump % 32 == 0) fprintf(img_file, "\n");
-                                if (jump % 1024 == 0) fprintf(img_file, "\n");
-                                fprintf(img_file, "%04d ", outW[libjit_getXYZW(outWdims, n, ax, ay, d + i)]);
-                                jump++;
-                            }
-                        }*/
-                    } // W
-                }     // H
-            }         // C
-//        }             // G
-    }                 // N
+                    if (jump % 32 == 0) fprintf(img_file, "\n");
+                    if (jump % 1024 == 0) fprintf(img_file, "\n");
+                    fprintf(img_file, "%04d ", outW[libjit_getXYZW(outWdims, n, ax, ay, d)]);
+                    jump++;
+                } // W
+            }     // H
+        }         // C
+    }             // N
     fclose(kernel_file);
     fclose(img_file);
 #ifdef debug
