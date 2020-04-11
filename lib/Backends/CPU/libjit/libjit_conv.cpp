@@ -471,11 +471,13 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
                     for (size_t ay = 0; ay < outWdims[2]; y += stride_w, ay++) { // 32
                         int32_t sum; // int32_t sum[depthUnroll];
 
-                        for (unsigned i = 0; i < depthUnroll; i++) { // 0 - 7
+                        sum = libjit_scale_i32i8((int32_t) biasW[d] - biasOffset, biasPre, biasPost, biasScale, 0);
+
+/*                        for (unsigned i = 0; i < depthUnroll; i++) { // 0 - 7
                             // Scale the bias to match the scale of the matrix multiplication.
                             // sum[i] = libjit_scale_i32i8((int32_t) biasW[d + i] - biasOffset, biasPre, biasPost, biasScale, 0);
                             sum = libjit_scale_i32i8((int32_t) biasW[d + i] - biasOffset, biasPre, biasPost, biasScale, 0);
-                        }
+                        }*/
 
                         // For each element in the convolution-filter:
                         for (size_t fx = 0; fx < kernel_h; fx++) { // 3
