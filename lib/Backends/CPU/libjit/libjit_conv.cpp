@@ -469,11 +469,12 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
                     ssize_t y = -(ssize_t) pad_l;
 
                     for (size_t ay = 0; ay < outWdims[2]; y += stride_w, ay++) { // 32
-                        int32_t sum[depthUnroll];
+                        int32_t sum; // int32_t sum[depthUnroll];
 
                         for (unsigned i = 0; i < depthUnroll; i++) { // 0 - 7
                             // Scale the bias to match the scale of the matrix multiplication.
-                            sum[i] = libjit_scale_i32i8((int32_t) biasW[d + i] - biasOffset, biasPre, biasPost, biasScale, 0);
+                            // sum[i] = libjit_scale_i32i8((int32_t) biasW[d + i] - biasOffset, biasPre, biasPost, biasScale, 0);
+                            sum = libjit_scale_i32i8((int32_t) biasW[d + i] - biasOffset, biasPre, biasPost, biasScale, 0);
                         }
 
                         // For each element in the convolution-filter:
@@ -503,13 +504,14 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
                                 for (size_t fd = 0; fd < inCperG; fd++) { // 0
 //                                    printf("%lu,", inIdx + fd);
                                     int32_t in = inW[inIdx + fd] - inOffset;
+                                    sum += (filterW[filterIdx + fd] - filterOffset) * in;
 //                                    if (in != 0 ) printf("in: %d\n", in);
-                                    for (unsigned i = 0; i < depthUnroll; i++) { // 8
+/*                                    for (unsigned i = 0; i < depthUnroll; i++) { // 8
 //                                        printf("%d,", (filterW[filterIdx + (sliceSize * i) + fd] - filterOffset) * in);
 //                                        printf("%d ", filterIdx + (sliceSize * i) + fd);
                                         fprintf(kernel_file, "[%lu,%d]\n", (filterIdx + (sliceSize * i) + fd), filterW[filterIdx + (sliceSize * i) + fd]);
                                         sum[i] += (filterW[filterIdx + (sliceSize * i) + fd] - filterOffset) * in;
-                                    }
+                                    }*/
                                 }
 /*                                // Perform the innermost loop of the convolution using 4 vector registers.
                                 for (size_t fd = 0; fd < inCperG; fd++) {
@@ -535,19 +537,26 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
                             }
                         }
 
-//                        printf("After:  ");
-                        for (unsigned i = 0; i < depthUnroll; i++) {
+                        int32_t scaledSum = libjit_scale_i32i8(sum, outPre, outPost, outScale, outOffset);
+//                            printf("%d,", scaledSum);
+                        outW[libjit_getXYZW(outWdims, n, ax, ay, d)] = libjit_clip(scaledSum);
+
+                        if (jump % 32 == 0) fprintf(img_file, "\n");
+                        if (jump % 1024 == 0) fprintf(img_file, "\n");
+                        fprintf(img_file, "%04d ", outW[libjit_getXYZW(outWdims, n, ax, ay, d + i)]);
+                        jump++;
+
+/*                        for (unsigned i = 0; i < depthUnroll; i++) {
                             // Scale the result back to the expected destination scale.
 //                            printf("%d,", sum[i]);
                             int32_t scaledSum = libjit_scale_i32i8(sum[i], outPre, outPost, outScale, outOffset);
 //                            printf("%d,", scaledSum);
                             outW[libjit_getXYZW(outWdims, n, ax, ay, d + i)] = libjit_clip(scaledSum);
 
-
-/*                            printf("%04d ", outW[libjit_getXYZW(outWdims, n, ax, ay, d + i)]);
+*//*                            printf("%04d ", outW[libjit_getXYZW(outWdims, n, ax, ay, d + i)]);
                             if (jump % 32 == 0) printf("\n");
                             if (jump % 1024 == 0) printf("\n");
-                            jump++;*/
+                            jump++;*//*
 
                             if (i == 0){
                                 if (jump % 32 == 0) fprintf(img_file, "\n");
@@ -555,9 +564,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
                                 fprintf(img_file, "%04d ", outW[libjit_getXYZW(outWdims, n, ax, ay, d + i)]);
                                 jump++;
                             }
-
-                        }
-//                        printf("\n");
+                        }*/
                     } // W
                 }     // H
             }         // C
