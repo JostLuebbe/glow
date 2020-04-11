@@ -408,14 +408,14 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
     printf("outPost: %d\n", outPost);       // 15
     printf("outScale: %d\n", outScale);     // 300
 
-    printf("Bias: \n");
+/*    printf("Bias: \n");
     for (int j = 0; j < 32; j++){
         for (int i = 0; i < biasWdims[0]; i++){
             printf("%d ", biasW[i]);
         }
         printf("\n");
     }
-    printf("\n");
+    printf("\n");*/
 /*
     for (int i = 0; i < filterWdims[0] * filterWdims[1] * filterWdims[2]; i++){
         if (!(filterW[i] == filterW[i+576])) printf("HERE\n");
@@ -430,14 +430,14 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 //    printf("\n********************** PRINTING STRIDE ********************************\n");
 //    printf("[STRIDE] row: %zu and col: %zu\n", stride_h, stride_w);
 //
-    printf("\n********************** PRINTING KERNEL ********************************\n");
+/*    printf("\n********************** PRINTING KERNEL ********************************\n");
 
     printf("[FILTER] row: %zu and col: %zu\n", kernel_h, kernel_w);
     print_matrix(kernel_h, kernel_w, filterW);
 
     printf("\n********************** PRINTING INPUT IMAGE ***************************\n");
     printf("[INPUT] image row: %zu and col: %zu\n", inWdims[1], inWdims[2]);
-    print_matrix(inWdims[1], inWdims[2], inW);
+    print_matrix(inWdims[1], inWdims[2], inW);*/
 
 //    printf("\n********************** PRINTING OUTPUT IMAGE: BEFORE **************************\n");
 //    printf("[OUTPUT] image row: %zu and col: %zu\n", outWdims[1], outWdims[2]);
