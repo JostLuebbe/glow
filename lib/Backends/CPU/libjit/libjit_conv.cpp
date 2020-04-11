@@ -370,6 +370,14 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
     printf("filterWdims[1]: %lu\n", filterWdims[1]);
     printf("filterWdims[2]: %lu\n", filterWdims[2]);
     printf("filterWdims[3]: %lu\n", filterWdims[3]);
+    printf("biasOffset: %d\n", biasOffset);
+    printf("biasPre: %d\n", biasPre);
+    printf("biasPost: %d\n", biasPost);
+    printf("biasScale: %d\n", biasScale);
+    printf("outOffset: %d\n", outOffset);
+    printf("outPre: %d\n", outPre);
+    printf("outPost: %d\n", outPost);
+    printf("outScale: %d\n", outScale);
 
     printf("Bias: ");
     for (int i = 0; i < biasWdims[0]; i++){
@@ -414,7 +422,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 //        for (size_t g = 0; g < group; g++) {
 
             // For each output channel in the group. Process 'depthUnroll' output layers together.
-            for (size_t d = 0; d < outCperG; d += depthUnroll) { // d: 0 -> 8 -> 16 -> 32
+            for (size_t d = 0; d < outCperG; d += depthUnroll) { // d: 0 -> 8 -> 16 -> 24
                 // For each convolution 'jump' in the input tensor:
                 ssize_t x = -(ssize_t) pad_t;
 //                printf("x: %ld\n", x);
@@ -426,7 +434,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
                         int32_t sum[depthUnroll];
 
 //                        printf("Before: ");
-                        for (unsigned i = 0; i < depthUnroll; i++) { // 0 - 8
+                            for (unsigned i = 0; i < depthUnroll; i++) { // 0 - 7
                             // Scale the bias to match the scale of the matrix multiplication.
                             sum[i] = libjit_scale_i32i8((int32_t) biasW[d + i] - biasOffset, biasPre, biasPost, biasScale, 0);
 //                            printf("%d,", sum[i]);
