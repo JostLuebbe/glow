@@ -448,6 +448,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
     size_t g = 0;
 
     FILE *kernel_file = fopen("kernel_output.txt", "w");
+    FILE *img_file = fopen("images_output.txt", "w");
 
     int jump = 0;
 
@@ -538,12 +539,17 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 //                            printf("%d,", scaledSum);
                             outW[libjit_getXYZW(outWdims, n, ax, ay, d + i)] = libjit_clip(scaledSum);
 
-                            if (i == 1){
-                                printf("%04d ", outW[libjit_getXYZW(outWdims, n, ax, ay, d + i)]);
-                                if (jump % 32 == 0) printf("\n");
-                                if (jump % 1024 == 0) printf("\n");
-                                jump++;
-                            }
+
+/*                            printf("%04d ", outW[libjit_getXYZW(outWdims, n, ax, ay, d + i)]);
+                            if (jump % 32 == 0) printf("\n");
+                            if (jump % 1024 == 0) printf("\n");
+                            jump++;*/
+
+                            fprintf(img_file, "%04d ", outW[libjit_getXYZW(outWdims, n, ax, ay, d + i)]);
+                            if (jump % 32 == 0) fprintf(img_file, "\n");
+                            if (jump % 1024 == 0) fprintf(img_file, "\n");
+                            jump++;
+
                         }
 //                        printf("\n");
                     } // W
@@ -552,6 +558,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 //        }             // G
     }                 // N
     fclose(kernel_file);
+    fclose(img_file);
 /*#ifdef debug
     printf("\n********************** PRINTING OUTPUT IMAGE: AFTER **************************\n");
     printf("[OUTPUT] image row: %zu and col: %zu\n", outWdims[1], outWdims[2]);
