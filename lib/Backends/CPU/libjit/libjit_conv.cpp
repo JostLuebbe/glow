@@ -449,6 +449,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 
     FILE *kernel_file = fopen("kernel_output.txt", "w");
 
+    int jump = 0;
 
     // For each input in the batch:
     for (size_t n = 0; n < inChannels; n++) { // n: 0 -> 1
@@ -501,7 +502,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
                                     for (unsigned i = 0; i < depthUnroll; i++) { // 8
 //                                        printf("%d,", (filterW[filterIdx + (sliceSize * i) + fd] - filterOffset) * in);
 //                                        printf("%d, ", filterIdx + (sliceSize * i) + fd);
-                                        if (i == 0) fprintf(kernel_file, "%lu\n", (filterIdx + (sliceSize * i) + fd));
+//                                        if (i == 0) fprintf(kernel_file, "%lu\n", (filterIdx + (sliceSize * i) + fd));
                                         sum[i] += (filterW[filterIdx + (sliceSize * i) + fd] - filterOffset) * in;
                                     }
                                 }
@@ -537,6 +538,11 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 //                            printf("%d,", scaledSum);
                             outW[libjit_getXYZW(outWdims, n, ax, ay, d + i)] = libjit_clip(scaledSum);
 
+                            if (i == 0){
+                                if (jump % 32 == 0) printf("\n");
+                                printf("%d", outW[libjit_getXYZW(outWdims, n, ax, ay, d + i)])
+                                jump++;
+                            }
                         }
 //                        printf("\n");
                     } // W
