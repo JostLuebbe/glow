@@ -539,8 +539,9 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
                             outW[libjit_getXYZW(outWdims, n, ax, ay, d + i)] = libjit_clip(scaledSum);
 
                             if (i == 0){
-                                if (jump % 32 == 0) printf("\n");
                                 printf("%04d ", outW[libjit_getXYZW(outWdims, n, ax, ay, d + i)]);
+                                if (jump % 32 == 0) printf("\n");
+                                if (jump % 1024 == 0) printf("\n");
                                 jump++;
                             }
                         }
