@@ -477,7 +477,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
                             sum = libjit_scale_i32i8((int32_t) biasW[d + i] - biasOffset, biasPre, biasPost, biasScale, 0);
                         }*/
                         // For each element in the convolution-filter:
-                        for (size_t fx = 0; fx < kernel_h; fx++) { // 0, 1, 2
+/*                        for (size_t fx = 0; fx < kernel_h; fx++) { // 0, 1, 2
                             for (size_t fy = 0; fy < kernel_w; fy++) { // 0, 1, 2
                                 ssize_t ox = x + fx; // * dilation; ox: -1 -> 32
                                 ssize_t oy = y + fy; // * dilation; oy: -1 -> 32
@@ -512,14 +512,14 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
                                     int32_t in = inW[inIdx + fd] - inOffset;
                                     sum += (filterW[filterIdx + fd] - filterOffset) * in;
 //                                    if (in != 0 ) printf("in: %d\n", in);
-/*                                    for (unsigned i = 0; i < depthUnroll; i++) { // 8
+*//*                                    for (unsigned i = 0; i < depthUnroll; i++) { // 8
 //                                        printf("%d,", (filterW[filterIdx + (sliceSize * i) + fd] - filterOffset) * in);
 //                                        printf("%d ", filterIdx + (sliceSize * i) + fd);
                                         fprintf(kernel_file, "[%lu,%d]\n", (filterIdx + (sliceSize * i) + fd), filterW[filterIdx + (sliceSize * i) + fd]);
                                         sum[i] += (filterW[filterIdx + (sliceSize * i) + fd] - filterOffset) * in;
-                                    }*/
+                                    }*//*
                                 }
-/*                                // Perform the innermost loop of the convolution using 4 vector registers.
+*//*                                // Perform the innermost loop of the convolution using 4 vector registers.
                                 for (size_t fd = 0; fd < inCperG; fd++) {
 //                                    printf("%lu,", inIdx + fd);
                                     int32_t in = inW[inIdx + fd] - inOffset;
@@ -539,9 +539,9 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
                                             sum[i] += (filterW[filterIdx + (sliceSize * i) + fd] - filterOffset) * in;
                                         }
                                     }
-                                }*/
+                                }*//*
                             }
-                        }
+                        }*/
 
                         int32_t scaledSum = libjit_scale_i32i8(sum, outPre, outPost, outScale, outOffset);
 //                            printf("%d,", scaledSum);
