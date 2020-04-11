@@ -563,13 +563,13 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
     }                 // N
     fclose(kernel_file);
     fclose(img_file);
-/*#ifdef debug
+#ifdef debug
     printf("\n********************** PRINTING OUTPUT IMAGE: AFTER **************************\n");
     printf("[OUTPUT] image row: %zu and col: %zu\n", outWdims[1], outWdims[2]);
     print_matrix(outWdims[1], outWdims[2], outW);
-    printf("\n");
-    print_matrix(outWdims[1], outWdims[2], outW + 32);
-#endif // debug*/
+//    printf("\n");
+//    print_matrix(outWdims[1], outWdims[2], outW + 32);
+#endif // debug
 }
 
 /// Generic template for quantized convolution. The template allows choosing
