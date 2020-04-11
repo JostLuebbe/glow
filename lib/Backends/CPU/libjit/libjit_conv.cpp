@@ -445,6 +445,8 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 
 #endif // debug
 
+    depthUnroll = 1;
+
     size_t g = 0;
 
     FILE *kernel_file = fopen("kernel_output.txt", "w");
@@ -551,6 +553,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
                                 fprintf(img_file, "%04d ", outW[libjit_getXYZW(outWdims, n, ax, ay, d + i)]);
                                 jump++;
                             }
+
                         }
 //                        printf("\n");
                     } // W
