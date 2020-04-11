@@ -540,7 +540,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 
                             if (i == 0){
                                 if (jump % 32 == 0) printf("\n");
-                                printf("%d", outW[libjit_getXYZW(outWdims, n, ax, ay, d + i)])
+                                printf("%d ", outW[libjit_getXYZW(outWdims, n, ax, ay, d + i)]);
                                 jump++;
                             }
                         }
