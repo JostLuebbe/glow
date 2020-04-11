@@ -447,6 +447,8 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 
     size_t g = 0;
 
+    FILE *kernel_file = fopen("kernel_output.txt", "w");
+
 
     // For each input in the batch:
     for (size_t n = 0; n < inChannels; n++) { // n: 0 -> 1
@@ -498,7 +500,8 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 //                                    if (in != 0 ) printf("in: %d\n", in);
                                     for (unsigned i = 0; i < depthUnroll; i++) { // 8
 //                                        printf("%d,", (filterW[filterIdx + (sliceSize * i) + fd] - filterOffset) * in);
-                                        printf("%d, ", filterIdx + (sliceSize * i) + fd);
+//                                        printf("%d, ", filterIdx + (sliceSize * i) + fd);
+                                        fprintf(kernel_file, "%d ", filterIdx + (sliceSize * i) + fd);
                                         sum[i] += (filterW[filterIdx + (sliceSize * i) + fd] - filterOffset) * in;
                                     }
                                 }
@@ -541,6 +544,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
             }         // C
 //        }             // G
     }                 // N
+    fclose(kernel_file);
 /*#ifdef debug
     printf("\n********************** PRINTING OUTPUT IMAGE: AFTER **************************\n");
     printf("[OUTPUT] image row: %zu and col: %zu\n", outWdims[1], outWdims[2]);
