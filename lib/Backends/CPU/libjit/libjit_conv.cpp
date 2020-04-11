@@ -545,20 +545,20 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 
                         if (jump % 32 == 0) fprintf(img_file, "\n");
                         if (jump % 1024 == 0) fprintf(img_file, "\n");
-                        fprintf(img_file, "%04d ", outW[libjit_getXYZW(outWdims, n, ax, ay, d)]);
+                        fprintf(img_file, "%04d ", outW[libjit_getXYZW(outWdims, n, ax, ay, d + i)]);
                         jump++;
 
 /*                        for (unsigned i = 0; i < depthUnroll; i++) {
-                            // Scale the result back to the expected destination scale.
-//                            printf("%d,", sum[i]);
+                             Scale the result back to the expected destination scale.
+                            printf("%d,", sum[i]);
                             int32_t scaledSum = libjit_scale_i32i8(sum[i], outPre, outPost, outScale, outOffset);
-//                            printf("%d,", scaledSum);
+                            printf("%d,", scaledSum);
                             outW[libjit_getXYZW(outWdims, n, ax, ay, d + i)] = libjit_clip(scaledSum);
 
-*//*                            printf("%04d ", outW[libjit_getXYZW(outWdims, n, ax, ay, d + i)]);
+                            printf("%04d ", outW[libjit_getXYZW(outWdims, n, ax, ay, d + i)]);
                             if (jump % 32 == 0) printf("\n");
                             if (jump % 1024 == 0) printf("\n");
-                            jump++;*//*
+                            jump++;
 
                             if (i == 0){
                                 if (jump % 32 == 0) fprintf(img_file, "\n");
