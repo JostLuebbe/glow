@@ -557,6 +557,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 
                             for (size_t fd = 0; fd < inCperG; fd++) { // 0
                                 int32_t in = inW[inIdx + fd] - inOffset;
+                                printf("%d,",inW[inIdx + fd] - inOffset;
                                 sum += (filterW[filterIdx + fd] - filterOffset) * in;
                             }
                         }
