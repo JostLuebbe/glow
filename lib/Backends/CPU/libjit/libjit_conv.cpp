@@ -496,7 +496,7 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
                     }
                 }
             }
-            res[(y / stride)][(x / stride)] = sum;
+            res[(y / stride_h)][(x / stride_w)] = sum;
         }
     }
 
