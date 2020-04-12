@@ -325,9 +325,9 @@ void print_simple_matrix(dim_t rows, dim_t cols, const signed char *matrix) {
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
             if (j < cols - 1)
-                printf("%04d ", matrix[k + i * rows + j]);
+                printf("%04d ", matrix[i * rows + j]);
             else
-                printf("%04d", matrix[k + i * rows + j]);
+                printf("%04d", matrix[i * rows + j]);
         }
         printf("\n");
     }
