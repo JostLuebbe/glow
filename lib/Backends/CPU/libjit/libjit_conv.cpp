@@ -466,6 +466,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 
     for (int y = 0; y < 32; y += 1) {
         for (int x = 0; x < 32; x += 1) {
+            printf("%d,", biasW[x]);
             int32_t sum = libjit_scale_i32i8((int32_t) biasW[x] - biasOffset, biasPre, biasPost, biasScale, 0);
 
 //            printf("%d,", sum);
@@ -476,14 +477,14 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
                     if (in_bounds(x + c, y + r, 32, 32)) {
 //                        sum += (inW[y + r][x + c] - inOffset) * (filterW[r + (kernel_h / 2)][c + (kernel_w / 2)] - filterOffset);
 //                        printf("%d,",(inW[y * inWdims[1] + x] - inOffset));
-                        sum += (inW[y * 32 + x] - inOffset) * (filterW[(r + 1) * kernel_w + (c + 1)] - filterOffset);
+                        sum += (inW[y * 32 + x] - inOffset) * (filterW[(r + 1) * 3 + (c + 1)] - filterOffset);
                     }
                 }
             }
 
             int32_t scaledSum = libjit_scale_i32i8(sum, outPre, outPost, outScale, outOffset);
 
-            outW[(y / stride_h) * inWdims[1] + (x / stride_w)] = (int8_t) MIN(MAX(scaledSum, -128), 127);
+            outW[(y / 1) * 32 + (x / 1)] = (int8_t) MIN(MAX(scaledSum, -128), 127);
         }
 //        printf("\n");
     }
