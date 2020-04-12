@@ -509,7 +509,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 
                 for (size_t ay = 0; ay < outWdims[2]; y += stride_w, ay++) { // 32
 
-                    outW[libjit_getXYZW(outWdims, n, ax, ay, d)] = res[ax][ay];
+                    outW[libjit_getXYZW(outWdims, n, ax, ay, d)] = res[ax * 32 + ay];
 
                     if (jump % 32 == 0) fprintf(our_image_file, "\n");
                     if (jump % 1024 == 0) fprintf(our_image_file, "\n");
