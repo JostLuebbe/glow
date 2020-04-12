@@ -440,18 +440,18 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
     for (int i = 0; i < filterWdims[0] * filterWdims[1] * filterWdims[2]; i++){
         if (!(filterW[i] == filterW[i+576])) printf("HERE\n");
     }*/
-/*    printf("Filter: ");
-    for (int i = 0; i < filterWdims[0] * filterWdims[1] * filterWdims[2]; i++){
+    printf("Filter: ");
+    for (int i = 0; i < filterWdims[1] * filterWdims[2]; i++){
         printf("%d,", filterW[i]);
     }
-    printf("\n");*/
+    printf("\n");
 /*
     printf("\n********************** PRINTING STRIDE ********************************\n");
     printf("[STRIDE] row: %zu and col: %zu\n", stride_h, stride_w);
 */
-    printf("\n********************** PRINTING KERNEL ********************************\n");
+/*    printf("\n********************** PRINTING KERNEL ********************************\n");
     printf("[FILTER] row: %zu and col: %zu\n", kernel_h, kernel_w);
-    print_matrix(kernel_h, kernel_w, filterW);
+    print_matrix(kernel_h, kernel_w, filterW);*/
 
 /*    printf("\n********************** PRINTING INPUT IMAGE ***************************\n");
     printf("[INPUT] image row: %zu and col: %zu\n", inWdims[1], inWdims[2]);
