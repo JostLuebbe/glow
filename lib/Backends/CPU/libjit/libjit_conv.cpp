@@ -365,12 +365,28 @@ void print_matrix(dim_t rows, dim_t cols, const signed char *matrix) {
 
 
 void print_matrix_again(dim_t rows, dim_t cols, const signed char* matrix){
-    for (int j = 0; j < rows; j++){
+/*    for (int j = 0; j < rows; j++){
         for (int i = 0; i < rows * cols * cols; i += rows){
             if ((i + j) % (1024) == j) printf("\n");
             printf("%04d ", matrix[i + j]);
         }
         printf("\n");
+    }*/
+
+    for (int j = 0; j < rows; j++){
+        for (int k = 0; k <= cols * cols * cols; k += rows * cols){
+            for (int i = 0; i < rows * cols; i += rows){
+                printf("%04d ", matrix[j + k + i]);
+            }
+            printf("\n");
+        }
+        printf("\n");
+
+/*        for (int i = 0; i < rows * cols * cols; i += rows){
+            if ((i + j) % (1024) == j) printf("\n");
+            printf("%04d ", matrix[i + j]);
+        }
+        printf("\n");*/
     }
 }
 
