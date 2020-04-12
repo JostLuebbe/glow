@@ -476,7 +476,7 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
 #endif // debug
 
     int32_t input[inWdims[1] * inWdims[2]];
-//    int8_t res[inWdims[1] * inWdims[2]];
+    int32_t res[inWdims[1] * inWdims[2]];
     for (int y = 0; y < inWdims[1]; y += 1) {
         for (int x = 0; x < inWdims[2]; x += 1) {
             input[y * 32 + x] = inW[y * 32 + x] + libjit_scale_i32i8((int32_t) biasW[x] - biasOffset, biasPre, biasPost, biasScale, 0);
@@ -487,7 +487,7 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
 
     for (int y = 0; y < inWdims[1]; y += 1) {
         for (int x = 0; x < inWdims[2]; x += 1) {
-            int32_t sum;
+            int32_t sum = 0;
 
             for (int r = -1; r <= 1; r++) {
                 for (int c = -1; c <= 1; c++) {
@@ -496,6 +496,7 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
                     }
                 }
             }
+            res[(y / stride)][(x / stride)] = sum;
         }
     }
 
@@ -520,7 +521,7 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
 
                 for (size_t ay = 0; ay < outWdims[2]; y += stride_w, ay++) { // 32
 
-                    int32_t scaledSum = libjit_scale_i32i8(input[ax * 32 + ay], outPre, outPost, outScale, outOffset);
+                    int32_t scaledSum = libjit_scale_i32i8(res[ax * 32 + ay], outPre, outPost, outScale, outOffset);
 
                     outW[libjit_getXYZW(outWdims, n, ax, ay, d)] = (int8_t) MIN(MAX(scaledSum, -128), 127);
 
