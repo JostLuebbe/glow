@@ -334,6 +334,19 @@ void print_simple_matrix(dim_t rows, dim_t cols, const signed char *matrix) {
     printf("\n");
 }
 
+void print_simple_matrix_32(dim_t rows, dim_t cols, const signed int *matrix) {
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            if (j < cols - 1)
+                printf("%04d ", matrix[i * rows + j]);
+            else
+                printf("%04d", matrix[i * rows + j]);
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
+
 
 void print_matrix(dim_t rows, dim_t cols, const signed char *matrix) {
     for (int k = 0; k < rows * rows * rows; k += rows * rows){
@@ -470,7 +483,7 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
         }
     }
 
-    print_simple_matrix(outWdims[1], outWdims[2], input);
+    print_simple_matrix_32(outWdims[1], outWdims[2], input);
 
     for (int y = 0; y < inWdims[1]; y += 1) {
         for (int x = 0; x < inWdims[2]; x += 1) {
