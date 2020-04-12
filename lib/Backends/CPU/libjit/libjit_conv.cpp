@@ -383,9 +383,9 @@ int in_bounds(int x, int y, int img_x, int img_y) {
 }
 
 void write_layer_output(dim_t rows, dim_t cols, dim_t channels, const signed char *matrix) {
-    char buf[19];
+    char buf[21];
 
-    snprintf(buf, 19, "layer_%02llu_output.txt", channels);
+    snprintf(buf, 21, "layer_%03llu_output.txt", channels);
 
 
     FILE *layer_output_file = fopen(buf, "w");
