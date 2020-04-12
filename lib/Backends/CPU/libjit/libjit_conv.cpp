@@ -364,29 +364,15 @@ void print_matrix(dim_t rows, dim_t cols, const signed char *matrix) {
 }
 
 
-void print_matrix_again(dim_t rows, dim_t cols, const signed char* matrix){
-/*    for (int j = 0; j < rows; j++){
-        for (int i = 0; i < rows * cols * cols; i += rows){
-            if ((i + j) % (1024) == j) printf("\n");
-            printf("%04d ", matrix[i + j]);
-        }
-        printf("\n");
-    }*/
-
-    for (int j = 0; j < rows; j++){
-        for (int k = 0; k < cols * cols * cols; k += rows * cols){
+void print_matrix_again(dim_t rows, dim_t cols, dim_t channels, const signed char* matrix){
+    for (int j = 0; j < channels; j++){
+        for (int k = 0; k < rows * cols * channels; k += rows * cols){
             for (int i = 0; i < rows * cols; i += rows){
                 printf("%04d ", matrix[j + k + i]);
             }
             printf("\n");
         }
         printf("\n");
-
-/*        for (int i = 0; i < rows * cols * cols; i += rows){
-            if ((i + j) % (1024) == j) printf("\n");
-            printf("%04d ", matrix[i + j]);
-        }
-        printf("\n");*/
     }
 }
 
@@ -647,7 +633,7 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
 #ifdef debug
     printf("\n********************** PRINTING OUTPUT IMAGE(s): AFTER **************************\n");
 //    printf("[OUTPUT] image row: %zu and col: %zu\n", outWdims[1], outWdims[2]);
-    print_matrix_again(outWdims[1], outWdims[2], outW);
+    print_matrix_again(outWdims[1], outWdims[2], outCperG, outW);
 //    print_matrix(outWdims[1], outWdims[2], outW);
 #endif // debug
 }
