@@ -488,11 +488,39 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 //        printf("\n");
     }
 
-/*#ifdef debug
+#ifdef debug
     printf("\n********************** PRINTING OUTPUT IMAGE: AFTER **************************\n");
     printf("[OUTPUT] image row: %zu and col: %zu\n", outWdims[1], outWdims[2]);
     print_simple_matrix(outWdims[1], outWdims[2], res);
-#endif // debug*/
+#endif // debug
+
+    FILE *our_image_file = fopen("our_image_output.txt", "w");
+
+    for (size_t n = 0; n < inChannels; n++) { // n: 0
+        // For each output channel in the group. Process 'depthUnroll' output layers together.
+        for (size_t d = 0; d < 1; d += depthUnroll) { // d: 0 -> 8 -> 16 -> 24 // outCperG
+            // For each convolution 'jump' in the input tensor:
+            ssize_t x = -(ssize_t) pad_t; // -1 -> 30
+
+            for (size_t ax = 0; ax < outWdims[1]; x += stride_h, ax++) { // 32
+
+                ssize_t y = -(ssize_t) pad_l;
+
+                for (size_t ay = 0; ay < outWdims[2]; y += stride_w, ay++) { // 32
+
+                    outW[libjit_getXYZW(outWdims, n, ax, ay, d)] = res[ax][ay];
+
+                    if (jump % 32 == 0) fprintf(img_file, "\n");
+                    if (jump % 1024 == 0) fprintf(img_file, "\n");
+                    printf("%lu,", libjit_getXYZW(outWdims, n, ax, ay, d));
+                    fprintf(our_image_file, "%04d ", outW[libjit_getXYZW(outWdims, n, ax, ay, d)]);
+                    jump++;
+                } // W
+            }     // H
+        }         // C
+    }             // N
+
+    fclose(our_image_file);
 
     depthUnroll = 1;
 
