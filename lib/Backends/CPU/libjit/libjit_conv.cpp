@@ -462,10 +462,10 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 
 #endif // debug
 
-    int8_t res[inWdims[1]*inWdims[2]];
+//    int8_t res[inWdims[1]*inWdims[2]];
 
-    for (int y = 0; y < inWdims[1]; y += stride_h) {
-        for (int x = 0; x < inWdims[2]; x += stride_w) {
+    for (int y = 0; y < 32; y += 1) {
+        for (int x = 0; x < 32; x += 1) {
             int32_t sum = libjit_scale_i32i8((int32_t) biasW[x] - biasOffset, biasPre, biasPost, biasScale, 0);
 
 //            printf("%d,", sum);
@@ -473,17 +473,17 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
             for (int r = -1; r <= 1; r++) {
                 for (int c = -1; c <= 1; c++) {
 //                    printf("Here\n");
-                    if (in_bounds(x + c, y + r, inWdims[2], inWdims[1])) {
+                    if (in_bounds(x + c, y + r, 32, 32)) {
 //                        sum += (inW[y + r][x + c] - inOffset) * (filterW[r + (kernel_h / 2)][c + (kernel_w / 2)] - filterOffset);
 //                        printf("%d,",(inW[y * inWdims[1] + x] - inOffset));
-                        sum += (inW[y * inWdims[1] + x] - inOffset) * (filterW[(r + (3 / 2)) * kernel_w + (c + (3 / 2))] - filterOffset);
+                        sum += (inW[y * 32 + x] - inOffset) * (filterW[(r + 1) * kernel_w + (c + 1)] - filterOffset);
                     }
                 }
             }
 
             int32_t scaledSum = libjit_scale_i32i8(sum, outPre, outPost, outScale, outOffset);
 
-            res[(y / stride_h) * inWdims[1] + (x / stride_w)] = (int8_t) MIN(MAX(scaledSum, -128), 127);
+            outW[(y / stride_h) * inWdims[1] + (x / stride_w)] = (int8_t) MIN(MAX(scaledSum, -128), 127);
         }
 //        printf("\n");
     }
@@ -491,7 +491,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 #ifdef debug
     printf("\n********************** PRINTING OUTPUT IMAGE: AFTER **************************\n");
     printf("[OUTPUT] image row: %zu and col: %zu\n", outWdims[1], outWdims[2]);
-    print_simple_matrix(outWdims[1], outWdims[2], res);
+    print_simple_matrix(outWdims[1], outWdims[2], outW);
 #endif // debug
 
     depthUnroll = 1;
