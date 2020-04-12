@@ -321,6 +321,20 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 // ** Our print matrix
 #define debug 1
 #ifdef debug
+void print_simple_matrix(dim_t rows, dim_t cols, const signed char *matrix) {
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            if (j < cols - 1)
+                printf("%04d ", matrix[k + i * rows + j]);
+            else
+                printf("%04d", matrix[k + i * rows + j]);
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
+
+
 void print_matrix(dim_t rows, dim_t cols, const signed char *matrix) {
     for (int k = 0; k < rows * rows * rows; k += rows * rows){
         for (int i = 0; i < rows; i++) {
@@ -477,7 +491,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 #ifdef debug
     printf("\n********************** PRINTING OUTPUT IMAGE: AFTER **************************\n");
     printf("[OUTPUT] image row: %zu and col: %zu\n", outWdims[1], outWdims[2]);
-    print_matrix(outWdims[1], outWdims[2], res);
+    print_simple_matrix(outWdims[1], outWdims[2], res);
 #endif // debug
 
     depthUnroll = 1;
