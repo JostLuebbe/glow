@@ -366,7 +366,7 @@ void print_matrix(dim_t rows, dim_t cols, const signed char *matrix) {
 
 void print_matrix_again(dim_t rows, dim_t cols, dim_t channels, const signed char* matrix){
     for (int j = 0; j < channels; j++){
-        for (int k = 0; k < cols * channels; k += cols){
+        for (int k = 0; k < rows * cols; k += cols){
             for (int i = 0; i < rows * cols; i += rows){
                 printf("%04d ", matrix[j + (k * rows) + i]);
             }
