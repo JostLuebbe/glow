@@ -364,7 +364,7 @@ void print_matrix(dim_t rows, dim_t cols, const signed char *matrix) {
 }
 
 
-void print_matrix_again(dim_t rows, dim_t cols, dim_t channels, const signed char* matrix){
+void print_layer_output(dim_t rows, dim_t cols, dim_t channels, const signed char *matrix){
     for (int j = 0; j < channels; j++){
         for (int k = 0; k < rows * cols; k += cols){
             for (int i = 0; i < rows * cols; i += rows){
@@ -382,10 +382,25 @@ int in_bounds(int x, int y, int img_x, int img_y) {
     return 1;
 }
 
-void write_matrix(dim_t rows, dim_t cols, const signed char *matrix) {
-    FILE *img_file = fopen("jost_output.txt", "a");
+void write_layer_output(dim_t rows, dim_t cols, dim_t channels, const signed char *matrix) {
+    char buf[19];
 
-    for (int k = 0; k < rows * rows * rows; k += rows * rows){
+    snprintf(buf, 19, "layer_%02llu_output.txt", channels);
+
+
+    FILE *layer_output_file = fopen(buf, "w");
+
+    for (int j = 0; j < channels; j++){
+        for (int k = 0; k < rows * cols; k += cols){
+            for (int i = 0; i < rows * cols; i += rows){
+                fprintf(layer_output_file, "%04d ", matrix[j + (k * rows) + i]);
+            }
+            fprintf(layer_output_file, "\n");
+        }
+        fprintf(layer_output_file, "\n");
+    }
+
+/*    for (int k = 0; k < rows * rows * rows; k += rows * rows){
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
                 if (j < cols - 1)
@@ -396,9 +411,9 @@ void write_matrix(dim_t rows, dim_t cols, const signed char *matrix) {
             fprintf(img_file, "\n");
         }
         fprintf(img_file, "\n");
-    }
+    }*/
 
-    fclose(img_file);
+    fclose(layer_output_file);
 }
 #endif // debug
 
@@ -632,7 +647,8 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
     fclose(img_file);
 #ifdef debug
     printf("\n********************** PRINTING OUTPUT IMAGE(s): AFTER **************************\n");
-    print_matrix_again(outWdims[1], outWdims[2], outCperG, outW);
+    write_layer_output(outWdims[1], outWdims[2], outCperG, outW);
+    print_layer_output(outWdims[1], outWdims[2], outCperG, outW);
     printf("[%d,%d,%d,]", outWdims[1], outWdims[2], outCperG);
 #endif // debug
 }
@@ -735,7 +751,8 @@ void libjit_quantized_convolution_generic(
     }         // N
 #ifdef debug
     printf("\n********************** PRINTING OUTPUT IMAGE(s): AFTER **************************\n");
-    print_matrix_again(outWdims[1], outWdims[2], outCperG, outW);
+    write_layer_output(outWdims[1], outWdims[2], outCperG, outW);
+    print_layer_output(outWdims[1], outWdims[2], outCperG, outW);
     printf("[%llu,%llu,%llu]\n", outWdims[1], outWdims[2], outCperG);
 #endif // debug
 }
