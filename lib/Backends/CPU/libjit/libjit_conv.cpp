@@ -427,9 +427,11 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
     }
     printf("\n");*/
 
-//    printf("\n********************** PRINTING STRIDE ********************************\n");
-//    printf("[STRIDE] row: %zu and col: %zu\n", stride_h, stride_w);
-//
+/*
+    printf("\n********************** PRINTING STRIDE ********************************\n");
+    printf("[STRIDE] row: %zu and col: %zu\n", stride_h, stride_w);
+*/
+
 /*    printf("\n********************** PRINTING KERNEL ********************************\n");
 
     printf("[FILTER] row: %zu and col: %zu\n", kernel_h, kernel_w);
@@ -439,10 +441,37 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
     printf("[INPUT] image row: %zu and col: %zu\n", inWdims[1], inWdims[2]);
     print_matrix(inWdims[1], inWdims[2], inW);*/
 
-//    printf("\n********************** PRINTING OUTPUT IMAGE: BEFORE **************************\n");
-//    printf("[OUTPUT] image row: %zu and col: %zu\n", outWdims[1], outWdims[2]);
-//    print_matrix(outWdims[1], outWdims[2], outW);
+/*    printf("\n********************** PRINTING OUTPUT IMAGE: BEFORE **************************\n");
+    printf("[OUTPUT] image row: %zu and col: %zu\n", outWdims[1], outWdims[2]);
+    print_matrix(outWdims[1], outWdims[2], outW);*/
 
+#endif // debug
+
+    int8_t* res[inWdims[1]*inWdims[2]];
+
+    for (int y = 0; y < inWdims[1]; y += stride_h) {
+        for (int x = 0; x < inWdims[2]; x += stride_w) {
+            int32_t sum = libjit_scale_i32i8((int32_t) bias[y][x] - biasOffset, biasPre, biasPost, biasScale, 0);
+
+            for (int r = -(kernel_h / 2); r <= (kernel_h / 2); r++) {
+                for (int c = -(kernel_w / 2); c <= (kernel_w / 2); c++) {
+                    if (in_bounds(x + c, y + r, inWdims[2], inWdims[1])) {
+//                        sum += (inW[y + r][x + c] - inOffset) * (filterW[r + (kernel_h / 2)][c + (kernel_w / 2)] - filterOffset);
+                        sum += (inW[y * inWdims[1] + x] - inOffset) * (filterW[(r + (kernel_h / 2)) * kernel_w + (c + (kernel_w / 2))] - filterOffset);
+                    }
+                }
+            }
+
+            int32_t scaledSum = libjit_scale_i32i8(sum, outPre, outPost, outScale, outOffset);
+
+            res[(y / stride_h) * inWdims[1] + (x / stride_w)] = (int8_t) MIN(MAX(scaledSum, -128), 127);
+        }
+    }
+
+#ifdef debug
+    printf("\n********************** PRINTING OUTPUT IMAGE: AFTER **************************\n");
+    printf("[OUTPUT] image row: %zu and col: %zu\n", outWdims[1], outWdims[2]);
+    print_matrix(outWdims[1], outWdims[2], res);
 #endif // debug
 
     depthUnroll = 1;
@@ -489,7 +518,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
                                 (oy * inWdims[3]) + // (0 -> 31) * 1
                                 (g * inCperG); // 0 * 1
 
-                            printf("%lu ", inIdx);
+//                            printf("%lu ", inIdx);
 
 //                                size_t filterIdx = libjit_getXYZW(filterWdims, d, fx, fy, 0);
                             size_t filterIdx =
@@ -522,13 +551,11 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
     }             // N
     fclose(kernel_file);
     fclose(img_file);
-#ifdef debug
-/*    printf("\n********************** PRINTING OUTPUT IMAGE: AFTER **************************\n");
+/*#ifdef debug
+    printf("\n********************** PRINTING OUTPUT IMAGE: AFTER **************************\n");
     printf("[OUTPUT] image row: %zu and col: %zu\n", outWdims[1], outWdims[2]);
-    print_matrix(outWdims[1], outWdims[2], outW);*/
-//    printf("\n");
-//    print_matrix(outWdims[1], outWdims[2], outW + 32);
-#endif // debug
+    print_matrix(outWdims[1], outWdims[2], outW);
+#endif // debug*/
 }
 
 /// Generic template for quantized convolution. The template allows choosing
