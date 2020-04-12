@@ -428,14 +428,14 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
     printf("outPost: %d\n", outPost);       // 15
     printf("outScale: %d\n", outScale);     // 300
 
-    printf("Bias: \n");
+/*    printf("Bias: \n");
     for (int j = 0; j < 32; j++){
         for (int i = 0; i < biasWdims[0]; i++){
             printf("%d ", biasW[i]);
         }
         printf("\n");
     }
-    printf("\n");
+    printf("\n");*/
 /*
     for (int i = 0; i < filterWdims[0] * filterWdims[1] * filterWdims[2]; i++){
         if (!(filterW[i] == filterW[i+576])) printf("HERE\n");
@@ -473,13 +473,14 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
         for (int x = 0; x < inWdims[2]; x += stride_w) {
             int32_t sum = libjit_scale_i32i8((int32_t) biasW[x] - biasOffset, biasPre, biasPost, biasScale, 0);
 
-            printf("%d,", sum);
+//            printf("%d,", sum);
 
             for (int r = -(3 / 2); r <= (3 / 2); r++) {
                 for (int c = -(3 / 2); c <= (3 / 2); c++) {
 //                    printf("Here\n");
                     if (in_bounds(x + c, y + r, inWdims[2], inWdims[1])) {
 //                        sum += (inW[y + r][x + c] - inOffset) * (filterW[r + (kernel_h / 2)][c + (kernel_w / 2)] - filterOffset);
+                        printf("%d,",(inW[y * inWdims[1] + x] - inOffset));
                         sum += (inW[y * inWdims[1] + x] - inOffset) * (filterW[(r + (3 / 2)) * kernel_w + (c + (3 / 2))] - filterOffset);
                     }
                 }
@@ -489,7 +490,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 
             res[(y / stride_h) * inWdims[1] + (x / stride_w)] = (int8_t) MIN(MAX(scaledSum, -128), 127);
         }
-        printf("\n");
+//        printf("\n");
     }
 
 #ifdef debug
