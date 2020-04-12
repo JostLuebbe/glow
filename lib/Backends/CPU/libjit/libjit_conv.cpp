@@ -495,6 +495,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 #endif // debug
 
     FILE *our_image_file = fopen("our_image_output.txt", "w");
+    int jump = 0;
 
     for (size_t n = 0; n < inChannels; n++) { // n: 0
         // For each output channel in the group. Process 'depthUnroll' output layers together.
@@ -510,8 +511,8 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 
                     outW[libjit_getXYZW(outWdims, n, ax, ay, d)] = res[ax][ay];
 
-                    if (jump % 32 == 0) fprintf(img_file, "\n");
-                    if (jump % 1024 == 0) fprintf(img_file, "\n");
+                    if (jump % 32 == 0) fprintf(our_image_file, "\n");
+                    if (jump % 1024 == 0) fprintf(our_image_file, "\n");
                     printf("%lu,", libjit_getXYZW(outWdims, n, ax, ay, d));
                     fprintf(our_image_file, "%04d ", outW[libjit_getXYZW(outWdims, n, ax, ay, d)]);
                     jump++;
@@ -529,7 +530,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
     FILE *kernel_file = fopen("kernel_output.txt", "w");
     FILE *img_file = fopen("images_output.txt", "w");
 
-    int jump = 0;
+    jump = 0;
 
     // For each input in the batch:
     for (size_t n = 0; n < inChannels; n++) { // n: 0
