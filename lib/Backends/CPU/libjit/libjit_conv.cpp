@@ -457,7 +457,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 
     for (int y = 0; y < inWdims[1]; y += stride_h) {
         for (int x = 0; x < inWdims[2]; x += stride_w) {
-            int32_t sum = libjit_scale_i32i8((int32_t) bias[y][x] - biasOffset, biasPre, biasPost, biasScale, 0);
+            int32_t sum = libjit_scale_i32i8((int32_t) biasW[x] - biasOffset, biasPre, biasPost, biasScale, 0);
 
             for (int r = -(kernel_h / 2); r <= (kernel_h / 2); r++) {
                 for (int c = -(kernel_w / 2); c <= (kernel_w / 2); c++) {
