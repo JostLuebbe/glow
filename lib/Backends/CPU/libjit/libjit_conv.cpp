@@ -336,6 +336,12 @@ void print_matrix(dim_t rows, dim_t cols, const signed char *matrix) {
     }
 }
 
+int in_bounds(int x, int y, int img_x, int img_y) {
+    if (x < 0 || y < 0 || x > img_x - 1 || y > img_y - 1)
+        return 0;
+    return 1;
+}
+
 void write_matrix(dim_t rows, dim_t cols, const signed char *matrix) {
     FILE *img_file = fopen("jost_output.txt", "a");
 
