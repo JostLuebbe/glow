@@ -363,6 +363,17 @@ void print_matrix(dim_t rows, dim_t cols, const signed char *matrix) {
     }
 }
 
+
+void print_matrix_again(dim_t rows, dim_t cols, const signed char* matrix){
+    for (int j = 0; j < rows; j++){
+        for (int i = 0; i < rows * cols * cols; i += rows){
+            if (i + j % 1024 == 0) printf("\n");
+            printf("%d ", matrix[i + j]);
+        }
+        printf("\n");
+    }
+}
+
 int in_bounds(int x, int y, int img_x, int img_y) {
     if (x < 0 || y < 0 || x > img_x - 1 || y > img_y - 1)
         return 0;
@@ -406,30 +417,31 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
     size_t kernel_h = kernelSizes[0];
     size_t kernel_w = kernelSizes[1];
 
-    // dim_t == size_t == lu == unsigned long
+    // size_t == lu == unsigned long
+    // dim_t == llu = unsigned long long
 
 #ifdef debug
-    printf("group: %lu\n", group); // always 0
+    printf("group: %llu\n", group); // always 0
     printf("inOffset: %d\n", inOffset); // -128 > -106 > -60
     printf("filterOffset: %d\n", filterOffset); //
     printf("depthUnroll: %u\n", depthUnroll); // always 8
-    printf("inChannels: %lu\n", inChannels); // 1 > 32 >  64
-    printf("outChannels: %lu\n", outChannels); // 32 > 64 > 128
-    printf("inCperG: %lu\n", inCperG); // 1 > 32 >  64
-    printf("outCperG: %lu\n", outCperG); // 32 > 64 > 128
-    printf("pad_t: %lu\n", pad_t); // always 1
-    printf("pad_l: %lu\n", pad_l); // always 1
-    printf("dilation: %lu\n", dilation); // always 1
+    printf("inChannels: %llu\n", inChannels); // 1 > 32 >  64
+    printf("outChannels: %llu\n", outChannels); // 32 > 64 > 128
+    printf("inCperG: %llu\n", inCperG); // 1 > 32 >  64
+    printf("outCperG: %llu\n", outCperG); // 32 > 64 > 128
+    printf("pad_t: %llu\n", pad_t); // always 1
+    printf("pad_l: %llu\n", pad_l); // always 1
+    printf("dilation: %llu\n", dilation); // always 1
 
-    printf("filterWdims[0]: %lu\n", filterWdims[0]);
-    printf("filterWdims[1]: %lu\n", filterWdims[1]);
-    printf("filterWdims[2]: %lu\n", filterWdims[2]);
-    printf("filterWdims[3]: %lu\n", filterWdims[3]);
+    printf("filterWdims[0]: %llu\n", filterWdims[0]);
+    printf("filterWdims[1]: %llu\n", filterWdims[1]);
+    printf("filterWdims[2]: %llu\n", filterWdims[2]);
+    printf("filterWdims[3]: %llu\n", filterWdims[3]);
 
-    printf("biasWdims[0]: %lu\n", biasWdims[0]);
-    printf("biasWdims[1]: %lu\n", biasWdims[1]);
-    printf("biasWdims[2]: %lu\n", biasWdims[2]);
-    printf("biasWdims[3]: %lu\n", biasWdims[3]);
+    printf("biasWdims[0]: %llu\n", biasWdims[0]);
+    printf("biasWdims[1]: %llu\n", biasWdims[1]);
+    printf("biasWdims[2]: %llu\n", biasWdims[2]);
+    printf("biasWdims[3]: %llu\n", biasWdims[3]);
 
     printf("biasOffset: %d\n", biasOffset); // 0
     printf("biasPre: %d\n", biasPre);       // 0
@@ -549,7 +561,7 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
     // For each input in the batch:
     for (size_t n = 0; n < inChannels; n++) { // n: 0
         // For each output channel in the group. Process 'depthUnroll' output layers together.
-        for (size_t d = 0; d < 1; d += depthUnroll) { // d: 0 -> 8 -> 16 -> 24 // outCperG
+        for (size_t d = 0; d < outCperG; d += depthUnroll) { // d: 0 -> 8 -> 16 -> 24 // outCperG
             // For each convolution 'jump' in the input tensor:
             ssize_t x = -(ssize_t) pad_t; // -1 -> 30
 
@@ -616,11 +628,12 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
     }             // N
     fclose(kernel_file);
     fclose(img_file);
-/*#ifdef debug
-    printf("\n********************** PRINTING OUTPUT IMAGE: AFTER **************************\n");
-    printf("[OUTPUT] image row: %zu and col: %zu\n", outWdims[1], outWdims[2]);
-    print_matrix(outWdims[1], outWdims[2], outW);
-#endif // debug*/
+#ifdef debug
+    printf("\n********************** PRINTING OUTPUT IMAGE(s): AFTER **************************\n");
+//    printf("[OUTPUT] image row: %zu and col: %zu\n", outWdims[1], outWdims[2]);
+    print_matrix_again(outWdims[1], outWdims[2], outW);
+//    print_matrix(outWdims[1], outWdims[2], outW);
+#endif // debug
 }
 
 /// Generic template for quantized convolution. The template allows choosing
@@ -758,9 +771,9 @@ void libjit_convDKKC8_f(float *outW, const float *inW, const float *filterW, con
     dim_t inCperG = inChannels / group;
     dim_t outCperG = outChannels / group;
 
-    printf("\n********************** PRINTING INPUT IMAGE ***************************\n");
+/*    printf("\n********************** PRINTING INPUT IMAGE ***************************\n");
     printf("[INPUT] image row: %zu and col: %zu\n", inWdims[1], inWdims[2]);
-    print_float_matrix(inWdims[1], inWdims[2], inW);
+    print_float_matrix(inWdims[1], inWdims[2], inW);*/
 
     // Select the order in which we iterate over the pixels in the picture.
     auto eachPixelConv = (pixelScanFirst ? &libjit_convDKKC8_foreach_xy_pixels_filter : &libjit_convDKKC8_foreach_xy_filter_pixels);

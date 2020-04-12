@@ -22,22 +22,10 @@ add_custom_target(DLHABundleDir ALL
 #add_dependencies(DLHABundle DLHABundleMain DLHABundleNet)
 
 # Quantized
-#add_executable(QuantizedDLHABundle $<TARGET_OBJECTS:QuantizedDLHABundleMain>)
-#set_target_properties(QuantizedDLHABundle PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY})
-#target_link_libraries(QuantizedDLHABundle PRIVATE ${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY}/dlha.o png PUBLIC
-#        Backend
-#        Backends
-#        Base
-#        Converter
-#        ExecutionEngine
-#        Graph
-#        GraphOptimizer
-#        HostManager
-#        Quantization
-#        QuantizationBase
-#        LLVMSupport
-#        )
-#add_dependencies(QuantizedDLHABundle QuantizedDLHABundleMain QuantizedDLHABundleNet)
+add_executable(QuantizedDLHABundle $<TARGET_OBJECTS:QuantizedDLHABundleMain>)
+set_target_properties(QuantizedDLHABundle PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY})
+target_link_libraries(QuantizedDLHABundle ${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY}/dlha.o png)
+add_dependencies(QuantizedDLHABundle QuantizedDLHABundleMain QuantizedDLHABundleNet)
 
 # Glow Bundles
 # ============
@@ -92,9 +80,11 @@ add_custom_command(
         ${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY}/dlha.o
         COMMAND
         model-compiler
-        -target=arm
-        -mcpu=cortex-a9
-        -float-abi=hard
+        # Cross-Compile Options
+#        -target=arm
+#        -mcpu=cortex-a9
+#        -float-abi=hard
+
         -verbose
         -g
         -load-profile=profile.yml
