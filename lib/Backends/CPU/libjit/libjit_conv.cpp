@@ -440,11 +440,11 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
     for (int i = 0; i < filterWdims[0] * filterWdims[1] * filterWdims[2]; i++){
         if (!(filterW[i] == filterW[i+576])) printf("HERE\n");
     }*/
-    printf("Filter: ");
+/*    printf("Filter: ");
     for (int i = 0; i < filterWdims[1] * filterWdims[2]; i++){
         printf("%d,", filterW[i]);
     }
-    printf("\n");
+    printf("\n");*/
 /*
     printf("\n********************** PRINTING STRIDE ********************************\n");
     printf("[STRIDE] row: %zu and col: %zu\n", stride_h, stride_w);
@@ -462,11 +462,10 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 
 #endif // debug
 
-//    int8_t res[inWdims[1]*inWdims[2]];
+    int8_t res[inWdims[1]*inWdims[2]];
 
     for (int y = 0; y < 32; y += 1) {
         for (int x = 0; x < 32; x += 1) {
-            printf("%d,", biasW[x]);
             int32_t sum = libjit_scale_i32i8((int32_t) biasW[x] - biasOffset, biasPre, biasPost, biasScale, 0);
 
 //            printf("%d,", sum);
@@ -484,16 +483,16 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 
             int32_t scaledSum = libjit_scale_i32i8(sum, outPre, outPost, outScale, outOffset);
 
-            outW[(y / 1) * 32 + (x / 1)] = (int8_t) MIN(MAX(scaledSum, -128), 127);
+            res[(y / 1) * 32 + (x / 1)] = (int8_t) MIN(MAX(scaledSum, -128), 127);
         }
 //        printf("\n");
     }
 
-#ifdef debug
+/*#ifdef debug
     printf("\n********************** PRINTING OUTPUT IMAGE: AFTER **************************\n");
     printf("[OUTPUT] image row: %zu and col: %zu\n", outWdims[1], outWdims[2]);
-    print_simple_matrix(outWdims[1], outWdims[2], outW);
-#endif // debug
+    print_simple_matrix(outWdims[1], outWdims[2], res);
+#endif // debug*/
 
     depthUnroll = 1;
 
@@ -565,6 +564,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 
                     if (jump % 32 == 0) fprintf(img_file, "\n");
                     if (jump % 1024 == 0) fprintf(img_file, "\n");
+                    printf("%lu,", libjit_getXYZW(outWdims, n, ax, ay, d));
                     fprintf(img_file, "%04d ", outW[libjit_getXYZW(outWdims, n, ax, ay, d)]);
                     jump++;
                 } // W
