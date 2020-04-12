@@ -477,7 +477,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
                     if (in_bounds(x + c, y + r, 32, 32)) {
 //                        sum += (inW[y + r][x + c] - inOffset) * (filterW[r + (kernel_h / 2)][c + (kernel_w / 2)] - filterOffset);
 //                        printf("%d,",(inW[y * inWdims[1] + x] - inOffset));
-                        sum += (inW[y * 32 + x] - inOffset) * (filterW[(r + 1) * 3 + (c + 1)] - filterOffset);
+                        sum += (inW[(y + r) * 32 + (x + c)] - inOffset) * (filterW[(r + 1) * 3 + (c + 1)] - filterOffset);
                     }
                 }
             }
