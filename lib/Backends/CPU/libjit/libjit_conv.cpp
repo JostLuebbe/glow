@@ -633,6 +633,7 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
 #ifdef debug
     printf("\n********************** PRINTING OUTPUT IMAGE(s): AFTER **************************\n");
     print_matrix_again(outWdims[1], outWdims[2], outCperG, outW);
+    printf("[%d,%d,%d,]", outWdims[1], outWdims[2], outCperG);
 #endif // debug
 }
 
@@ -735,6 +736,7 @@ void libjit_quantized_convolution_generic(
 #ifdef debug
     printf("\n********************** PRINTING OUTPUT IMAGE(s): AFTER **************************\n");
     print_matrix_again(outWdims[1], outWdims[2], outCperG, outW);
+    printf("[%llu,%llu,%llu]\n", outWdims[1], outWdims[2], outCperG);
 #endif // debug
 }
 
