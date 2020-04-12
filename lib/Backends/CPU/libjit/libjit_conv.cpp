@@ -479,7 +479,7 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
     int32_t res[inWdims[1] * inWdims[2]];
     for (int y = 0; y < inWdims[1]; y += 1) {
         for (int x = 0; x < inWdims[2]; x += 1) {
-            input[y * 32 + x] = inW[y * 32 + x] + libjit_scale_i32i8((int32_t) biasW[x] - biasOffset, biasPre, biasPost, biasScale, 0);
+            input[y * 32 + x] = libjit_scale_i32i8((int32_t) biasW[x] - biasOffset, biasPre, biasPost, biasScale, 0);
         }
     }
 
@@ -487,12 +487,12 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
 
     for (int y = 0; y < inWdims[1]; y += 1) {
         for (int x = 0; x < inWdims[2]; x += 1) {
-            int32_t sum = 0;
+            int32_t sum = input[y * 32 + x];
 
             for (int r = -1; r <= 1; r++) {
                 for (int c = -1; c <= 1; c++) {
                     if (in_bounds(x + c, y + r, inWdims[2], inWdims[1])) {
-                        sum += (input[(y + r) * inWdims[2] + (x + c)] - inOffset) * (filterW[(r + 1) * kernel_h + (c + 1)] - filterOffset);
+                        sum += (inW[(y + r) * inWdims[2] + (x + c)] - inOffset) * (filterW[(r + 1) * kernel_h + (c + 1)] - filterOffset);
                     }
                 }
             }
