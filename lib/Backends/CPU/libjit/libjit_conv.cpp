@@ -428,14 +428,14 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
     printf("outPost: %d\n", outPost);       // 15
     printf("outScale: %d\n", outScale);     // 300
 
-/*    printf("Bias: \n");
+    printf("Bias: \n");
     for (int j = 0; j < 32; j++){
         for (int i = 0; i < biasWdims[0]; i++){
             printf("%d ", biasW[i]);
         }
         printf("\n");
     }
-    printf("\n");*/
+    printf("\n");
 /*
     for (int i = 0; i < filterWdims[0] * filterWdims[1] * filterWdims[2]; i++){
         if (!(filterW[i] == filterW[i+576])) printf("HERE\n");
@@ -489,6 +489,7 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 
             res[(y / stride_h) * inWdims[1] + (x / stride_w)] = (int8_t) MIN(MAX(scaledSum, -128), 127);
         }
+        printf("\n");
     }
 
 #ifdef debug
