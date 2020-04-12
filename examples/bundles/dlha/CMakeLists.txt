@@ -92,6 +92,9 @@ add_custom_command(
         ${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY}/dlha.o
         COMMAND
         model-compiler
+        -target=arm
+        -mcpu=cortex-a9
+        -float-abi=hard
         -verbose
         -g
         -load-profile=profile.yml
