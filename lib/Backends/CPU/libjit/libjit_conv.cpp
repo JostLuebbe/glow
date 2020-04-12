@@ -368,7 +368,7 @@ void print_matrix_again(dim_t rows, dim_t cols, const signed char* matrix){
     for (int j = 0; j < rows; j++){
         for (int i = 0; i < rows * cols * cols; i += rows){
             if (i + j % 1024 == 0) printf("\n");
-            printf("%d ", matrix[i + j]);
+            printf("%04d ", matrix[i + j]);
         }
         printf("\n");
     }
