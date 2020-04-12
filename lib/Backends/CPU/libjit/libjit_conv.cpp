@@ -504,7 +504,10 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
 
 #endif // debug
 
-    int32_t bias[inWdims[1] * inWdims[2]];
+    depthUnroll = 1;
+
+
+    int32_t bias[biasWdims[1] * inWdims[2]];
     int32_t res[inWdims[1] * inWdims[2]];
     for (int y = 0; y < inWdims[1]; y += 1) {
         for (int x = 0; x < inWdims[2]; x += 1) {
@@ -565,8 +568,6 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
     }             // N
 
     fclose(our_image_file);
-
-    depthUnroll = 1;
 
     size_t g = 0;
 
@@ -752,7 +753,7 @@ void libjit_quantized_convolution_generic(
 #ifdef debug
     printf("\n********************** PRINTING OUTPUT IMAGE(s): AFTER **************************\n");
     write_layer_output(outWdims[1], outWdims[2], outCperG, outW);
-    print_layer_output(outWdims[1], outWdims[2], outCperG, outW);
+//    print_layer_output(outWdims[1], outWdims[2], outCperG, outW);
     printf("[%llu,%llu,%llu]\n", outWdims[1], outWdims[2], outCperG);
 #endif // debug
 }
