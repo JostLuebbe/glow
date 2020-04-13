@@ -551,6 +551,12 @@ void sighandler(int signo) {
 #define READ_CMD  (0x0 << 31)
 #define WRITE_CMD (0x1 << 31)
 
+#define WAIT() \
+  volatile int __wait = 0x7FFFFFFF; \
+  for (; __wait > 0; --__wait);
+
+#define __SLEEPTIME 0x10
+
 //void glow_conv(const int8_t inW[1024], const int8_t filterW[9], int bias[1024], int inOffset, int filterOffset, int res[1024]){
 void glow_conv(int inW[1024], int filterW[9], int bias[1024], int inOffset, int filterOffset, int res[1024]){
     printf("ENTERING HARDWARE FUNCTION\n");
@@ -625,16 +631,17 @@ void glow_conv(int inW[1024], int filterW[9], int bias[1024], int inOffset, int 
 //        printf("after inoffset\n");
 
     offset = 0x1002; //filterOffset
-    ioctl(fd, WRITE_CMD + offset++, &filterOffset);
+    ioctl(fd, WRITE_CMD + offset, &filterOffset);
 
 //        printf("after filteroffset\n");
 
-    sleep(1);
-
     printf("before trigger\n");
     // trigger MAC operation
+    volatile int deadtime;
     trig = 0x1;
     ioctl(fd, WRITE_CMD, &trig);
+    WAIT()
+    for(deadtime = __SLEEPTIME; deadtime > 0; --deadtime);
 
     printf("after trigger\n");
 
