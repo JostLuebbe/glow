@@ -670,16 +670,11 @@ void libjit_quantized_convolution_generic(
     int32_t outScale, unsigned depthUnroll, dim_t dilation) {
 
     /* JOST ZONE BEGINS */
-
 /*    int** img, kernel;
 
     size_t img_r, img_c, kernel_r, kernel_c;
 
     run(img, kernel, img_r, img_c, kernel_r, kernel_c);*/
-
-
-
-
     /* JOST ZONE ENDS */
 
     dim_t inChannels = inWdims[3];
@@ -767,12 +762,12 @@ void libjit_quantized_convolution_generic(
             }     // C
         }       // G
     }         // N
-#ifdef debug
+/*#ifdef debug
     printf("\n********************** PRINTING OUTPUT IMAGE(s): AFTER **************************\n");
     write_layer_output(outWdims[1], outWdims[2], outCperG, outW);
 //    print_layer_output(outWdims[1], outWdims[2], outCperG, outW);
     printf("[%llu,%llu,%llu]\n", outWdims[1], outWdims[2], outCperG);
-#endif // debug
+#endif // debug*/
 }
 
 
@@ -991,7 +986,6 @@ void libjit_convolution_i8_i32(int8_t *outW, const int8_t *inW, const int8_t *fi
 void libjit_conv_transpose_f(float *outW, const float *inW, const float *filterW, const float *biasW, const dim_t *outWdims, const dim_t *inWdims,
                              const dim_t *filterWdims, const dim_t *biasWdims, const dim_t *kernels, const dim_t *strides, const dim_t *pads,
                              dim_t group, dim_t dilation) {
-    printf("JOST IN libjit_conv_transpose_f\n");
     // NHWC format is assumed
     dim_t p = sizeof(float);
     memset(outW, 0, outWdims[0] * outWdims[1] * outWdims[2] * outWdims[3] * p);
@@ -1046,7 +1040,6 @@ void libjit_conv_transpose_f(float *outW, const float *inW, const float *filterW
 void libjit_convolution_grad_f(float *inG, const float *outG, const float *inW, float *filterG, float *biasG, const float *filterW,
                                const dim_t *outGdims, const dim_t *inWdims, const dim_t *filterGdims, const dim_t *kernels, const dim_t *strides,
                                const dim_t *pads, dim_t group, dim_t dilation) {
-    printf("JOST IN libjit_convolution_grad_f\n");
     // NHWC format is assumed
     // Clear inG, filterG, and biasG
     dim_t p = sizeof(float);
