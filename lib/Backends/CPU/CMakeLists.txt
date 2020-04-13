@@ -140,6 +140,7 @@ add_library(CPUBackend
             Transforms.cpp
         )
 target_link_libraries(CPUBackend
+                      dlha
                       PUBLIC
                         Backend
                         Base
@@ -153,7 +154,7 @@ target_link_libraries(CPUBackend
                         LLVMIRCodeGen
         )
 
-target_link_libraries(CPUBackend dlha)
+#target_link_libraries(CPUBackend dlha)
 add_dependencies(CPUBackend CPURuntime)
 
 set(linked_backends ${linked_backends} CPUBackend PARENT_SCOPE)
