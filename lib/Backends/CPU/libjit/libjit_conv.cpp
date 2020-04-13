@@ -76,7 +76,12 @@ extern "C" {
         // enable FPGA interrupts (global and IP)
         ioctl(fd, READ_CMD + 0x1, &gie);
         gie = gie | 0x00000001;
+
+        printf("gei read done\n");
+
         ioctl(fd, WRITE_CMD + 0x1, &gie);
+
+        printf("gei write done\n");
 
         iie = 0x1;
         ioctl(fd, WRITE_CMD + 0x2, &iie);
