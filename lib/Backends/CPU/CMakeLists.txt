@@ -85,7 +85,7 @@ set(libjit_conv_src_file_path ${CMAKE_CURRENT_LIST_DIR}/libjit/libjit_conv.cpp)
 add_custom_command(
         OUTPUT  ${libjit_conv_obj_file}
         COMMAND ${CLANG_BIN} -c ${libjit_conv_src_file_path} ${CPURunttimeCompilationOptions} -o ${libjit_conv_obj_file}
-        DEPENDS ${libjit_conv_src_file_path} libjit/dlha/dlha.o
+        DEPENDS ${libjit_conv_src_file_path}
         WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
 
 
