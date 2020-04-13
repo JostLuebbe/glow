@@ -120,6 +120,9 @@ if (NOT MSVC)
               libjit/libjit_matmul.cpp)
 endif(NOT MSVC)
 
+#add_library(our_dlha INTERFACE)
+#target_link_libraries(our_dlha INTERFACE dlha)
+
 add_library(CPUBackend
             "${GLOW_BINARY_DIR}/glow/CPU/libjit_bc.inc"
             CPUBackend.cpp
@@ -127,7 +130,9 @@ add_library(CPUBackend
             CPUFactory.cpp
             CPUFunction.cpp
             CPULLVMIRGen.cpp
-            Transforms.cpp)
+            Transforms.cpp
+            dlha
+        )
 target_link_libraries(CPUBackend
                       PUBLIC
                         Backend
@@ -139,7 +144,9 @@ target_link_libraries(CPUBackend
                         GraphOptimizerPipeline
                         QuantizationBase
                         Runtime
-                        LLVMIRCodeGen)
+                        LLVMIRCodeGen
+                        dlha
+        )
 add_dependencies(CPUBackend CPURuntime)
 
 set(linked_backends ${linked_backends} CPUBackend PARENT_SCOPE)

@@ -101,9 +101,6 @@ add_definitions("-DGIT_DATE=\"${GIT_DATE}\"")
 #find_package(dlha CONFIG REQUIRED)
 #add_dependencies()
 #add_library(dlha)
-add_library(our_dlha INTERFACE)
-target_link_libraries(our_dlha INTERFACE dlha)
-
 #target_link_libraries(folly_deps INTERFACE fmt::fmt)
 ## Jost Land End
 
