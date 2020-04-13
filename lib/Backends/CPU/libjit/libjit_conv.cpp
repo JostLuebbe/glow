@@ -47,7 +47,7 @@ extern "C" {
 
     void glow_conv(const int8_t* inW, const int8_t* filterW, int32_t* bias, int32_t inOffset, int32_t filterOffset, int32_t* res){
         //fixed dimensions to test 1st layer, first filter
-        unsigned long volatile trig, gie, iie, stride;
+        unsigned long volatile trig, gie, iie;
         struct sigaction action;
         int fd;
 
@@ -63,7 +63,6 @@ extern "C" {
         // open hardware device (driver)
         fd = open("/dev/fpga", O_RDWR);
         if (fd < 0) {
-
             printf("Unable to open /dev/fpga.  Ensure it exists!\n");
             return;
         }
@@ -101,7 +100,6 @@ extern "C" {
 
         offset = 0x1002; //filterOffset
         ioctl(fd, WRITE_CMD + offset++, &filterOffset);
-
 
         // trigger MAC operation
         trig = 0x1;
@@ -618,76 +616,6 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
 
     glow_conv(inW, filterW, bias, inOffset, filterOffset, res);
 
-    //fixed dimensions to test 1st layer, first filter
-/*    unsigned long volatile trig, gie, iie, stride;
-    struct sigaction action;
-    int fd;
-
-    // install signal handler
-    sigemptyset(&action.sa_mask);
-    sigaddset(&action.sa_mask, SIGIO);
-
-    action.sa_handler = sighandler;
-    action.sa_flags = 0;
-
-    sigaction(SIGIO, &action, NULL);
-
-    // open hardware device (driver)
-    fd = open("/dev/fpga", O_RDWR);
-    if (fd < 0) {
-        printf("Unable to open /dev/fpga.  Ensure it exists!\n");
-        return;
-    }
-    fcntl(fd, F_SETOWN, getpid());
-    fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_ASYNC);
-
-    // enable FPGA interrupts (global and IP)
-    ioctl(fd, READ_CMD + 0x1, &gie);
-    gie = gie | 0x00000001;
-    ioctl(fd, WRITE_CMD + 0x1, &gie);
-
-    iie = 0x1;
-    ioctl(fd, WRITE_CMD + 0x2, &iie);
-
-    // writing img and kernel matrices
-    int offset = 0x400; //images
-
-    for (int i = 0; i < 1024; i++) {
-        ioctl(fd, WRITE_CMD + offset++, &inW[i]);
-    }
-
-    offset = 0x800; //kernel
-    for (int i = 0; i < 9; i++) {
-        ioctl(fd, WRITE_CMD + offset++, &filterW[i]);
-    }
-
-    offset = 0xC00; //bias
-
-    for (int i = 0; i < 1024; i++) {
-        ioctl(fd, WRITE_CMD + offset++, &bias[i]);
-    }
-
-    offset = 0x1000; //inOffset
-    ioctl(fd, WRITE_CMD + offset, &inOffset);
-
-    offset = 0x1002; //filterOffset
-    ioctl(fd, WRITE_CMD + offset, &filterOffset);
-
-    // trigger MAC operation
-    trig = 0x1;
-    ioctl(fd, WRITE_CMD, &trig);
-
-    offset = 0x1400; //result
-    // wait for interrupt
-    while (!det_int) continue;
-
-    for (int i = 0; i < 1024; i++) {
-        ioctl(fd, READ_CMD + offset++, &res[i]);
-    }
-
-    //In the end, close the device driver
-    close(fd);*/
-
     printf("END HARDWARE\n");
 
     // JOST ZONE
@@ -708,7 +636,6 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
             res[(y / stride_h) * inWdims[2] + (x / stride_w)] = sum;
         }
     }*/
-
 
 
 /*#ifdef debug
