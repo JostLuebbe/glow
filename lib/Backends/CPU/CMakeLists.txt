@@ -111,6 +111,9 @@ if (NOT MSVC)
               libjit/libjit.cpp
               libjit/libjit_conv.cpp
               libjit/libjit_matmul.cpp)
+  target_link_libraries(CPURuntimeNative
+          ${DLHA_LIB}
+  )
 endif(NOT MSVC)
 
 #add_library(our_dlha INTERFACE)
