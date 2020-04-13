@@ -69,7 +69,14 @@ endforeach()
 
 # Jost Land Begins
 
+#add_library(DLHABundleMain OBJECT main.cpp)
+#target_compile_options(DLHABundleMain PRIVATE -std=c++11 -g)
+#target_include_directories(DLHABundleMain PUBLIC ${BUNDLE_OUTPUT_DIRECTORY})
+#add_dependencies(DLHABundleMain DLHABundleNet)
+
 link_directories(libjit/dlha)
+include_directories(libjit/dlha)
+#add_library(libjit/dlha)
 
 #set(dlha_files ${CMAKE_CURRENT_LIST_DIR}/libjit/)
 set(libjit_conv_obj_file ${libjit_obj_file_path}/libjit_conv${CMAKE_C_OUTPUT_EXTENSION})
@@ -81,7 +88,6 @@ add_custom_command(
         DEPENDS ${libjit_conv_src_file_path} libjit/dlha/dlha.o
         WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
 
-#target_link_libraries(${libjit_conv_obj_file} )
 
 list(APPEND CPURuntime_OBJS ${libjit_conv_obj_file})
 list(APPEND CPURuntime_SRCS ${libjit_conv_src_file_path})
@@ -111,7 +117,8 @@ if (NOT MSVC)
   add_library(CPURuntimeNative
               libjit/libjit.cpp
               libjit/libjit_conv.cpp
-              libjit/libjit_matmul.cpp)
+              libjit/libjit_matmul.cpp
+              libjit/dlha)
 endif(NOT MSVC)
 
 add_library(CPUBackend
