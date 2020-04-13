@@ -435,6 +435,81 @@ void sighandler(int signo) {
 }
 
 #define READ_CMD  (0x0 << 31)
+#define WRITE_CMD (0x1 << 31)
+
+void glow_conv(int inW[1024], int filterW[9], int bias[1024], int inOffset, int filterOffset, int res[1024]){
+    //fixed dimensions to test 1st layer, first filter
+    unsigned long volatile trig, gie, iie, stride;
+    struct sigaction action;
+    int fd;
+
+    // install signal handler
+    sigemptyset(&action.sa_mask);
+    sigaddset(&action.sa_mask, SIGIO);
+
+    action.sa_handler = sighandler;
+    action.sa_flags = 0;
+
+    sigaction(SIGIO, &action, NULL);
+
+    // open hardware device (driver)
+    fd = open("/dev/fpga", O_RDWR);
+    if (fd < 0) {
+
+        printf("Unable to open /dev/fpga.  Ensure it exists!\n");
+        return;
+    }
+    fcntl(fd, F_SETOWN, getpid());
+    fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_ASYNC);
+
+    // enable FPGA interrupts (global and IP)
+    ioctl(fd, READ_CMD + 0x1, &gie);
+    gie = gie | 0x00000001;
+    ioctl(fd, WRITE_CMD + 0x1, &gie);
+
+    iie = 0x1;
+    ioctl(fd, WRITE_CMD + 0x2, &iie);
+
+    // writing img and kernel matrices
+    int offset = 0x400; //images
+
+    for (int i = 0; i < 1024; r++) {
+        ioctl(fd, WRITE_CMD + offset++, &inW[i]);
+    }
+
+    offset = 0x800; //kernel
+    for (int i = 0; r < 9; r++) {
+        ioctl(fd, WRITE_CMD + offset++, &filterW[i]);
+    }
+
+    offset = 0xC00; //bias
+
+    for (int i = 0; i < 1024; r++) {
+        ioctl(fd, WRITE_CMD + offset++, &bias[i]);
+    }
+
+    offset = 0x1000; //inOffset
+    ioctl(fd, WRITE_CMD + offset, &inOffset);
+
+    offset = 0x1002; //filterOffset
+    ioctl(fd, WRITE_CMD + offset++, &filterOffset);
+
+
+    // trigger MAC operation
+    trig = 0x1;
+    ioctl(fd, WRITE_CMD, &trig);
+
+    offset = 0x1400; //result
+    // wait for interrupt
+    while (!det_int) continue;
+
+    for (int i = 0; i < 1024; r++) {
+        ioctl(fd, READ_CMD + offset++, &res[i]);
+    }
+
+    //In the end, close the device driver
+    close(fd);
+}
 
 template <typename ElemTy, typename BiasElemTy>
 void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const BiasElemTy *biasW, const dim_t *outWdims,
@@ -534,11 +609,14 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
         }
     }
 
-    int32_t res[inWdims[1] * inWdims[2] * inWdims[3]];
+    int32_t res[inWdims[1] * inWdims[2]];
+
+//    void glow_conv(int inW[1024], int filterW[9], int bias[1024], int inOffset, int filterOffset, int res[1024])
+    glow_conv(inW, filterW, bias, inOffset, filterOffset, res);
 
 //    print_simple_matrix_32(outWdims[1], outWdims[2], input);
 
-    for (int y = 0; y < inWdims[1]; y += 1) {
+/*    for (int y = 0; y < inWdims[1]; y += 1) {
         for (int x = 0; x < inWdims[2]; x += 1) {
             int32_t sum = bias[y * biasWdims[0] + x];
 
@@ -551,7 +629,9 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
             }
             res[(y / stride_h) * inWdims[2] + (x / stride_w)] = sum;
         }
-    }
+    }*/
+
+
 
 /*#ifdef debug
     printf("\n********************** PRINTING OUTPUT IMAGE: AFTER **************************\n");
@@ -675,6 +755,9 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
 #endif // debug
 }
 
+
+
+
 /// Generic template for quantized convolution. The template allows choosing
 /// element type and bias type.
 template <typename ElemTy, typename BiasElemTy>
@@ -689,34 +772,6 @@ void libjit_quantized_convolution_generic(
 
     /* JOST ZONE BEGINS */
 
-    unsigned long volatile trig, gie, iie, stride;;
-    struct sigaction action;
-    int fd;
-
-    // install signal handler
-    sigemptyset(&action.sa_mask);
-    sigaddset(&action.sa_mask, SIGIO);
-
-    action.sa_handler = sighandler;
-    action.sa_flags = 0;
-
-    sigaction(SIGIO, &action, NULL);
-
-    // open hardware device (driver)
-    fd = open("/dev/fpga", O_RDWR);
-    if (fd < 0) {
-
-        printf("Unable to open /dev/fpga.  Ensure it exists!\n");
-        return;
-    }
-    fcntl(fd, F_SETOWN, getpid());
-    fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_ASYNC);
-
-    // enable FPGA interrupts (global and IP)
-    ioctl(fd, READ_CMD + 0x1, &gie);
-    gie = gie | 0x00000001;
-
-    printf("GIE: %lu\n", gie);
 /*    int** img, kernel;
 
     size_t img_r, img_c, kernel_r, kernel_c;
