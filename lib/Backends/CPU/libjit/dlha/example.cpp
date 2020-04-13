@@ -166,9 +166,9 @@ void nick_test_conv(int img[16][10][10], int** kernel, int result[16][8][8]){
     close(fd);
 }
 
-void test(){
+void dlha_print(){
     printf("IN TEST\n");
-    test2();
+    dlha_print2();
 }
 
 

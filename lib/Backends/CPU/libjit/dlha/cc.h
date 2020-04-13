@@ -1,6 +1,6 @@
 #include "utility.h"
 
-void test2();
+void dlha_print2();
 
 int in_bounds(int x, int y, int img_x, int img_y);
 

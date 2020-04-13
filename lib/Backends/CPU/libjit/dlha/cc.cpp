@@ -1,6 +1,6 @@
 #include "utility.h"
 
-void test2(){
+void dlha_print2(){
     printf("IN TEST2\n");
 }
 

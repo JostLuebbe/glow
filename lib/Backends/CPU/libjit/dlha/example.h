@@ -7,6 +7,6 @@
 
 void run(int** img, int** kernel, size_t img_r, size_t img_c, size_t kernel_r, size_t kernel_c);
 
-void test();
+void dlha_print();
 
 #endif //CONV_TEST_EXAMPLE_H
