@@ -71,6 +71,8 @@ extern "C" {
         fcntl(fd, F_SETOWN, getpid());
         fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_ASYNC);
 
+        printf("Finished loading device, about to enable interrupts\n");
+
         // enable FPGA interrupts (global and IP)
         ioctl(fd, READ_CMD + 0x1, &gie);
         gie = gie | 0x00000001;
@@ -78,6 +80,8 @@ extern "C" {
 
         iie = 0x1;
         ioctl(fd, WRITE_CMD + 0x2, &iie);
+
+        printf("Finished enabling interrupts\n");
 
         // writing img and kernel matrices
         int offset = 0x400; //images
