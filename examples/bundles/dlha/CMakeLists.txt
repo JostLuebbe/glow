@@ -81,9 +81,9 @@ add_custom_command(
         COMMAND
         model-compiler
         # Cross-Compile Options
-#        -target=arm
-#        -mcpu=cortex-a9
-#        -float-abi=hard
+        -target=arm
+        -mcpu=cortex-a9
+        -float-abi=hard
 
         -verbose
         -g
