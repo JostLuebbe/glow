@@ -76,8 +76,8 @@ set(libjit_conv_src_file_path ${CMAKE_CURRENT_LIST_DIR}/libjit/libjit_conv.cpp)
 
 add_custom_command(
     OUTPUT  ${libjit_conv_obj_file}
-    COMMAND ${CLANG_BIN} -c ${libjit_conv_src_file_path} ${CPURunttimeCompilationOptions} -o ${libjit_conv_obj_file}
-    DEPENDS ${libjit_conv_src_file_path} ${DLHA_LIB}
+    COMMAND ${CLANG_BIN} -c ${libjit_conv_src_file_path} -L${DLHA_LIB} ${CPURunttimeCompilationOptions} -o ${libjit_conv_obj_file}
+    DEPENDS ${libjit_conv_src_file_path}
     WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
 )
 
@@ -123,7 +123,7 @@ endif(NOT MSVC)
 
 #link_directories(${CMAKE_BINARY_DIR}/libdlha.so)
 
-find_library(DLHA_LIB dlha PATHS /usr/local/lib/dlha/)
+#find_library(DLHA_LIB dlha PATHS /usr/local/lib/dlha/)
 
 add_library(CPUBackend
             "${GLOW_BINARY_DIR}/glow/CPU/libjit_bc.inc"
