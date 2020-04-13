@@ -123,7 +123,7 @@ endif(NOT MSVC)
 #add_library(our_dlha INTERFACE)
 #target_link_libraries(our_dlha INTERFACE dlha)
 
-find_package(dlha CONFIG REQUIRED)
+find_library(dlha CONFIG REQUIRED)
 
 add_library(CPUBackend
             "${GLOW_BINARY_DIR}/glow/CPU/libjit_bc.inc"
