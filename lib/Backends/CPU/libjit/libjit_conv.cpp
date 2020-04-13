@@ -13,6 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <sys/ioctl.h>
+#include <fcntl.h>
+#include <signal.h>
+#include <unistd.h>
+
 #include <assert.h>
 #include <math.h>
 #include <stddef.h>
@@ -23,10 +30,7 @@
 #include <sys/types.h>
 
 #include "libjit_defs.h"
-
-extern "C" {
-    void dlha_print();
-}
+//#include "example.h"
 
 namespace {
 // Initialize the convolution output frame for slice \p N with the bias \p
@@ -421,6 +425,17 @@ void write_layer_output(dim_t rows, dim_t cols, dim_t channels, const signed cha
 }
 #endif // debug
 
+volatile int det_int = 0;
+
+void sighandler(int signo) {
+    if (signo == SIGIO) {
+        det_int++;
+        printf("\nInterrupt detected\n");
+    }
+}
+
+#define READ_CMD  (0x0 << 31)
+
 template <typename ElemTy, typename BiasElemTy>
 void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const BiasElemTy *biasW, const dim_t *outWdims,
                                           const dim_t *inWdims, const dim_t *filterWdims, const dim_t *biasWdims, const dim_t *kernelSizes,
@@ -674,7 +689,34 @@ void libjit_quantized_convolution_generic(
 
     /* JOST ZONE BEGINS */
 
-    dlha_print();
+    unsigned long volatile trig, gie, iie, stride;;
+    struct sigaction action;
+    int fd;
+
+    // install signal handler
+    sigemptyset(&action.sa_mask);
+    sigaddset(&action.sa_mask, SIGIO);
+
+    action.sa_handler = sighandler;
+    action.sa_flags = 0;
+
+    sigaction(SIGIO, &action, NULL);
+
+    // open hardware device (driver)
+    fd = open("/dev/fpga", O_RDWR);
+    if (fd < 0) {
+
+        printf("Unable to open /dev/fpga.  Ensure it exists!\n");
+        return;
+    }
+    fcntl(fd, F_SETOWN, getpid());
+    fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_ASYNC);
+
+    // enable FPGA interrupts (global and IP)
+    ioctl(fd, READ_CMD + 0x1, &gie);
+    gie = gie | 0x00000001;
+
+    printf("GIE: %lu", gie);
 /*    int** img, kernel;
 
     size_t img_r, img_c, kernel_r, kernel_c;

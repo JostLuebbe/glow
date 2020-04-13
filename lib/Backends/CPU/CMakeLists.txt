@@ -156,7 +156,7 @@ target_link_libraries(
           QuantizationBase
           Runtime
           LLVMIRCodeGen
-#          "${DLHA_LIB}"
+          "${DLHA_LIB}"
 )
 
 add_dependencies(CPUBackend CPURuntime)
