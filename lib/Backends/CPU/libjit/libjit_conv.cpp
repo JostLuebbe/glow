@@ -32,6 +32,94 @@
 #include "libjit_defs.h"
 //#include "example.h"
 
+extern "C" {
+    volatile int det_int = 0;
+
+    void sighandler(int signo) {
+        if (signo == SIGIO) {
+            det_int++;
+            printf("\nInterrupt detected\n");
+        }
+    }
+
+    #define READ_CMD  (0x0 << 31)
+    #define WRITE_CMD (0x1 << 31)
+
+    void glow_conv(const int8_t* inW, const int8_t* filterW, int32_t* bias, int32_t inOffset, int32_t filterOffset, int32_t* res){
+        //fixed dimensions to test 1st layer, first filter
+        unsigned long volatile trig, gie, iie, stride;
+        struct sigaction action;
+        int fd;
+
+        // install signal handler
+        sigemptyset(&action.sa_mask);
+        sigaddset(&action.sa_mask, SIGIO);
+
+        action.sa_handler = sighandler;
+        action.sa_flags = 0;
+
+        sigaction(SIGIO, &action, NULL);
+
+        // open hardware device (driver)
+        fd = open("/dev/fpga", O_RDWR);
+        if (fd < 0) {
+
+            printf("Unable to open /dev/fpga.  Ensure it exists!\n");
+            return;
+        }
+        fcntl(fd, F_SETOWN, getpid());
+        fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_ASYNC);
+
+        // enable FPGA interrupts (global and IP)
+        ioctl(fd, READ_CMD + 0x1, &gie);
+        gie = gie | 0x00000001;
+        ioctl(fd, WRITE_CMD + 0x1, &gie);
+
+        iie = 0x1;
+        ioctl(fd, WRITE_CMD + 0x2, &iie);
+
+        // writing img and kernel matrices
+        int offset = 0x400; //images
+
+        for (int i = 0; i < 1024; i++) {
+            ioctl(fd, WRITE_CMD + offset++, &inW[i]);
+        }
+
+        offset = 0x800; //kernel
+        for (int i = 0; i < 9; i++) {
+            ioctl(fd, WRITE_CMD + offset++, &filterW[i]);
+        }
+
+        offset = 0xC00; //bias
+
+        for (int i = 0; i < 1024; i++) {
+            ioctl(fd, WRITE_CMD + offset++, &bias[i]);
+        }
+
+        offset = 0x1000; //inOffset
+        ioctl(fd, WRITE_CMD + offset, &inOffset);
+
+        offset = 0x1002; //filterOffset
+        ioctl(fd, WRITE_CMD + offset++, &filterOffset);
+
+
+        // trigger MAC operation
+        trig = 0x1;
+        ioctl(fd, WRITE_CMD, &trig);
+
+        offset = 0x1400; //result
+        // wait for interrupt
+        while (!det_int) continue;
+
+        for (int i = 0; i < 1024; i++) {
+            ioctl(fd, READ_CMD + offset++, &res[i]);
+        }
+
+        //In the end, close the device driver
+        close(fd);
+    }
+}
+
 namespace {
 // Initialize the convolution output frame for slice \p N with the bias \p
 // biasW.
@@ -425,92 +513,6 @@ void write_layer_output(dim_t rows, dim_t cols, dim_t channels, const signed cha
 }
 #endif // debug
 
-volatile int det_int = 0;
-
-void sighandler(int signo) {
-    if (signo == SIGIO) {
-        det_int++;
-        printf("\nInterrupt detected\n");
-    }
-}
-
-#define READ_CMD  (0x0 << 31)
-#define WRITE_CMD (0x1 << 31)
-
-void glow_conv(int inW[1024], int filterW[9], int bias[1024], int inOffset, int filterOffset, int res[1024]){
-    //fixed dimensions to test 1st layer, first filter
-    unsigned long volatile trig, gie, iie, stride;
-    struct sigaction action;
-    int fd;
-
-    // install signal handler
-    sigemptyset(&action.sa_mask);
-    sigaddset(&action.sa_mask, SIGIO);
-
-    action.sa_handler = sighandler;
-    action.sa_flags = 0;
-
-    sigaction(SIGIO, &action, NULL);
-
-    // open hardware device (driver)
-    fd = open("/dev/fpga", O_RDWR);
-    if (fd < 0) {
-
-        printf("Unable to open /dev/fpga.  Ensure it exists!\n");
-        return;
-    }
-    fcntl(fd, F_SETOWN, getpid());
-    fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_ASYNC);
-
-    // enable FPGA interrupts (global and IP)
-    ioctl(fd, READ_CMD + 0x1, &gie);
-    gie = gie | 0x00000001;
-    ioctl(fd, WRITE_CMD + 0x1, &gie);
-
-    iie = 0x1;
-    ioctl(fd, WRITE_CMD + 0x2, &iie);
-
-    // writing img and kernel matrices
-    int offset = 0x400; //images
-
-    for (int i = 0; i < 1024; i++) {
-        ioctl(fd, WRITE_CMD + offset++, &inW[i]);
-    }
-
-    offset = 0x800; //kernel
-    for (int i = 0; i < 9; i++) {
-        ioctl(fd, WRITE_CMD + offset++, &filterW[i]);
-    }
-
-    offset = 0xC00; //bias
-
-    for (int i = 0; i < 1024; i++) {
-        ioctl(fd, WRITE_CMD + offset++, &bias[i]);
-    }
-
-    offset = 0x1000; //inOffset
-    ioctl(fd, WRITE_CMD + offset, &inOffset);
-
-    offset = 0x1002; //filterOffset
-    ioctl(fd, WRITE_CMD + offset++, &filterOffset);
-
-
-    // trigger MAC operation
-    trig = 0x1;
-    ioctl(fd, WRITE_CMD, &trig);
-
-    offset = 0x1400; //result
-    // wait for interrupt
-    while (!det_int) continue;
-
-    for (int i = 0; i < 1024; i++) {
-        ioctl(fd, READ_CMD + offset++, &res[i]);
-    }
-
-    //In the end, close the device driver
-    close(fd);
-}
-
 template <typename ElemTy, typename BiasElemTy>
 void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const BiasElemTy *biasW, const dim_t *outWdims,
                                           const dim_t *inWdims, const dim_t *filterWdims, const dim_t *biasWdims, const dim_t *kernelSizes,
@@ -550,9 +552,9 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
     printf("filterWdims[3]: %llu\n", filterWdims[3]);
 
     printf("biasWdims[0]: %llu\n", biasWdims[0]);
-    printf("biasWdims[1]: %llu\n", biasWdims[1]);
-    printf("biasWdims[2]: %llu\n", biasWdims[2]);
-    printf("biasWdims[3]: %llu\n", biasWdims[3]);
+//    printf("biasWdims[1]: %llu\n", biasWdims[1]);
+//    printf("biasWdims[2]: %llu\n", biasWdims[2]);
+//    printf("biasWdims[3]: %llu\n", biasWdims[3]);
 
     printf("biasOffset: %d\n", biasOffset); // 0
     printf("biasPre: %d\n", biasPre);       // 0
@@ -600,7 +602,6 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
 
     depthUnroll = 1;
 
-
     int32_t bias[biasWdims[0] * biasWdims[0]];
 
     for (int y = 0; y < inWdims[1]; y += 1) {
@@ -615,8 +616,10 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
 
     printf("START HARDWARE\n");
 
+    glow_conv(inW, filterW, bias, inOffset, filterOffset, res);
+
     //fixed dimensions to test 1st layer, first filter
-    unsigned long volatile trig, gie, iie, stride;
+/*    unsigned long volatile trig, gie, iie, stride;
     struct sigaction action;
     int fd;
 
@@ -632,7 +635,6 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
     // open hardware device (driver)
     fd = open("/dev/fpga", O_RDWR);
     if (fd < 0) {
-
         printf("Unable to open /dev/fpga.  Ensure it exists!\n");
         return;
     }
@@ -669,8 +671,7 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
     ioctl(fd, WRITE_CMD + offset, &inOffset);
 
     offset = 0x1002; //filterOffset
-    ioctl(fd, WRITE_CMD + offset++, &filterOffset);
-
+    ioctl(fd, WRITE_CMD + offset, &filterOffset);
 
     // trigger MAC operation
     trig = 0x1;
@@ -685,7 +686,7 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
     }
 
     //In the end, close the device driver
-    close(fd);
+    close(fd);*/
 
     printf("END HARDWARE\n");
 
