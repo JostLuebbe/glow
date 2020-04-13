@@ -46,6 +46,8 @@ extern "C" {
     #define WRITE_CMD (0x1 << 31)
 
     void glow_conv(const int8_t* inW, const int8_t* filterW, int32_t* bias, int32_t inOffset, int32_t filterOffset, int32_t* res){
+        printf("ENTERING HARDWARE FUNCTION\n");
+
         //fixed dimensions to test 1st layer, first filter
         unsigned long volatile trig, gie, iie;
         struct sigaction action;
