@@ -22,7 +22,7 @@
 #include <string.h>
 #include <sys/types.h>
 
-#include "example.h"
+#include "dlha/example.h"
 #include "libjit_defs.h"
 
 namespace {
@@ -671,7 +671,7 @@ void libjit_quantized_convolution_generic(
 
     /* JOST ZONE BEGINS */
 
-//    dlha_print();
+    dlha_print();
 /*    int** img, kernel;
 
     size_t img_r, img_c, kernel_r, kernel_c;
