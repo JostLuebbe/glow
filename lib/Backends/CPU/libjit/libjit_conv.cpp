@@ -71,75 +71,75 @@ extern "C" {
         fcntl(fd, F_SETOWN, getpid());
         fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_ASYNC);
 
-        printf("Finished loading device, about to enable interrupts\n");
+//        printf("Finished loading device, about to enable interrupts\n");
 
         // enable FPGA interrupts (global and IP)
         ioctl(fd, READ_CMD + 0x1, &gie);
         gie = gie | 0x00000001;
 
-        printf("gei read done\n");
+//        printf("gei read done\n");
 
         ioctl(fd, WRITE_CMD + 0x1, &gie);
 
-        printf("gei write done\n");
+//        printf("gei write done\n");
 
         iie = 0x1;
         ioctl(fd, WRITE_CMD + 0x2, &iie);
 
-        printf("Finished enabling interrupts\n");
+//        printf("Finished enabling interrupts\n");
 
         // writing img and kernel matrices
         int offset = 0x400; //images
 
-        printf("before image\n");
+//        printf("before image\n");
         for (int i = 0; i < 1024; i++) {
             ioctl(fd, WRITE_CMD + offset++, &inW[i]);
         }
-        printf("after image\n");
+//        printf("after image\n");
 
-        printf("before kernel\n");
+//        printf("before kernel\n");
         offset = 0x800; //kernel
         for (int i = 0; i < 9; i++) {
             ioctl(fd, WRITE_CMD + offset++, &filterW[i]);
         }
-        printf("after kernel\n");
+//        printf("after kernel\n");
 
         offset = 0xC00; //bias
 
-        printf("before bias\n");
+//        printf("before bias\n");
         for (int i = 0; i < 1024; i++) {
             ioctl(fd, WRITE_CMD + offset++, &bias[i]);
         }
-        printf("after bias\n");
+//        printf("after bias\n");
 
         offset = 0x1000; //inOffset
         ioctl(fd, WRITE_CMD + offset, &inOffset);
 
-        printf("after inoffset\n");
+//        printf("after inoffset\n");
 
         offset = 0x1002; //filterOffset
         ioctl(fd, WRITE_CMD + offset++, &filterOffset);
 
-        printf("after filteroffset\n");
+//        printf("after filteroffset\n");
+
+        sleep(1);
 
         printf("before trigger\n");
         // trigger MAC operation
         trig = 0x1;
         ioctl(fd, WRITE_CMD, &trig);
 
-        printf("after trigger\n");
-
-        sleep(1);
+//        printf("after trigger\n");
 
         offset = 0x1400; //result
         // wait for interrupt
         while (!det_int) continue;
 
-        printf("before result\n");
+//        printf("before result\n");
         for (int i = 0; i < 1024; i++) {
             ioctl(fd, READ_CMD + offset++, &res[i]);
         }
-        printf("after result\n");
+//        printf("after result\n");
 
         //In the end, close the device driver
         close(fd);
