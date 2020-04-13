@@ -115,12 +115,18 @@ extern "C" {
         offset = 0x1000; //inOffset
         ioctl(fd, WRITE_CMD + offset, &inOffset);
 
+        printf("after inoffset\n");
+
         offset = 0x1002; //filterOffset
         ioctl(fd, WRITE_CMD + offset++, &filterOffset);
+
+        printf("after filteroffset\n");
 
         // trigger MAC operation
         trig = 0x1;
         ioctl(fd, WRITE_CMD, &trig);
+
+        printf("after trigger\n");
 
         offset = 0x1400; //result
         // wait for interrupt
