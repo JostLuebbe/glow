@@ -122,6 +122,7 @@ extern "C" {
 
         printf("after filteroffset\n");
 
+        printf("before trigger\n");
         // trigger MAC operation
         trig = 0x1;
         ioctl(fd, WRITE_CMD, &trig);
