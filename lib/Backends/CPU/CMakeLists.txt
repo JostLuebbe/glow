@@ -123,7 +123,10 @@ endif(NOT MSVC)
 #add_library(our_dlha INTERFACE)
 #target_link_libraries(our_dlha INTERFACE dlha)
 
-find_library(dlha CONFIG REQUIRED)
+#find_library(dlha CONFIG REQUIRED)
+
+add_library(dlha SHARED IMPORTED)
+set_target_properties(dlha PROPERTIES IMPORTED_LOCATION /usr/local/lib/libdlha.so)
 
 add_library(CPUBackend
             "${GLOW_BINARY_DIR}/glow/CPU/libjit_bc.inc"
@@ -133,7 +136,6 @@ add_library(CPUBackend
             CPUFunction.cpp
             CPULLVMIRGen.cpp
             Transforms.cpp
-            dlha
         )
 target_link_libraries(CPUBackend
                       PUBLIC
