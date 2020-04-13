@@ -113,7 +113,7 @@ add_custom_target(CPURuntime
 if (NOT MSVC)
   add_library(CPURuntimeNative
               libjit/libjit.cpp
-#              libjit/libjit_conv.cpp
+              libjit/libjit_conv.cpp
               libjit/libjit_matmul.cpp
               #${DLHA_LIB}
           )
