@@ -636,7 +636,7 @@ void glow_conv(int inW[1024], int filterW[9], int bias[1024], int inOffset, int 
     trig = 0x1;
     ioctl(fd, WRITE_CMD, &trig);
 
-//        printf("after trigger\n");
+    printf("after trigger\n");
 
     offset = 0x1400; //result
     // wait for interrupt
