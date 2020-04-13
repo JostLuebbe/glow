@@ -44,7 +44,8 @@ set(CPURunttimeCompilationOptions
       # -I/usr/arm-linux-gnueabihf/include/c++/7.4.0/arm-linux-gnueabihf/
       ${LLVMCPURuntimeExtraFlags})
 
-set(libjit_files "libjit;libjit_conv;libjit_matmul")
+#set(libjit_files "libjit;libjit_conv;libjit_matmul")
+set(libjit_files "libjit;libjit_matmul")
 
 set(libjit_obj_file_path ${CMAKE_CURRENT_BINARY_DIR}/CPURuntime)
 file(MAKE_DIRECTORY ${libjit_obj_file_path})
@@ -65,6 +66,23 @@ foreach(libjit_src_file ${libjit_files})
   list(APPEND CPURuntime_OBJS ${libjit_obj_file})
   list(APPEND CPURuntime_SRCS ${libjit_src_file_path})
 endforeach()
+
+# Jost Land Begins
+
+set(libjit_conv_obj_file ${libjit_obj_file_path}/libjit_conv${CMAKE_C_OUTPUT_EXTENSION})
+set(libjit_conv_src_file_path ${CMAKE_CURRENT_LIST_DIR}/libjit/libjit_conv.cpp)
+
+add_custom_command(
+        OUTPUT  ${libjit_conv_obj_file}
+        COMMAND ${CLANG_BIN} -c ${libjit_conv_src_file_path} ${CPURunttimeCompilationOptions} -o ${libjit_conv_obj_file}
+        DEPENDS ${libjit_conv_src_file_path}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
+
+list(APPEND CPURuntime_OBJS ${libjit_conv_obj_file})
+list(APPEND CPURuntime_SRCS ${libjit_conv_src_file_path})
+
+# Jost Land Ends
+
 
 file(MAKE_DIRECTORY ${GLOW_BINARY_DIR}/CPU)
 add_custom_command(

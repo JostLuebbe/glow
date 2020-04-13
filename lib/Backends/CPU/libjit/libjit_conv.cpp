@@ -23,6 +23,7 @@
 #include <sys/types.h>
 
 #include "libjit_defs.h"
+#include "example.h"
 
 namespace {
 // Initialize the convolution output frame for slice \p N with the bias \p
@@ -507,19 +508,21 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
     depthUnroll = 1;
 
 
-    int32_t bias[biasWdims[1] * inWdims[2]];
-    int32_t res[inWdims[1] * inWdims[2]];
+    int32_t bias[biasWdims[0] * biasWdims[0]];
+
     for (int y = 0; y < inWdims[1]; y += 1) {
         for (int x = 0; x < inWdims[2]; x += 1) {
             bias[y * 32 + x] = libjit_scale_i32i8((int32_t) biasW[x] - biasOffset, biasPre, biasPost, biasScale, 0);
         }
     }
 
+    int32_t res[inWdims[1] * inWdims[2] * inWdims[3]];
+
 //    print_simple_matrix_32(outWdims[1], outWdims[2], input);
 
     for (int y = 0; y < inWdims[1]; y += 1) {
         for (int x = 0; x < inWdims[2]; x += 1) {
-            int32_t sum = bias[y * 32 + x];
+            int32_t sum = bias[y * biasWdims[0] + x];
 
             for (int r = -1; r <= 1; r++) {
                 for (int c = -1; c <= 1; c++) {
@@ -665,6 +668,20 @@ void libjit_quantized_convolution_generic(
     int32_t inOffset, int32_t filterOffset, int32_t biasOffset, int32_t biasPre,
     int32_t biasPost, int32_t biasScale, int32_t outPre, int32_t outPost,
     int32_t outScale, unsigned depthUnroll, dim_t dilation) {
+
+    /* JOST ZONE BEGINS */
+
+/*    int** img, kernel;
+
+    size_t img_r, img_c, kernel_r, kernel_c;
+
+    run(img, kernel, img_r, img_c, kernel_r, kernel_c);*/
+
+
+
+
+    /* JOST ZONE ENDS */
+
     dim_t inChannels = inWdims[3];
     dim_t outChannels = outWdims[3];
     dim_t inCperG = inChannels / group;
