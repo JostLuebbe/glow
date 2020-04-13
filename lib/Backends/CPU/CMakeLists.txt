@@ -82,7 +82,7 @@ add_custom_command(
 )
 
 
-list(APPEND CPURuntime_OBJS ${libjit_conv_obj_file})
+list(APPEND CPURuntime_OBJS ${libjit_conv_obj_file} ${DLHA_LIB})
 list(APPEND CPURuntime_SRCS ${libjit_conv_src_file_path})
 
 # Jost Land Ends
