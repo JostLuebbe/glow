@@ -551,7 +551,7 @@ void sighandler(int signo) {
 #define READ_CMD  (0x0 << 31)
 #define WRITE_CMD (0x1 << 31)
 
-void glow_conv(const int8_t inW[1024], const int8_t filterW[9], int32_t bias[1024], int32_t inOffset, int32_t filterOffset, int32_t res[1024]){
+void glow_conv(int8_t inW[1024], int8_t filterW[9], int bias[1024], int inOffset, int filterOffset, int res[1024]){
 //void glow_conv(int inW[1024], int filterW[9], int bias[1024], int inOffset, int filterOffset, int res[1024])
     printf("ENTERING HARDWARE FUNCTION\n");
 
