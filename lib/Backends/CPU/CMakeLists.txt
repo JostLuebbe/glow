@@ -71,7 +71,7 @@ endforeach()
 
 find_library(DLHA_LIB dlha PATHS /usr/local/lib/dlha/)
 
-#[[set(libjit_conv_obj_file ${libjit_obj_file_path}/libjit_conv${CMAKE_C_OUTPUT_EXTENSION})
+set(libjit_conv_obj_file ${libjit_obj_file_path}/libjit_conv${CMAKE_C_OUTPUT_EXTENSION})
 set(libjit_conv_src_file_path ${CMAKE_CURRENT_LIST_DIR}/libjit/libjit_conv.cpp)
 
 # -L${DLHA_LIB}
@@ -85,7 +85,7 @@ add_custom_command(
 
 
 list(APPEND CPURuntime_OBJS ${libjit_conv_obj_file})
-list(APPEND CPURuntime_SRCS ${libjit_conv_src_file_path})]]
+list(APPEND CPURuntime_SRCS ${libjit_conv_src_file_path})
 
 # Jost Land Ends
 
