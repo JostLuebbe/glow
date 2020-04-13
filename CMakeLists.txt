@@ -96,6 +96,12 @@ execute_process(COMMAND
   ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
 add_definitions("-DGIT_DATE=\"${GIT_DATE}\"")
 
+
+## Jost Land Begins
+find_package(dlha CONFIG REQUIRED)
+#target_link_libraries(folly_deps INTERFACE fmt::fmt)
+## Jost Land End
+
 find_package(PNG)
 if(PNG_FOUND)
   add_definitions(-DWITH_PNG)
