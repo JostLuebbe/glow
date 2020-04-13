@@ -125,8 +125,10 @@ endif(NOT MSVC)
 
 #find_library(dlha CONFIG REQUIRED)
 
-add_library(dlha SHARED IMPORTED)
-set_target_properties(dlha PROPERTIES IMPORTED_LOCATION /usr/local/lib/libdlha.so)
+#add_library(dlha SHARED IMPORTED)
+#set_target_properties(dlha PROPERTIES IMPORTED_LOCATION /usr/local/lib/libdlha.so)
+
+link_directories(${CMAKE_BINARY_DIR}/libdlha.so)
 
 add_library(CPUBackend
             "${GLOW_BINARY_DIR}/glow/CPU/libjit_bc.inc"
@@ -149,9 +151,9 @@ target_link_libraries(CPUBackend
                         QuantizationBase
                         Runtime
                         LLVMIRCodeGen
-                      IMPORTED
-                        dlha
         )
+
+target_link_libraries(CPUBackend dlha)
 add_dependencies(CPUBackend CPURuntime)
 
 set(linked_backends ${linked_backends} CPUBackend PARENT_SCOPE)
