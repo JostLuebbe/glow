@@ -80,20 +80,26 @@ extern "C" {
         // writing img and kernel matrices
         int offset = 0x400; //images
 
+        printf("before image\n");
         for (int i = 0; i < 1024; i++) {
             ioctl(fd, WRITE_CMD + offset++, &inW[i]);
         }
+        printf("after image\n");
 
+        printf("before kernel\n");
         offset = 0x800; //kernel
         for (int i = 0; i < 9; i++) {
             ioctl(fd, WRITE_CMD + offset++, &filterW[i]);
         }
+        printf("after kernel\n");
 
         offset = 0xC00; //bias
 
+        printf("before bias\n");
         for (int i = 0; i < 1024; i++) {
             ioctl(fd, WRITE_CMD + offset++, &bias[i]);
         }
+        printf("after bias\n");
 
         offset = 0x1000; //inOffset
         ioctl(fd, WRITE_CMD + offset, &inOffset);
@@ -109,9 +115,11 @@ extern "C" {
         // wait for interrupt
         while (!det_int) continue;
 
+        printf("before result\n");
         for (int i = 0; i < 1024; i++) {
             ioctl(fd, READ_CMD + offset++, &res[i]);
         }
+        printf("after result\n");
 
         //In the end, close the device driver
         close(fd);
