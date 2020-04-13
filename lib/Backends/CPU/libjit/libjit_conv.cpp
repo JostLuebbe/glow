@@ -716,7 +716,7 @@ void libjit_quantized_convolution_generic(
     ioctl(fd, READ_CMD + 0x1, &gie);
     gie = gie | 0x00000001;
 
-    printf("GIE: %lu", gie);
+    printf("GIE: %lu\n", gie);
 /*    int** img, kernel;
 
     size_t img_r, img_c, kernel_r, kernel_c;
