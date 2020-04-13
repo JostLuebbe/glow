@@ -613,6 +613,8 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
 
     // JOST ZONE
 
+    printf("START HARDWARE\n");
+
     //fixed dimensions to test 1st layer, first filter
     unsigned long volatile trig, gie, iie, stride;
     struct sigaction action;
@@ -684,6 +686,8 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
 
     //In the end, close the device driver
     close(fd);
+
+    printf("END HARDWARE\n");
 
     // JOST ZONE
 
