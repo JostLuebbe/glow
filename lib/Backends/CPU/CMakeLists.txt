@@ -44,8 +44,8 @@ set(CPURunttimeCompilationOptions
       # -I/usr/arm-linux-gnueabihf/include/c++/7.4.0/arm-linux-gnueabihf/
       ${LLVMCPURuntimeExtraFlags})
 
-set(libjit_files "libjit;libjit_conv;libjit_matmul")
-#set(libjit_files "libjit;libjit_matmul")
+#set(libjit_files "libjit;libjit_conv;libjit_matmul")
+set(libjit_files "libjit;libjit_matmul")
 
 set(libjit_obj_file_path ${CMAKE_CURRENT_BINARY_DIR}/CPURuntime)
 file(MAKE_DIRECTORY ${libjit_obj_file_path})
