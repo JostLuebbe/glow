@@ -22,10 +22,10 @@ add_custom_target(DLHABundleDir ALL
 #add_dependencies(DLHABundle DLHABundleMain DLHABundleNet)
 
 # Quantized
-add_executable(QuantizedDLHABundle $<TARGET_OBJECTS:QuantizedDLHABundleMain>)
+#[[add_executable(QuantizedDLHABundle $<TARGET_OBJECTS:QuantizedDLHABundleMain>)
 set_target_properties(QuantizedDLHABundle PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY})
 target_link_libraries(QuantizedDLHABundle ${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY}/dlha.o png)
-add_dependencies(QuantizedDLHABundle QuantizedDLHABundleMain QuantizedDLHABundleNet)
+add_dependencies(QuantizedDLHABundle QuantizedDLHABundleMain QuantizedDLHABundleNet)]]
 
 # Glow Bundles
 # ============
