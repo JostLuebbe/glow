@@ -24,7 +24,9 @@
 
 #include "libjit_defs.h"
 
-void dlha_print();
+extern "C" {
+    void dlha_print();
+}
 
 namespace {
 // Initialize the convolution output frame for slice \p N with the bias \p
