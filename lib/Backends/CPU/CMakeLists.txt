@@ -139,22 +139,22 @@ add_library(CPUBackend
             CPULLVMIRGen.cpp
             Transforms.cpp
         )
-target_link_libraries(CPUBackend
-                      dlha
-                      PUBLIC
-                        Backend
-                        Base
-                        CodeGen
-                        Graph
-                        IR
-                        IROptimizer
-                        GraphOptimizerPipeline
-                        QuantizationBase
-                        Runtime
-                        LLVMIRCodeGen
-        )
+target_link_libraries(
+        CPUBackend
+        PUBLIC
+          Backend
+          Base
+          CodeGen
+          Graph
+          IR
+          IROptimizer
+          GraphOptimizerPipeline
+          QuantizationBase
+          Runtime
+          LLVMIRCodeGen
+          dlha
+)
 
-#target_link_libraries(CPUBackend dlha)
 add_dependencies(CPUBackend CPURuntime)
 
 set(linked_backends ${linked_backends} CPUBackend PARENT_SCOPE)
