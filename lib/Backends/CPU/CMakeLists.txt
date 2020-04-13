@@ -93,7 +93,7 @@ list(APPEND CPURuntime_SRCS ${libjit_conv_src_file_path})
 file(MAKE_DIRECTORY ${GLOW_BINARY_DIR}/CPU)
 add_custom_command(
     OUTPUT ${GLOW_BINARY_DIR}/CPU/libjit.bc
-    COMMAND ${LLVM_LINK_BIN} -o ${GLOW_BINARY_DIR}/CPU/libjit.bc ${CPURuntime_OBJS}
+    COMMAND ${LLVM_LINK_BIN} -L${DLHA_LIB} -o ${GLOW_BINARY_DIR}/CPU/libjit.bc ${CPURuntime_OBJS}
     DEPENDS  ${CPURuntime_OBJS} ${CPURuntime_SRCS}
     WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}")
 
