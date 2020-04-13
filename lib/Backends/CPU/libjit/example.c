@@ -174,6 +174,7 @@ void test(){
 
 
 void run(int** img, int** kernel, size_t img_r, size_t img_c, size_t kernel_r, size_t kernel_c){
+    int input_stride = 1;
 
     int hw_img[16][10][10];
     int hw_res[16][8][8];

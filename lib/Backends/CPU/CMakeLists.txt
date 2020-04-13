@@ -76,7 +76,7 @@ set(libjit_conv_src_file_path ${CMAKE_CURRENT_LIST_DIR}/libjit/libjit_conv.cpp)
 add_custom_command(
         OUTPUT  ${libjit_conv_obj_file}
         COMMAND ${CLANG_BIN} -c ${libjit_conv_src_file_path} ${CPURunttimeCompilationOptions} -o ${libjit_conv_obj_file}
-        DEPENDS ${libjit_conv_src_file_path} ${dlha_files}/example.c ${dlha_files}/example.h ${dlha_files}/cc.c ${dlha_files}/cc.h ${dlha_files}/utility.c ${dlha_files}/utility.h
+        DEPENDS ${libjit_conv_src_file_path} # ${dlha_files}/example.c ${dlha_files}/example.h ${dlha_files}/cc.c ${dlha_files}/cc.h ${dlha_files}/utility.c ${dlha_files}/utility.h
         WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
 
 list(APPEND CPURuntime_OBJS ${libjit_conv_obj_file})
