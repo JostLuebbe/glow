@@ -129,6 +129,8 @@ extern "C" {
 
         printf("after trigger\n");
 
+        sleep(1);
+
         offset = 0x1400; //result
         // wait for interrupt
         while (!det_int) continue;
