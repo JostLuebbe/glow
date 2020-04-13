@@ -44,8 +44,8 @@ set(CPURunttimeCompilationOptions
       # -I/usr/arm-linux-gnueabihf/include/c++/7.4.0/arm-linux-gnueabihf/
       ${LLVMCPURuntimeExtraFlags})
 
-#set(libjit_files "libjit;libjit_conv;libjit_matmul")
-set(libjit_files "libjit;libjit_matmul")
+set(libjit_files "libjit;libjit_conv;libjit_matmul")
+#set(libjit_files "libjit;libjit_matmul")
 
 set(libjit_obj_file_path ${CMAKE_CURRENT_BINARY_DIR}/CPURuntime)
 file(MAKE_DIRECTORY ${libjit_obj_file_path})
@@ -71,14 +71,14 @@ endforeach()
 
 link_directories(libjit/dlha)
 
-set(dlha_files ${CMAKE_CURRENT_LIST_DIR}/libjit/)
+#set(dlha_files ${CMAKE_CURRENT_LIST_DIR}/libjit/)
 set(libjit_conv_obj_file ${libjit_obj_file_path}/libjit_conv${CMAKE_C_OUTPUT_EXTENSION})
 set(libjit_conv_src_file_path ${CMAKE_CURRENT_LIST_DIR}/libjit/libjit_conv.cpp)
 
 add_custom_command(
         OUTPUT  ${libjit_conv_obj_file}
         COMMAND ${CLANG_BIN} -c ${libjit_conv_src_file_path} ${CPURunttimeCompilationOptions} -o ${libjit_conv_obj_file}
-        DEPENDS ${libjit_conv_src_file_path} libjit/dlha
+        DEPENDS ${libjit_conv_src_file_path} libjit/dlha/dlha.o
         WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
 
 #target_link_libraries(${libjit_conv_obj_file} )
