@@ -473,18 +473,18 @@ void glow_conv(int inW[1024], int filterW[9], int bias[1024], int inOffset, int 
     // writing img and kernel matrices
     int offset = 0x400; //images
 
-    for (int i = 0; i < 1024; r++) {
+    for (int i = 0; i < 1024; i++) {
         ioctl(fd, WRITE_CMD + offset++, &inW[i]);
     }
 
     offset = 0x800; //kernel
-    for (int i = 0; r < 9; r++) {
+    for (int i = 0; i < 9; i++) {
         ioctl(fd, WRITE_CMD + offset++, &filterW[i]);
     }
 
     offset = 0xC00; //bias
 
-    for (int i = 0; i < 1024; r++) {
+    for (int i = 0; i < 1024; i++) {
         ioctl(fd, WRITE_CMD + offset++, &bias[i]);
     }
 
@@ -503,7 +503,7 @@ void glow_conv(int inW[1024], int filterW[9], int bias[1024], int inOffset, int 
     // wait for interrupt
     while (!det_int) continue;
 
-    for (int i = 0; i < 1024; r++) {
+    for (int i = 0; i < 1024; i++) {
         ioctl(fd, READ_CMD + offset++, &res[i]);
     }
 
