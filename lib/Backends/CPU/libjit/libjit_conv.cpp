@@ -23,7 +23,7 @@
 #include <sys/types.h>
 
 #include "libjit_defs.h"
-//#include "example.h"
+#include "example.h"
 
 namespace {
 // Initialize the convolution output frame for slice \p N with the bias \p
@@ -670,6 +670,8 @@ void libjit_quantized_convolution_generic(
     int32_t outScale, unsigned depthUnroll, dim_t dilation) {
 
     /* JOST ZONE BEGINS */
+
+    test();
 /*    int** img, kernel;
 
     size_t img_r, img_c, kernel_r, kernel_c;
