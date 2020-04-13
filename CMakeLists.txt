@@ -98,7 +98,9 @@ add_definitions("-DGIT_DATE=\"${GIT_DATE}\"")
 
 
 ## Jost Land Begins
-find_package(dlha CONFIG REQUIRED)
+#find_package(dlha CONFIG REQUIRED)
+#add_dependencies()
+add_library(dlha)
 #target_link_libraries(folly_deps INTERFACE fmt::fmt)
 ## Jost Land End
 
