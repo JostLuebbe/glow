@@ -642,11 +642,11 @@ void glow_conv(int inW[1024], int filterW[9], int bias[1024], int inOffset, int 
     // wait for interrupt
     while (!det_int) continue;
 
-//        printf("before result\n");
+    printf("before result\n");
     for (int i = 0; i < 1024; i++) {
         ioctl(fd, READ_CMD + offset++, &res[i]);
     }
-//        printf("after result\n");
+    printf("after result\n");
 
     //In the end, close the device driver
     close(fd);
