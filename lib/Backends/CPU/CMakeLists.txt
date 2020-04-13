@@ -103,14 +103,16 @@ add_custom_command(
     WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}")
 
 add_custom_target(CPURuntime
-  DEPENDS ${GLOW_BINARY_DIR}/glow/CPU/libjit_bc.inc
+  DEPENDS ${GLOW_BINARY_DIR}/glow/CPU/libjit_bc.inc ${DLHA_LIB}
   WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}")
 
 if (NOT MSVC)
   add_library(CPURuntimeNative
               libjit/libjit.cpp
               libjit/libjit_conv.cpp
-              libjit/libjit_matmul.cpp)
+              libjit/libjit_matmul.cpp
+              ${DLHA_LIB}
+          )
   target_link_libraries(CPURuntimeNative
           ${DLHA_LIB}
   )
