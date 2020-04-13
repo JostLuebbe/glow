@@ -231,7 +231,7 @@ void run(int** img, int** kernel, size_t img_r, size_t img_c, size_t kernel_r, s
 }
 
 
-int main(int argc, char *argv[]) {
+/*int main(int argc, char *argv[]) {
     FILE *img_file, *kernel_file;
     size_t img_r, img_c, kernel_r, kernel_c = 0;
     int input_stride = 1;
@@ -254,4 +254,4 @@ int main(int argc, char *argv[]) {
     run(img, kernel, img_r, img_c, kernel_r, kernel_c);
 
     return 0;
-}
+}*/
