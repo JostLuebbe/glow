@@ -22,8 +22,8 @@
 #include <string.h>
 #include <sys/types.h>
 
+#include "example.h"
 #include "libjit_defs.h"
-#include "dlha/example.h"
 
 namespace {
 // Initialize the convolution output frame for slice \p N with the bias \p
