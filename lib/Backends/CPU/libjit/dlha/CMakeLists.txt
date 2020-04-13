@@ -8,8 +8,8 @@ endif ()
 #add_library(dlha STATIC example.cpp cc.cpp cc.h utility.cpp utility.h)
 
 add_custom_command(
-        OUTPUT  dlha.o
-        COMMAND ${CLANG_BIN} -c example.cpp -o dlha.o
+        OUTPUT  example.o
+        COMMAND ${CLANG_BIN} -c ../example.cpp -o example.o
         DEPENDS cc.cpp cc.h utility.cpp utility.h
         WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
 )
