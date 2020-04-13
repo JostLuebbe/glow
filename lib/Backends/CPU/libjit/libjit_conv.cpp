@@ -22,7 +22,7 @@
 #include <string.h>
 #include <sys/types.h>
 
-#include "dlha/example.h"
+//#include "dlha/example.h"
 #include "libjit_defs.h"
 
 namespace {

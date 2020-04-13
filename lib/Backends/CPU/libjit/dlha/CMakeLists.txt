@@ -9,8 +9,11 @@ endif ()
 
 #add_custom_target()
 
+add_library(example STATIC example.cpp example.h cc.cpp cc.h utility.cpp utility.h)
+
+#[[
 add_custom_command(
     OUTPUT  example.o
     COMMAND ${CLANG_BIN} -c example.cpp -o example.o
     DEPENDS example.h cc.cpp cc.h utility.cpp utility.h
-)
+)]]
