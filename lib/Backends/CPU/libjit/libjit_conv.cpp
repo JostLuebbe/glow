@@ -23,11 +23,7 @@
 #include <sys/types.h>
 
 #include "libjit_defs.h"
-
-
-extern "C" {
-    #include "lib/Backends/CPU/libjit/dlha/example.h"
-}
+#include "dlha/example.h"
 
 namespace {
 // Initialize the convolution output frame for slice \p N with the bias \p
