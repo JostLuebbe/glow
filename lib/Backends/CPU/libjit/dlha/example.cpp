@@ -1,14 +1,13 @@
-#include <sys/mman.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/ioctl.h>
+#include "cc.h"
+#include "utility.h"
+#include <assert.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <sys/ioctl.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
-#include <assert.h>
-#include "utility.h"
-#include "cc.h"
-
 
 #define READ_CMD  (0x0 << 31)
 #define WRITE_CMD (0x1 << 31)
