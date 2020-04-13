@@ -149,7 +149,7 @@ target_link_libraries(CPUBackend
                         QuantizationBase
                         Runtime
                         LLVMIRCodeGen
-                      SHARED
+                      IMPORTED
                         dlha
         )
 add_dependencies(CPUBackend CPURuntime)
