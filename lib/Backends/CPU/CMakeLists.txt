@@ -83,7 +83,7 @@ add_custom_command(
     WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
 )
 
-target_link_libraries(${libjit_conv_obj_file} ${DLHA_LIB})
+#target_link_libraries(${libjit_conv_obj_file} ${DLHA_LIB})
 
 
 list(APPEND CPURuntime_OBJS ${libjit_conv_obj_file})
@@ -156,7 +156,7 @@ target_link_libraries(
           QuantizationBase
           Runtime
           LLVMIRCodeGen
-          # "${DLHA_LIB}"
+          "${DLHA_LIB}"
 )
 
 add_dependencies(CPUBackend CPURuntime)
