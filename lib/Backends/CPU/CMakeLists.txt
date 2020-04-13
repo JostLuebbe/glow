@@ -70,21 +70,23 @@ endforeach()
 # Jost Land Begins
 
 #link_directories(libjit/dlha)
-#include_directories(libjit/dlha)
+include_directories(libjit/dlha)
 #add_library(libjit/dlha)
 
 #set(dlha_files ${CMAKE_CURRENT_LIST_DIR}/libjit/)
 set(libjit_conv_obj_file ${libjit_obj_file_path}/libjit_conv${CMAKE_C_OUTPUT_EXTENSION})
 set(libjit_conv_src_file_path ${CMAKE_CURRENT_LIST_DIR}/libjit/libjit_conv.cpp)
 
-add_custom_target(ExampleBundle ALL
-        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_LIST_DIR}/libjit/dlha)
+add_custom_target(ExampleBundle ALL COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_LIST_DIR}/libjit/dlha)
+
+#add_custom_target(ExampleO DEPENDS ${CMAKE_CURRENT_LIST_DIR}/libjit/dlha/example.o)
 
 add_custom_command(
-        OUTPUT  ${libjit_conv_obj_file}
-        COMMAND ${CLANG_BIN} -c ${libjit_conv_src_file_path} ${CPURunttimeCompilationOptions} -o ${libjit_conv_obj_file}
-        DEPENDS ${libjit_conv_src_file_path} ExampleBundle
-        WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
+    OUTPUT  ${libjit_conv_obj_file}
+    COMMAND ${CLANG_BIN} -c ${libjit_conv_src_file_path} ${CPURunttimeCompilationOptions} -o ${libjit_conv_obj_file}
+    DEPENDS ${libjit_conv_src_file_path} ${CMAKE_CURRENT_LIST_DIR}/libjit/dlha/example.o
+    WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+)
 
 
 list(APPEND CPURuntime_OBJS ${libjit_conv_obj_file})
