@@ -551,8 +551,8 @@ void sighandler(int signo) {
 #define READ_CMD  (0x0 << 31)
 #define WRITE_CMD (0x1 << 31)
 
-void glow_conv(const int8_t inW[1024], const int8_t filterW[9], int bias[1024], int inOffset, int filterOffset, int res[1024]){
-//void glow_conv(int inW[1024], int filterW[9], int bias[1024], int inOffset, int filterOffset, int res[1024])
+//void glow_conv(const int8_t inW[1024], const int8_t filterW[9], int bias[1024], int inOffset, int filterOffset, int res[1024]){
+void glow_conv(int inW[1024], int filterW[9], int bias[1024], int inOffset, int filterOffset, int res[1024]){
     printf("ENTERING HARDWARE FUNCTION\n");
 
     //fixed dimensions to test 1st layer, first filter
@@ -755,7 +755,14 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
 
     printf("START HARDWARE\n");
 
-    glow_conv(inW, filterW, bias, inOffset, filterOffset, res);
+    int some[1024] = {0};
+    int thing[9] = {0};
+    int other[1024] = {0};
+    int f = 0;
+    int i = 0;
+    int thing2[1024];
+
+    glow_conv(some, thing, other, i, f, thing2);
 
     printf("END HARDWARE\n");
 
