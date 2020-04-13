@@ -69,7 +69,7 @@ endforeach()
 
 # Jost Land Begins
 
-find_library(DLHA_LIB dlha PATHS /usr/local/lib/dlha/)
+#find_library(DLHA_LIB dlha PATHS /usr/local/lib/dlha/)
 
 set(libjit_conv_obj_file ${libjit_obj_file_path}/libjit_conv${CMAKE_C_OUTPUT_EXTENSION})
 set(libjit_conv_src_file_path ${CMAKE_CURRENT_LIST_DIR}/libjit/libjit_conv.cpp)
@@ -78,7 +78,7 @@ set(libjit_conv_src_file_path ${CMAKE_CURRENT_LIST_DIR}/libjit/libjit_conv.cpp)
 
 add_custom_command(
     OUTPUT  ${libjit_conv_obj_file}
-    COMMAND ${CLANG_BIN} -c ${libjit_conv_src_file_path} ${CPURunttimeCompilationOptions} -o ${libjit_conv_obj_file} -L libdlha.so
+    COMMAND ${CLANG_BIN} -c ${libjit_conv_src_file_path} ${CPURunttimeCompilationOptions} -o ${libjit_conv_obj_file} -L /usr/local/lib/dlha/ -ldlha
     DEPENDS ${libjit_conv_src_file_path} # ${DLHA_LIB}
     WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
 )
