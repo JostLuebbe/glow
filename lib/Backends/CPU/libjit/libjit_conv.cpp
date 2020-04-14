@@ -626,12 +626,12 @@ void glow_conv(int inW[1024], int filterW[9], int bias[1024], int inOffset, int 
 //        printf("after bias\n");
 
     offset = 0x1000; //inOffset
-    ioctl(fd, WRITE_CMD + offset, &inOffset);
+    ioctl(fd, WRITE_CMD + offset, 0x1);
 
 //        printf("after inoffset\n");
 
     offset = 0x1002; //filterOffset
-    ioctl(fd, WRITE_CMD + offset, &filterOffset);
+    ioctl(fd, WRITE_CMD + offset, 0x1);
 
 //        printf("after filteroffset\n");
 
@@ -765,8 +765,8 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
     int some[1024] = {0};
     int thing[9] = {0};
     int other[1024] = {0};
-    int f = 1;
-    int i = 1;
+//    int f = 1;
+//    int i = 1;
     int thing2[1024];
 
     glow_conv(some, thing, other, i, f, thing2);
