@@ -765,7 +765,7 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
 
     // JOST ZONE
 
-    printf("START HARDWARE\n");
+/*    printf("START HARDWARE\n");
 
     int some[1024] = {0};
     int thing[9] = {0};
@@ -776,7 +776,7 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
 
     glow_conv(some, thing, other, i, f, thing2);
 
-    printf("END HARDWARE\n");
+    printf("END HARDWARE\n");*/
 
     // JOST ZONE
 
