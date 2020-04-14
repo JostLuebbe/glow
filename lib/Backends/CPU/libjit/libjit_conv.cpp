@@ -19,8 +19,8 @@
 #include <fcntl.h>
 #include <signal.h>
 #include <unistd.h>
-
 #include <assert.h>
+
 #include <math.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -1218,15 +1218,15 @@ void libjit_convolution_i8_i32(int8_t *outW, const int8_t *inW, const int8_t *fi
                                unsigned depthUnroll, dim_t dilation) {
     printf("JOST IN libjit_convolution_i8_i32\n");
 
-/*    libjit_quantized_convolution_generic<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides,
+    libjit_quantized_convolution_generic<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides,
                                     pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale,
-                                    outPre, outPost, outScale, depthUnroll, dilation);*/
+                                    outPre, outPost, outScale, depthUnroll, dilation);
 
 /*    dlha_conv<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides,
                                                          pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale,
                                                          outPre, outPost, outScale, depthUnroll, dilation);*/
 
-    if (inWdims[3] == 1){
+/*    if (inWdims[3] == 1){
         dlha_conv<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides,
                                                       pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale,
                                                       outPre, outPost, outScale, depthUnroll, dilation);
@@ -1235,7 +1235,7 @@ void libjit_convolution_i8_i32(int8_t *outW, const int8_t *inW, const int8_t *fi
         libjit_quantized_convolution_generic<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides,
                                         pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale,
                                         outPre, outPost, outScale, depthUnroll, dilation);
-    }
+    }*/
 }
 
 /*void libjit_convolution_i8_i8(int8_t *outW, const int8_t *inW, const int8_t *filterW, const int8_t *biasW, const dim_t *outWdims,
