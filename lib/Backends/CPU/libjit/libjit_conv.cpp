@@ -901,11 +901,11 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
 
                     outW[libjit_getXYZW(outWdims, n, ax, ay, d)] = libjit_clip(scaledSum);
 
-                    if (jump % 32 == 0) fprintf(img_file, "\n");
+/*                    if (jump % 32 == 0) fprintf(img_file, "\n");
                     if (jump % 1024 == 0) fprintf(img_file, "\n");
 //                    printf("%lu,", libjit_getXYZW(outWdims, n, ax, ay, d));
                     fprintf(img_file, "%04d ", outW[libjit_getXYZW(outWdims, n, ax, ay, d)]);
-                    jump++;
+                    jump++;*/
                 } // W
             }     // H
         }         // C
