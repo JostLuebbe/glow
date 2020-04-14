@@ -107,7 +107,7 @@ add_custom_command(
 add_custom_target(QuantizedDLHABundleNet DEPENDS ${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY}/dlha.o DLHABundleQuantizationProfile)
 
 # Driver program with main function for regular bundle
-add_library(DLHABundleMain OBJECT main.cpp)
+#[[add_library(DLHABundleMain OBJECT main.cpp)
 target_compile_options(DLHABundleMain PRIVATE -std=c++11 -g)
 target_include_directories(DLHABundleMain PUBLIC ${BUNDLE_OUTPUT_DIRECTORY})
 add_dependencies(DLHABundleMain DLHABundleNet)
@@ -116,4 +116,4 @@ add_dependencies(DLHABundleMain DLHABundleNet)
 add_library(QuantizedDLHABundleMain OBJECT main.cpp)
 target_compile_options(QuantizedDLHABundleMain PRIVATE -std=c++11 -g)
 target_include_directories(QuantizedDLHABundleMain PUBLIC ${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY})
-add_dependencies(QuantizedDLHABundleMain QuantizedDLHABundleNet)
+add_dependencies(QuantizedDLHABundleMain QuantizedDLHABundleNet)]]
