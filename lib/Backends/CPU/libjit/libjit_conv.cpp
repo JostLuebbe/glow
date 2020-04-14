@@ -769,7 +769,7 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
     int other[1024] = {0};
     int f = 1;
     int i = 1;
-    int thing2[1024];
+    int thing2[1024] = {0};
 
     glow_conv(some, thing, other, i, f, thing2);
 
