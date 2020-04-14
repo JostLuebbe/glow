@@ -35,9 +35,11 @@ add_custom_command(
         ${BUNDLE_OUTPUT_DIRECTORY}/dlha.o
         COMMAND
         model-compiler
+
         -target=arm
         -mcpu=cortex-a9
         -float-abi=hard
+
         -verbose
         -g
         -model=${MODEL_DIR}/dlha.onnx
@@ -105,13 +107,13 @@ add_custom_command(
 add_custom_target(QuantizedDLHABundleNet DEPENDS ${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY}/dlha.o DLHABundleQuantizationProfile)
 
 # Driver program with main function for regular bundle
-add_library(DLHABundleMain OBJECT main.cpp)
+#[[add_library(DLHABundleMain OBJECT main.cpp)
 target_compile_options(DLHABundleMain PRIVATE -std=c++11 -g)
 target_include_directories(DLHABundleMain PUBLIC ${BUNDLE_OUTPUT_DIRECTORY})
-add_dependencies(DLHABundleMain DLHABundleNet)
+add_dependencies(DLHABundleMain DLHABundleNet)]]
 
 # Driver program with main function for quantized bundle
-add_library(QuantizedDLHABundleMain OBJECT main.cpp)
+#[[add_library(QuantizedDLHABundleMain OBJECT main.cpp)
 target_compile_options(QuantizedDLHABundleMain PRIVATE -std=c++11 -g)
 target_include_directories(QuantizedDLHABundleMain PUBLIC ${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY} Backends)
-add_dependencies(QuantizedDLHABundleMain QuantizedDLHABundleNet)
+add_dependencies(QuantizedDLHABundleMain QuantizedDLHABundleNet)]]

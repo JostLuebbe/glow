@@ -69,22 +69,15 @@ endforeach()
 
 # Jost Land Begins
 
-#find_library(DLHA_LIB dlha PATHS /usr/local/lib/dlha/)
-
 set(libjit_conv_obj_file ${libjit_obj_file_path}/libjit_conv${CMAKE_C_OUTPUT_EXTENSION})
 set(libjit_conv_src_file_path ${CMAKE_CURRENT_LIST_DIR}/libjit/libjit_conv.cpp)
 
-# -L${DLHA_LIB}
-
 add_custom_command(
     OUTPUT  ${libjit_conv_obj_file}
-    COMMAND ${CLANG_BIN} -c ${libjit_conv_src_file_path} ${CPURunttimeCompilationOptions} -o ${libjit_conv_obj_file} # -L /usr/local/lib/dlha/ -ldlha
-    DEPENDS ${libjit_conv_src_file_path} # ${DLHA_LIB}
+    COMMAND ${CLANG_BIN} -c ${libjit_conv_src_file_path} ${CPURunttimeCompilationOptions} -o ${libjit_conv_obj_file}
+    DEPENDS ${libjit_conv_src_file_path}
     WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
 )
-
-#target_link_libraries(${libjit_conv_obj_file} ${DLHA_LIB})
-
 
 list(APPEND CPURuntime_OBJS ${libjit_conv_obj_file})
 list(APPEND CPURuntime_SRCS ${libjit_conv_src_file_path})
@@ -107,7 +100,7 @@ add_custom_command(
     WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}")
 
 add_custom_target(CPURuntime
-  DEPENDS ${GLOW_BINARY_DIR}/glow/CPU/libjit_bc.inc #${DLHA_LIB}
+  DEPENDS ${GLOW_BINARY_DIR}/glow/CPU/libjit_bc.inc
   WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}")
 
 if (NOT MSVC)
@@ -115,24 +108,8 @@ if (NOT MSVC)
               libjit/libjit.cpp
               libjit/libjit_conv.cpp
               libjit/libjit_matmul.cpp
-              #${DLHA_LIB}
           )
-  #target_link_libraries(CPURuntimeNative
-  #        ${DLHA_LIB}
-  #)
 endif(NOT MSVC)
-
-#add_library(our_dlha INTERFACE)
-#target_link_libraries(our_dlha INTERFACE dlha)
-
-#find_library(dlha CONFIG REQUIRED)
-
-#add_library(dlha SHARED IMPORTED)
-#set_target_properties(dlha PROPERTIES IMPORTED_LOCATION /usr/local/lib/libdlha.so)
-
-#link_directories(${CMAKE_BINARY_DIR}/libdlha.so)
-
-#find_library(DLHA_LIB dlha PATHS /usr/local/lib/dlha/)
 
 add_library(CPUBackend
             "${GLOW_BINARY_DIR}/glow/CPU/libjit_bc.inc"
@@ -156,7 +133,6 @@ target_link_libraries(
           QuantizationBase
           Runtime
           LLVMIRCodeGen
-          #"${DLHA_LIB}"
 )
 
 add_dependencies(CPUBackend CPURuntime)

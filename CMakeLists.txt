@@ -88,6 +88,7 @@ execute_process(COMMAND
   OUTPUT_VARIABLE GIT_SHA1
   ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
 add_definitions("-DGIT_SHA1=\"${GIT_SHA1}\"")
+
 # Get the date of the commit
 execute_process(COMMAND
   "${GIT_EXECUTABLE}" log -1 --pretty=format:%ad --date=short
@@ -95,14 +96,6 @@ execute_process(COMMAND
   OUTPUT_VARIABLE GIT_DATE
   ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
 add_definitions("-DGIT_DATE=\"${GIT_DATE}\"")
-
-
-## Jost Land Begins
-#find_package(dlha CONFIG REQUIRED)
-#add_dependencies()
-#add_library(dlha)
-#target_link_libraries(folly_deps INTERFACE fmt::fmt)
-## Jost Land End
 
 find_package(PNG)
 if(PNG_FOUND)
