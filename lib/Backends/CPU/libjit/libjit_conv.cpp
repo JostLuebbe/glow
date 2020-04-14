@@ -625,13 +625,15 @@ void glow_conv(int inW[1024], int filterW[9], int bias[1024], int inOffset, int 
     }
 //        printf("after bias\n");
 
+    unsigned long val = 0x1;
+
     offset = 0x1000; //inOffset
-    ioctl(fd, WRITE_CMD + offset, 0x1);
+    ioctl(fd, WRITE_CMD + offset, &val);
 
 //        printf("after inoffset\n");
 
     offset = 0x1002; //filterOffset
-    ioctl(fd, WRITE_CMD + offset, 0x1);
+    ioctl(fd, WRITE_CMD + offset, &val);
 
 //        printf("after filteroffset\n");
 
