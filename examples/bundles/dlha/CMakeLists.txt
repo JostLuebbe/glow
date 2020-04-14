@@ -51,7 +51,7 @@ add_custom_command(
         DEPENDS
         model-compiler DLHABundleDir
 )
-add_custom_target(DLHABundleNet DEPENDS ${BUNDLE_OUTPUT_DIRECTORY}/dlha.o)
+add_custom_target(DLHABundleNet ALL DEPENDS ${BUNDLE_OUTPUT_DIRECTORY}/dlha.o)
 
 # Quantization Profile
 add_custom_command(
@@ -74,7 +74,7 @@ add_custom_command(
         DEPENDS
         image-classifier
 )
-add_custom_target(DLHABundleQuantizationProfile ALL DEPENDS ${DLHA_BUNDLE_DIR}/profile.yml)
+add_custom_target(DLHABundleQuantizationProfile DEPENDS ${DLHA_BUNDLE_DIR}/profile.yml)
 
 # Quantized Bundle
 add_custom_command(
