@@ -753,7 +753,7 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
 
     depthUnroll = 1;
 
-    int32_t bias[biasWdims[0] * biasWdims[0]];
+/*    int32_t bias[biasWdims[0] * biasWdims[0]];
 
     for (int y = 0; y < inWdims[1]; y += 1) {
         for (int x = 0; x < inWdims[2]; x += 1) {
@@ -761,7 +761,7 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
         }
     }
 
-    int32_t res[inWdims[1] * inWdims[2]];
+    int32_t res[inWdims[1] * inWdims[2]];*/
 
     // JOST ZONE
 
@@ -782,7 +782,7 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
 
 //    print_simple_matrix_32(outWdims[1], outWdims[2], input);
 
-    for (int y = 0; y < inWdims[1]; y += 1) {
+/*    for (int y = 0; y < inWdims[1]; y += 1) {
         for (int x = 0; x < inWdims[2]; x += 1) {
             int32_t sum = bias[y * biasWdims[0] + x];
 
@@ -795,7 +795,7 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
             }
             res[(y / stride_h) * inWdims[2] + (x / stride_w)] = sum;
         }
-    }
+    }*/
 
 
 /*#ifdef debug
@@ -804,10 +804,10 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
     print_simple_matrix(outWdims[1], outWdims[2], res);
 #endif // debug*/
 
-    FILE *our_image_file = fopen("our_image_output.txt", "w");
-    int jump = 0;
+//    FILE *our_image_file = fopen("our_image_output.txt", "w");
+//    int jump = 0;
 
-    for (size_t n = 0; n < inChannels; n++) { // n: 0
+/*    for (size_t n = 0; n < inChannels; n++) { // n: 0
         // For each output channel in the group. Process 'depthUnroll' output layers together.
         for (size_t d = 0; d < 1; d += depthUnroll) { // d: 0 -> 8 -> 16 -> 24 // outCperG
             // For each convolution 'jump' in the input tensor:
@@ -831,16 +831,16 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
                 } // W
             }     // H
         }         // C
-    }             // N
+    }    */         // N
 
-    fclose(our_image_file);
+//    fclose(our_image_file);
 
     size_t g = 0;
 
-    FILE *kernel_file = fopen("kernel_output.txt", "w");
-    FILE *img_file = fopen("images_output.txt", "w");
+//    FILE *kernel_file = fopen("kernel_output.txt", "w");
+//    FILE *img_file = fopen("images_output.txt", "w");
 
-    jump = 0;
+//    jump = 0;
 
     // For each input in the batch:
     for (size_t n = 0; n < inChannels; n++) { // n: 0
@@ -910,14 +910,14 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
             }     // H
         }         // C
     }             // N
-    fclose(kernel_file);
-    fclose(img_file);
-#ifdef debug
+//    fclose(kernel_file);
+//    fclose(img_file);
+/*#ifdef debug
     printf("\n********************** PRINTING OUTPUT IMAGE(s): AFTER **************************\n");
     write_layer_output(outWdims[1], outWdims[2], outCperG, outW);
     print_layer_output(outWdims[1], outWdims[2], outCperG, outW);
     printf("[%d,%d,%d,]", outWdims[1], outWdims[2], outCperG);
-#endif // debug
+#endif // debug*/
 }
 
 
