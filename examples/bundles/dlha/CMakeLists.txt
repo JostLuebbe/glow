@@ -62,7 +62,7 @@ add_custom_command(
         -g
         -verbose
 #        -dump-graph
-        -dump-graph-DAG=dlha_graph2.dot
+        -dump-graph-DAG=${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY}/dlha_quantization_profile_graph.dot
 #        -image-mode=neg128to127
 #        -image-channel-order=RGB
 #        -image-layout=NCHW
@@ -74,7 +74,7 @@ add_custom_command(
         DEPENDS
         image-classifier
 )
-add_custom_target(DLHABundleQuantizationProfile DEPENDS ${DLHA_BUNDLE_DIR}/profile.yml)
+add_custom_target(DLHABundleQuantizationProfile ALL DEPENDS ${DLHA_BUNDLE_DIR}/profile.yml)
 
 # Quantized Bundle
 add_custom_command(
@@ -92,7 +92,7 @@ add_custom_command(
         -load-profile=profile.yml
 #        -quantization-schema=symmetric_with_uint8
         -quantization-precision=Int8
-        -dump-graph-DAG=dlha_graph2.dot
+        -dump-graph-DAG=${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY}/dlha_quantized_graph.dot
         -assert-all-nodes-quantized
         -keep-original-precision-for-nodes=SoftMax,Pow,Add,Div,Sub,Mul,Min,Max,Splat,InsertTensor,Reshape,BatchedAdd,MatMul,MaxPool
         -model=${MODEL_DIR}/dlha.onnx
