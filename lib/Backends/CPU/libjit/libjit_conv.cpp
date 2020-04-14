@@ -782,7 +782,7 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
 
 //    print_simple_matrix_32(outWdims[1], outWdims[2], input);
 
-/*    for (int y = 0; y < inWdims[1]; y += 1) {
+    for (int y = 0; y < inWdims[1]; y += 1) {
         for (int x = 0; x < inWdims[2]; x += 1) {
             int32_t sum = bias[y * biasWdims[0] + x];
 
@@ -795,7 +795,7 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
             }
             res[(y / stride_h) * inWdims[2] + (x / stride_w)] = sum;
         }
-    }*/
+    }
 
 
 /*#ifdef debug
@@ -1218,13 +1218,13 @@ void libjit_convolution_i8_i32(int8_t *outW, const int8_t *inW, const int8_t *fi
                                unsigned depthUnroll, dim_t dilation) {
     printf("JOST IN libjit_convolution_i8_i32\n");
 
-    libjit_quantized_convolution_generic<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides,
+/*    libjit_quantized_convolution_generic<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides,
                                     pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale,
-                                    outPre, outPost, outScale, depthUnroll, dilation);
+                                    outPre, outPost, outScale, depthUnroll, dilation);*/
 
-/*    dlha_conv<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides,
+    dlha_conv<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides,
                                                          pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale,
-                                                         outPre, outPost, outScale, depthUnroll, dilation);*/
+                                                         outPre, outPost, outScale, depthUnroll, dilation);
 
 /*    if (inWdims[3] == 1){
         dlha_conv<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides,
