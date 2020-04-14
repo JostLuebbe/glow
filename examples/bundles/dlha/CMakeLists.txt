@@ -104,7 +104,8 @@ add_custom_command(
         DEPENDS
         model-compiler DLHABundleDir
 )
-add_custom_target(QuantizedDLHABundleNet DEPENDS ${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY}/dlha.o DLHABundleQuantizationProfile)
+#add_custom_target(QuantizedDLHABundleNet DEPENDS ${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY}/dlha.o DLHABundleQuantizationProfile)
+add_library(QuantizedDLHABundleNet DEPENDS ${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY}/dlha.o DLHABundleQuantizationProfile)
 target_compile_options(QuantizedDLHABundleNet PRIVATE -std=c++11 -g)
 target_include_directories(QuantizedDLHABundleNet PUBLIC ${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY})
 
