@@ -561,7 +561,6 @@ void sighandler(int signo) {
 void glow_conv(int inW[1024], int filterW[9], int bias[1024], int inOffset, int filterOffset, int res[1024]){
     printf("ENTERING HARDWARE FUNCTION\n");
 
-    //fixed dimensions to test 1st layer, first filter
     unsigned long volatile trig, gie, iie;
     struct sigaction action;
     int fd;
@@ -632,8 +631,12 @@ void glow_conv(int inW[1024], int filterW[9], int bias[1024], int inOffset, int 
 
     printf("after inoffset\n");
 
+    unsigned long volatile dumb;
+
     offset = 0x1002; //filterOffset
-    ioctl(fd, WRITE_CMD + offset, &val);
+    ioctl(fd, READ_CMD + offset, &dumb);
+
+    printf("dumb val: %lu\n", dumb);
 
     printf("after filteroffset\n");
 
