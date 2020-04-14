@@ -104,7 +104,7 @@ add_custom_command(
         DEPENDS
         model-compiler DLHABundleDir
 )
-add_custom_target(QuantizedDLHABundleNet DEPENDS ${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY}/dlha.o DLHABundleQuantizationProfile)
+add_custom_target(QuantizedDLHABundleNet ALL DEPENDS ${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY}/dlha.o DLHABundleQuantizationProfile)
 
 # Driver program with main function for regular bundle
 #[[add_library(DLHABundleMain OBJECT main.cpp)
