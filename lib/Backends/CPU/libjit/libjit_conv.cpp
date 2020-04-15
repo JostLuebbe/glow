@@ -487,7 +487,6 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
     // size_t == lu == unsigned long
     // dim_t == llu = unsigned long long
 
-/*
     FILE *bias_output_file = fopen("bias.txt", "w");
     fprintf(bias_output_file, "32 32\n\n");
     for (int j = 0; j < 32; j++){
@@ -522,7 +521,6 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
     fprintf(offset_output_file, "%d ", inOffset);
     fprintf(offset_output_file, "%d", filterOffset);
     fclose(offset_output_file);
-*/
 
 
 #ifdef debug
