@@ -735,17 +735,17 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
                         }
                     }
 
-                    int32_t scaledSum = libjit_scale_i32i8(sum, outPre, outPost, outScale, outOffset);
-
-                    outW[libjit_getXYZW(outWdims, n, ax, ay, d)] = libjit_clip(scaledSum);
-
                     if (d == 0){
                         if (jump % 32 == 0) fprintf(res_output_file, "\n");
 //                        if (jump % 1024 == 0) fprintf(res_output_file, "\n");
 //                    printf("%lu,", libjit_getXYZW(outWdims, n, ax, ay, d));
-                        fprintf(res_output_file, "%d ", outW[libjit_getXYZW(outWdims, n, ax, ay, d)]);
+                        fprintf(res_output_file, "%d ", sum);
                         jump++;
                     }
+
+                    int32_t scaledSum = libjit_scale_i32i8(sum, outPre, outPost, outScale, outOffset);
+
+                    outW[libjit_getXYZW(outWdims, n, ax, ay, d)] = libjit_clip(scaledSum);
                 } // W
             }     // H
         }         // C
