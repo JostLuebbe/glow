@@ -30,121 +30,6 @@
 #include <sys/types.h>
 
 #include "libjit_defs.h"
-//#include "example.h"
-
-/*extern "C" {
-    volatile int det_int = 0;
-
-    void sighandler(int signo) {
-        if (signo == SIGIO) {
-            det_int++;
-            printf("\nInterrupt detected\n");
-        }
-    }
-
-    #define READ_CMD  (0x0 << 31)
-    #define WRITE_CMD (0x1 << 31)
-
-    void glow_conv(const int8_t* inW, const int8_t* filterW, int32_t* bias, int32_t inOffset, int32_t filterOffset, int32_t* res){
-        printf("ENTERING HARDWARE FUNCTION\n");
-
-        //fixed dimensions to test 1st layer, first filter
-        unsigned long volatile trig, gie, iie;
-        struct sigaction action;
-        int fd;
-
-        // install signal handler
-        sigemptyset(&action.sa_mask);
-        sigaddset(&action.sa_mask, SIGIO);
-
-        action.sa_handler = sighandler;
-        action.sa_flags = 0;
-
-        sigaction(SIGIO, &action, NULL);
-
-        // open hardware device (driver)
-        fd = open("/dev/fpga", O_RDWR);
-        if (fd < 0) {
-            printf("Unable to open /dev/fpga.  Ensure it exists!\n");
-            return;
-        }
-        fcntl(fd, F_SETOWN, getpid());
-        fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_ASYNC);
-
-//        printf("Finished loading device, about to enable interrupts\n");
-
-        // enable FPGA interrupts (global and IP)
-        ioctl(fd, READ_CMD + 0x1, &gie);
-        gie = gie | 0x00000001;
-
-//        printf("gei read done\n");
-
-        ioctl(fd, WRITE_CMD + 0x1, &gie);
-
-//        printf("gei write done\n");
-
-        iie = 0x1;
-        ioctl(fd, WRITE_CMD + 0x2, &iie);
-
-//        printf("Finished enabling interrupts\n");
-
-        // writing img and kernel matrices
-        int offset = 0x400; //images
-
-//        printf("before image\n");
-        for (int i = 0; i < 1024; i++) {
-            ioctl(fd, WRITE_CMD + offset++, &inW[i]);
-        }
-//        printf("after image\n");
-
-//        printf("before kernel\n");
-        offset = 0x800; //kernel
-        for (int i = 0; i < 9; i++) {
-            ioctl(fd, WRITE_CMD + offset++, &filterW[i]);
-        }
-//        printf("after kernel\n");
-
-        offset = 0xC00; //bias
-
-//        printf("before bias\n");
-        for (int i = 0; i < 1024; i++) {
-            ioctl(fd, WRITE_CMD + offset++, &bias[i]);
-        }
-//        printf("after bias\n");
-
-        offset = 0x1000; //inOffset
-        ioctl(fd, WRITE_CMD + offset, &inOffset);
-
-//        printf("after inoffset\n");
-
-        offset = 0x1002; //filterOffset
-        ioctl(fd, WRITE_CMD + offset++, &filterOffset);
-
-//        printf("after filteroffset\n");
-
-        sleep(1);
-
-        printf("before trigger\n");
-        // trigger MAC operation
-        trig = 0x1;
-        ioctl(fd, WRITE_CMD, &trig);
-
-//        printf("after trigger\n");
-
-        offset = 0x1400; //result
-        // wait for interrupt
-        while (!det_int) continue;
-
-//        printf("before result\n");
-        for (int i = 0; i < 1024; i++) {
-            ioctl(fd, READ_CMD + offset++, &res[i]);
-        }
-//        printf("after result\n");
-
-        //In the end, close the device driver
-        close(fd);
-    }
-}*/
 
 namespace {
 // Initialize the convolution output frame for slice \p N with the bias \p
@@ -352,97 +237,11 @@ void libjit_convDKKC8_foreach_xy_pixels_filter(size_t sampleN, dim_t outChannel,
     }             // For each X in the output.
 }
 
-/*
-/// Generic template for quantized convolution. The template allows choosing
-/// element type and bias type.
-template <typename ElemTy, typename BiasElemTy>
-void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const BiasElemTy *biasW, const dim_t *outWdims,
-                                          const dim_t *inWdims, const dim_t *filterWdims, const dim_t *biasWdims, const dim_t *kernelSizes,
-                                          const dim_t *strides, const dim_t *pads, dim_t group, int32_t outOffset, int32_t inOffset,
-                                          int32_t filterOffset, int32_t biasOffset, int32_t biasPre, int32_t biasPost, int32_t biasScale,
-                                          int32_t outPre, int32_t outPost, int32_t outScale, unsigned depthUnroll, dim_t dilation) {
-    dim_t inChannels = inWdims[3];
-    dim_t outChannels = outWdims[3];
-    dim_t inCperG = inChannels / group;
-    dim_t outCperG = outChannels / group;
-    dim_t pad_t = pads[0];
-    dim_t pad_l = pads[1];
-    dim_t stride_h = strides[0];
-    size_t stride_w = strides[1];
-    size_t kernel_h = kernelSizes[0];
-    size_t kernel_w = kernelSizes[1];
-    // For each input in the batch:
-    for (size_t n = 0; n < inWdims[0]; n++) {
-        // For each group of input channels:
-        for (size_t g = 0; g < group; g++) {
-
-            // For each output channel in the group. Process 'depthUnroll' output
-            // layers together.
-            for (size_t d = g * outCperG; d < (g + 1) * outCperG; d += depthUnroll) {
-                // For each convolution 'jump' in the input tensor:
-                ssize_t x = -(ssize_t)pad_t;
-                for (size_t ax = 0; ax < outWdims[1]; x += stride_h, ax++) {
-                    ssize_t y = -(ssize_t)pad_l;
-                    for (size_t ay = 0; ay < outWdims[2]; y += stride_w, ay++) {
-                        int32_t sum[depthUnroll];
-
-                        for (unsigned i = 0; i < depthUnroll; i++) {
-                            // Scale the bias to match the scale of the matrix multiplication.
-                            sum[i] = libjit_scale_i32i8((int32_t)biasW[d + i] - biasOffset, biasPre, biasPost, biasScale, 0);
-                        }
-
-                        // For each element in the convolution-filter:
-                        for (size_t fx = 0; fx < kernel_h; fx++) {
-                            for (size_t fy = 0; fy < kernel_w; fy++) {
-                                ssize_t ox = x + fx * dilation;
-                                ssize_t oy = y + fy * dilation;
-
-                                // Ignore index access below zero (this is due to padding).
-                                if (ox < 0 || oy < 0 || ox >= (ssize_t)inWdims[1] || oy >= (ssize_t)inWdims[2]) {
-                                    continue;
-                                }
-
-                                // Calculate the indices into the Filter and Input buffers.
-                                size_t inIdx = libjit_getXYZW(inWdims, n, (size_t)ox, (size_t)oy, g * inCperG);
-                                size_t filterIdx = libjit_getXYZW(filterWdims, d, fx, fy, 0);
-                                size_t sliceSize = filterWdims[1] * filterWdims[2] * filterWdims[3];
-
-                                // Perform the innermost loop of the convolution using 4 vector
-                                // registers.
-                                for (size_t fd = 0; fd < inCperG; fd++) {
-                                    int32_t in = inW[inIdx + fd] - inOffset;
-                                    for (unsigned i = 0; i < MIN(4, depthUnroll); i++) {
-                                        sum[i] += (filterW[filterIdx + (sliceSize * i) + fd] - filterOffset) * in;
-                                    }
-                                }
-
-                                // And perform the innermost loop again with 4 more registers.
-                                if (depthUnroll > 4)
-                                    for (size_t fd = 0; fd < inCperG; fd++) {
-                                        int32_t in = inW[inIdx + fd] - inOffset;
-                                        for (unsigned i = 4; i < MIN(8, depthUnroll); i++) {
-                                            sum[i] += (filterW[filterIdx + (sliceSize * i) + fd] - filterOffset) * in;
-                                        }
-                                    }
-                            }
-                        }
-
-                        for (unsigned i = 0; i < depthUnroll; i++) {
-                            // Scale the result back to the expected destination scale.
-                            int32_t scaledSum = libjit_scale_i32i8(sum[i], outPre, outPost, outScale, outOffset);
-                            outW[libjit_getXYZW(outWdims, n, ax, ay, d + i)] = libjit_clip(scaledSum);
-                        }
-                    } // W
-                }     // H
-            }         // C
-        }             // G
-    }                 // N
-}
-*/
-
 // ** Our print matrix
 #define debug 1
 #ifdef debug
+
+
 void print_simple_matrix(dim_t rows, dim_t cols, const signed char *matrix) {
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
@@ -498,11 +297,7 @@ void print_layer_output(dim_t rows, dim_t cols, dim_t channels, const signed cha
     }
 }
 
-int in_bounds(int x, int y, int img_x, int img_y) {
-    if (x < 0 || y < 0 || x > img_x - 1 || y > img_y - 1)
-        return 0;
-    return 1;
-}
+
 
 void write_layer_output(dim_t rows, dim_t cols, dim_t channels, const signed char *matrix) {
     char buf[21];
@@ -538,6 +333,12 @@ void write_layer_output(dim_t rows, dim_t cols, dim_t channels, const signed cha
     fclose(layer_output_file);
 }
 #endif // debug
+
+int in_bounds(int x, int y, int img_x, int img_y) {
+    if (x < 0 || y < 0 || x > img_x - 1 || y > img_y - 1)
+        return 0;
+    return 1;
+}
 
 volatile int det_int = 0;
 
@@ -683,6 +484,42 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
 
     // size_t == lu == unsigned long
     // dim_t == llu = unsigned long long
+
+    FILE *bias_output_file = fopen("bias.txt", "w");
+    fprintf(bias_output_file, "32 32\n\n");
+    for (int j = 0; j < 32; j++){
+        for (int i = 0; i < 32; i++){
+            fprintf(bias_output_file, "%d ", biasW[i]);
+        }
+        fprintf(bias_output_file, "\n");
+    }
+    fclose(bias_output_file);
+
+    FILE *img_output_file = fopen("img.txt", "w");
+    fprintf(bias_output_file, "32 32\n\n");
+    for (int j = 0; j < 32; j++){
+        for (int i = 0; i < 32; i++){
+            fprintf(img_output_file, "%d ", inW[j * 32 + i]);
+        }
+        fprintf(img_output_file, "\n");
+    }
+    fclose(img_output_file);
+
+    FILE *kernel_output_file = fopen("kernel.txt", "w");
+    fprintf(kernel_output_file, "3 3\n\n");
+    for (int j = 0; j < 3; j++){
+        for (int i = 0; i < 3; i++){
+            fprintf(kernel_output_file, "%d ", filterW[j * 3 + i]);
+        }
+        fprintf(kernel_output_file, "\n");
+    }
+    fclose(kernel_output_file);
+
+    FILE *offset_output_file = fopen("offset.txt", "w");
+    fprintf(offset_output_file, "%d ", inOffset);
+    fprintf(offset_output_file, "%d", filterOffset);
+    fclose(offset_output_file);
+
 
 #ifdef debug
     printf("group: %llu\n", group); // always 0
@@ -838,9 +675,10 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
     size_t g = 0;
 
 //    FILE *kernel_file = fopen("kernel_output.txt", "w");
-//    FILE *img_file = fopen("images_output.txt", "w");
+    FILE *res_output_file = fopen("res.txt", "w");
+    fprintf(res_output_file, "32 32\n\n");
 
-//    jump = 0;
+    int jump = 0;
 
     // For each input in the batch:
     for (size_t n = 0; n < inChannels; n++) { // n: 0
@@ -901,17 +739,17 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
 
                     outW[libjit_getXYZW(outWdims, n, ax, ay, d)] = libjit_clip(scaledSum);
 
-/*                    if (jump % 32 == 0) fprintf(img_file, "\n");
-                    if (jump % 1024 == 0) fprintf(img_file, "\n");
+                    if (jump % 32 == 0) fprintf(res_output_file, "\n");
+                    if (jump % 1024 == 0) fprintf(res_output_file, "\n");
 //                    printf("%lu,", libjit_getXYZW(outWdims, n, ax, ay, d));
-                    fprintf(img_file, "%04d ", outW[libjit_getXYZW(outWdims, n, ax, ay, d)]);
-                    jump++;*/
+                    fprintf(res_output_file, "%d ", outW[libjit_getXYZW(outWdims, n, ax, ay, d)]);
+                    jump++;
                 } // W
             }     // H
         }         // C
     }             // N
 //    fclose(kernel_file);
-//    fclose(img_file);
+    fclose(res_output_file);
 /*#ifdef debug
     printf("\n********************** PRINTING OUTPUT IMAGE(s): AFTER **************************\n");
     write_layer_output(outWdims[1], outWdims[2], outCperG, outW);
@@ -932,15 +770,6 @@ void libjit_quantized_convolution_generic(
     int32_t inOffset, int32_t filterOffset, int32_t biasOffset, int32_t biasPre,
     int32_t biasPost, int32_t biasScale, int32_t outPre, int32_t outPost,
     int32_t outScale, unsigned depthUnroll, dim_t dilation) {
-
-    /* JOST ZONE BEGINS */
-
-/*    int** img, kernel;
-
-    size_t img_r, img_c, kernel_r, kernel_c;
-
-    run(img, kernel, img_r, img_c, kernel_r, kernel_c);*/
-    /* JOST ZONE ENDS */
 
     dim_t inChannels = inWdims[3];
     dim_t outChannels = outWdims[3];
@@ -1038,36 +867,14 @@ void libjit_quantized_convolution_generic(
 
 } // namespace
 
-#define debug 1
-#ifdef debug
-void print_float_matrix(dim_t rows, dim_t cols, const float *matrix) {
-    for (int i = 0; i < rows; i++) {
-//        printf("[");
-        for (int j = 0; j < cols; j++) {
-            if (j < cols - 1)
-                printf("%f ", matrix[i * rows + j]);
-            else
-                printf("%f", matrix[i * rows + j]);
-        }
-//        printf("]");
-        printf("\n");
-    }
-}
-#endif // debug
-
 extern "C" {
 void libjit_convDKKC8_f(float *outW, const float *inW, const float *filterW, const float *biasW, const dim_t *outWdims, const dim_t *inWdims,
                         const dim_t *filterWdims, const dim_t *biasWdims, const dim_t *kernelSizes, const dim_t *strides, const dim_t *pads,
                         dim_t group, unsigned pixelScanFirst, unsigned numDepthRegs, unsigned sizeGroupY, unsigned depthStrips) {
-    printf("JOST IN libjit_convDKKC8_f\n");
     dim_t inChannels = inWdims[3];
     dim_t outChannels = outWdims[3];
     dim_t inCperG = inChannels / group;
     dim_t outCperG = outChannels / group;
-
-/*    printf("\n********************** PRINTING INPUT IMAGE ***************************\n");
-    printf("[INPUT] image row: %zu and col: %zu\n", inWdims[1], inWdims[2]);
-    print_float_matrix(inWdims[1], inWdims[2], inW);*/
 
     // Select the order in which we iterate over the pixels in the picture.
     auto eachPixelConv = (pixelScanFirst ? &libjit_convDKKC8_foreach_xy_pixels_filter : &libjit_convDKKC8_foreach_xy_filter_pixels);
@@ -1100,7 +907,6 @@ void libjit_convDKKC8_f(float *outW, const float *inW, const float *filterW, con
 void libjit_convolution_f(float *outW, const float *inW, const float *filterW, const float *biasW, const dim_t *outWdims, const dim_t *inWdims,
                           const dim_t *filterWdims, const dim_t *biasWdims, const dim_t *kernelSizes, const dim_t *strides, const dim_t *pads,
                           dim_t group, unsigned depthUnroll, dim_t dilation) {
-//    printf("JOST IN libjit_convolution_f\n");
     dim_t inChannels = inWdims[3];
     dim_t outChannels = outWdims[3];
     dim_t inCperG = inChannels / group;
@@ -1218,15 +1024,15 @@ void libjit_convolution_i8_i32(int8_t *outW, const int8_t *inW, const int8_t *fi
                                unsigned depthUnroll, dim_t dilation) {
     printf("JOST IN libjit_convolution_i8_i32\n");
 
-    libjit_quantized_convolution_generic<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides,
+/*    libjit_quantized_convolution_generic<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides,
                                     pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale,
-                                    outPre, outPost, outScale, depthUnroll, dilation);
+                                    outPre, outPost, outScale, depthUnroll, dilation);*/
 
 /*    dlha_conv<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides,
                                                          pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale,
                                                          outPre, outPost, outScale, depthUnroll, dilation);*/
 
-/*    if (inWdims[3] == 1){
+    if (inWdims[3] == 1){
         dlha_conv<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides,
                                                       pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale,
                                                       outPre, outPost, outScale, depthUnroll, dilation);
@@ -1235,7 +1041,7 @@ void libjit_convolution_i8_i32(int8_t *outW, const int8_t *inW, const int8_t *fi
         libjit_quantized_convolution_generic<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides,
                                         pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale,
                                         outPre, outPost, outScale, depthUnroll, dilation);
-    }*/
+    }
 }
 
 /*void libjit_convolution_i8_i8(int8_t *outW, const int8_t *inW, const int8_t *filterW, const int8_t *biasW, const dim_t *outWdims,
