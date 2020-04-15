@@ -31,6 +31,8 @@
 
 #include "libjit_defs.h"
 
+extern void glow_conv(int inW[1024], int filterW[9], int bias[1024], int inOffset, int filterOffset, int res[1024]);
+
 namespace {
 // Initialize the convolution output frame for slice \p N with the bias \p
 // biasW.
@@ -334,13 +336,13 @@ void write_layer_output(dim_t rows, dim_t cols, dim_t channels, const signed cha
 }
 #endif // debug
 
-int in_bounds(int x, int y, int img_x, int img_y) {
+/*int in_bounds(int x, int y, int img_x, int img_y) {
     if (x < 0 || y < 0 || x > img_x - 1 || y > img_y - 1)
         return 0;
     return 1;
-}
+}*/
 
-volatile int det_int = 0;
+/*volatile int det_int = 0;
 
 void sighandler(int signo) {
     if (signo == SIGIO) {
@@ -463,7 +465,7 @@ void glow_conv(int inW[1024], int filterW[9], int bias[1024], int inOffset, int 
 
     //In the end, close the device driver
     close(fd);
-}
+}*/
 
 template <typename ElemTy, typename BiasElemTy>
 void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const BiasElemTy *biasW, const dim_t *outWdims,
@@ -485,6 +487,7 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
     // size_t == lu == unsigned long
     // dim_t == llu = unsigned long long
 
+/*
     FILE *bias_output_file = fopen("bias.txt", "w");
     fprintf(bias_output_file, "32 32\n\n");
     for (int j = 0; j < 32; j++){
@@ -519,6 +522,7 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
     fprintf(offset_output_file, "%d ", inOffset);
     fprintf(offset_output_file, "%d", filterOffset);
     fclose(offset_output_file);
+*/
 
 
 #ifdef debug
@@ -590,15 +594,31 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
 
     depthUnroll = 1;
 
-/*    int32_t bias[biasWdims[0] * biasWdims[0]];
+    int32_t bias[biasWdims[0] * biasWdims[0]];
 
     for (int y = 0; y < inWdims[1]; y += 1) {
         for (int x = 0; x < inWdims[2]; x += 1) {
-            bias[y * 32 + x] = libjit_scale_i32i8((int32_t) biasW[x] - biasOffset, biasPre, biasPost, biasScale, 0);
+            bias[y * 32 + x] = libjit_scale_i32i8((int32_t) biasW[0] - biasOffset, biasPre, biasPost, biasScale, 0);
         }
     }
 
-    int32_t res[inWdims[1] * inWdims[2]];*/
+    int32_t img[inWdims[1] * inWdims[2]];
+
+    for (int y = 0; y < inWdims[1]; y += 1) {
+        for (int x = 0; x < inWdims[2]; x += 1) {
+            img[y * 32 + x] = inW[y * 32 + x];
+        }
+    }
+
+    int32_t filter[filterWdims[1] * filterWdims[2]];
+
+    for (int y = 0; y < inWdims[1]; y += 1) {
+        for (int x = 0; x < inWdims[2]; x += 1) {
+            img[y * 32 + x] = inW[y * 32 + x];
+        }
+    }
+
+    int32_t res[inWdims[1] * inWdims[2]];
 
     // JOST ZONE
 
@@ -617,7 +637,9 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
 
     // JOST ZONE
 
-//    print_simple_matrix_32(outWdims[1], outWdims[2], input);
+    glow_conv(img, filter, bias, inOffset, filterOffset, res);
+
+    print_simple_matrix_32(outWdims[1], outWdims[2], res);
 
 /*    for (int y = 0; y < inWdims[1]; y += 1) {
         for (int x = 0; x < inWdims[2]; x += 1) {
