@@ -620,7 +620,7 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
             filter[y * 3 + x] = filterW[y * 3 + x];
         }
     }
-    print_simple_matrix_32(outWdims[1], outWdims[2], filter);
+    print_simple_matrix_32(filterWdims[1], filterWdims[2], filter);
 
     int32_t res[inWdims[1] * inWdims[2]];
 
