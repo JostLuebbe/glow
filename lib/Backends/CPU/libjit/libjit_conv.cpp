@@ -602,6 +602,8 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
         }
     }
 
+    print_simple_matrix_32(outWdims[1], outWdims[2], bias);
+
     int32_t img[inWdims[1] * inWdims[2]];
 
     for (int y = 0; y < inWdims[1]; y += 1) {
@@ -609,14 +611,16 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
             img[y * 32 + x] = inW[y * 32 + x];
         }
     }
+    print_simple_matrix_32(outWdims[1], outWdims[2], img);
 
     int32_t filter[filterWdims[1] * filterWdims[2]];
 
-    for (int y = 0; y < inWdims[1]; y += 1) {
-        for (int x = 0; x < inWdims[2]; x += 1) {
-            img[y * 32 + x] = inW[y * 32 + x];
+    for (int y = 0; y < filterWdims[1]; y += 1) {
+        for (int x = 0; x < filterWdims[2]; x += 1) {
+            filter[y * 3 + x] = filterW[y * 3 + x];
         }
     }
+    print_simple_matrix_32(outWdims[1], outWdims[2], filter);
 
     int32_t res[inWdims[1] * inWdims[2]];
 
