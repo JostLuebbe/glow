@@ -489,7 +489,7 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
     fprintf(bias_output_file, "32 32\n\n");
     for (int j = 0; j < 32; j++){
         for (int i = 0; i < 32; i++){
-            fprintf(bias_output_file, "%d ", libjit_scale_i32i8((int32_t) biasW[j] - biasOffset, biasPre, biasPost, biasScale, 0));
+            fprintf(bias_output_file, "%d ", libjit_scale_i32i8((int32_t) biasW[0] - biasOffset, biasPre, biasPost, biasScale, 0));
         }
         fprintf(bias_output_file, "\n");
     }
