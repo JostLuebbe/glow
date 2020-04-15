@@ -736,7 +736,7 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
                     }
 
                     if (d == 0){
-                        if (jump % 32 == 0) fprintf(res_output_file, "\n");
+//                        if (jump % 32 == 0) fprintf(res_output_file, "\n");
 //                        if (jump % 1024 == 0) fprintf(res_output_file, "\n");
 //                    printf("%lu,", libjit_getXYZW(outWdims, n, ax, ay, d));
                         fprintf(res_output_file, "%d ", sum);
@@ -747,6 +747,7 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
 
                     outW[libjit_getXYZW(outWdims, n, ax, ay, d)] = libjit_clip(scaledSum);
                 } // W
+                fprintf(res_output_file, "\n");
             }     // H
         }         // C
     }             // N
