@@ -29,8 +29,8 @@
 #include <string.h>
 #include <sys/types.h>
 
-#include "libjit_defs.h"
 #include "example.h"
+#include "libjit_defs.h"
 
 extern void glow_conv(int8_t *result, const int8_t *inW, const int8_t *filterW,
                       const int32_t *biasW, const dim_t *outWdims,
@@ -341,7 +341,6 @@ void column_write_layer_output(dim_t rows, dim_t cols, dim_t channels, const sig
 }
 #endif // debug
 
-
 template <typename ElemTy, typename BiasElemTy>
 void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const BiasElemTy *biasW, const dim_t *outWdims, const dim_t *inWdims,
                const dim_t *filterWdims, const dim_t *biasWdims, const dim_t *kernelSizes, const dim_t *strides, const dim_t *pads, dim_t group,
@@ -361,40 +360,40 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
     // size_t == lu == unsigned long
     // dim_t == llu = unsigned long long
 
-/*    FILE *bias_output_file = fopen("bias.txt", "w");
-    fprintf(bias_output_file, "32 32\n\n");
-    for (int j = 0; j < 32; j++) {
-        for (int i = 0; i < 32; i++) {
-            fprintf(bias_output_file, "%d ", libjit_scale_i32i8((int32_t)biasW[0] - biasOffset, biasPre, biasPost, biasScale, 0));
+    /*    FILE *bias_output_file = fopen("bias.txt", "w");
+        fprintf(bias_output_file, "32 32\n\n");
+        for (int j = 0; j < 32; j++) {
+            for (int i = 0; i < 32; i++) {
+                fprintf(bias_output_file, "%d ", libjit_scale_i32i8((int32_t)biasW[0] - biasOffset, biasPre, biasPost, biasScale, 0));
+            }
+            fprintf(bias_output_file, "\n");
         }
-        fprintf(bias_output_file, "\n");
-    }
-    fclose(bias_output_file);
+        fclose(bias_output_file);
 
-    FILE *img_output_file = fopen("img.txt", "w");
-    fprintf(bias_output_file, "32 32\n\n");
-    for (int j = 0; j < 32; j++) {
-        for (int i = 0; i < 32; i++) {
-            fprintf(img_output_file, "%d ", inW[j * 32 + i]);
+        FILE *img_output_file = fopen("img.txt", "w");
+        fprintf(bias_output_file, "32 32\n\n");
+        for (int j = 0; j < 32; j++) {
+            for (int i = 0; i < 32; i++) {
+                fprintf(img_output_file, "%d ", inW[j * 32 + i]);
+            }
+            fprintf(img_output_file, "\n");
         }
-        fprintf(img_output_file, "\n");
-    }
-    fclose(img_output_file);
+        fclose(img_output_file);
 
-    FILE *kernel_output_file = fopen("kernel.txt", "w");
-    fprintf(kernel_output_file, "3 3\n\n");
-    for (int j = 0; j < 3; j++) {
-        for (int i = 0; i < 3; i++) {
-            fprintf(kernel_output_file, "%d ", filterW[j * 3 + i]);
+        FILE *kernel_output_file = fopen("kernel.txt", "w");
+        fprintf(kernel_output_file, "3 3\n\n");
+        for (int j = 0; j < 3; j++) {
+            for (int i = 0; i < 3; i++) {
+                fprintf(kernel_output_file, "%d ", filterW[j * 3 + i]);
+            }
+            fprintf(kernel_output_file, "\n");
         }
-        fprintf(kernel_output_file, "\n");
-    }
-    fclose(kernel_output_file);
+        fclose(kernel_output_file);
 
-    FILE *offset_output_file = fopen("offset.txt", "w");
-    fprintf(offset_output_file, "%d ", inOffset);
-    fprintf(offset_output_file, "%d", filterOffset);
-    fclose(offset_output_file);*/
+        FILE *offset_output_file = fopen("offset.txt", "w");
+        fprintf(offset_output_file, "%d ", inOffset);
+        fprintf(offset_output_file, "%d", filterOffset);
+        fclose(offset_output_file);*/
 
 #ifdef debug
     printf("group: %llu\n", group);             // always 0
@@ -425,44 +424,44 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
     printf("outPre: %d\n", outPre);       // 3
     printf("outPost: %d\n", outPost);     // 15
     printf("outScale: %d\n", outScale);   // 300
-#endif // debug
+#endif                                    // debug
 
     depthUnroll = 1;
 
-/*    int32_t bias[biasWdims[0] * biasWdims[0]];
+    /*    int32_t bias[biasWdims[0] * biasWdims[0]];
 
-    for (int y = 0; y < inWdims[1]; y += 1) {
-        for (int x = 0; x < inWdims[2]; x += 1) {
-            bias[y * 32 + x] = libjit_scale_i32i8((int32_t)biasW[0] - biasOffset, biasPre, biasPost, biasScale, 0);
+        for (int y = 0; y < inWdims[1]; y += 1) {
+            for (int x = 0; x < inWdims[2]; x += 1) {
+                bias[y * 32 + x] = libjit_scale_i32i8((int32_t)biasW[0] - biasOffset, biasPre, biasPost, biasScale, 0);
+            }
         }
-    }
 
-    print_simple_matrix_32(outWdims[1], outWdims[2], bias);
+        print_simple_matrix_32(outWdims[1], outWdims[2], bias);
 
-    int32_t img[inWdims[1] * inWdims[2]];
+        int32_t img[inWdims[1] * inWdims[2]];
 
-    for (int y = 0; y < inWdims[1]; y += 1) {
-        for (int x = 0; x < inWdims[2]; x += 1) {
-            img[y * 32 + x] = inW[y * 32 + x];
+        for (int y = 0; y < inWdims[1]; y += 1) {
+            for (int x = 0; x < inWdims[2]; x += 1) {
+                img[y * 32 + x] = inW[y * 32 + x];
+            }
         }
-    }
-    print_simple_matrix_32(outWdims[1], outWdims[2], img);
+        print_simple_matrix_32(outWdims[1], outWdims[2], img);
 
-    int32_t filter[filterWdims[1] * filterWdims[2]];
+        int32_t filter[filterWdims[1] * filterWdims[2]];
 
-    for (int y = 0; y < filterWdims[1]; y += 1) {
-        for (int x = 0; x < filterWdims[2]; x += 1) {
-            filter[y * 3 + x] = filterW[y * 3 + x];
+        for (int y = 0; y < filterWdims[1]; y += 1) {
+            for (int x = 0; x < filterWdims[2]; x += 1) {
+                filter[y * 3 + x] = filterW[y * 3 + x];
+            }
         }
-    }
-    print_simple_matrix_32(filterWdims[1], filterWdims[2], filter);*/
+        print_simple_matrix_32(filterWdims[1], filterWdims[2], filter);*/
 
     int8_t result[outWdims[0] * outWdims[1] * outWdims[2] * outWdims[3]];
 
-/*    void dlha_conv(int8_t *outW, const int8_t *inW, const int8_t *filterW, const int32_t *biasW, const dim_t *outWdims, const dim_t *inWdims,
-                   const dim_t *filterWdims, const dim_t *biasWdims, const dim_t *kernelSizes, const dim_t *strides, const dim_t *pads, dim_t group,
-                   int32_t outOffset, int32_t inOffset, int32_t filterOffset, int32_t biasOffset, int32_t biasPre, int32_t biasPost, int32_t biasScale,
-                   int32_t outPre, int32_t outPost, int32_t outScale, unsigned depthUnroll, dim_t dilation)*/
+    /*    void dlha_conv(int8_t *outW, const int8_t *inW, const int8_t *filterW, const int32_t *biasW, const dim_t *outWdims, const dim_t *inWdims,
+                       const dim_t *filterWdims, const dim_t *biasWdims, const dim_t *kernelSizes, const dim_t *strides, const dim_t *pads, dim_t
+       group, int32_t outOffset, int32_t inOffset, int32_t filterOffset, int32_t biasOffset, int32_t biasPre, int32_t biasPost, int32_t biasScale,
+                       int32_t outPre, int32_t outPost, int32_t outScale, unsigned depthUnroll, dim_t dilation)*/
 
     glow_conv(result, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, outOffset, inOffset, filterOffset, biasOffset, biasPre,
               biasPost, biasScale, outPre, outPost, outScale);
@@ -478,90 +477,89 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
                 for (size_t i = 0; i < outWdims[2]; i++) {
 
                     outW[libjit_getXYZW(outWdims, n, j, i, d)] = result[(n * outWdims[1] * outWdims[2]) + j * outWdims[1] + i];
-
                 }
             }
         }
     }
 
-//    size_t g = 0;
+    //    size_t g = 0;
 
     //    FILE *kernel_file = fopen("kernel_output.txt", "w");
-/*    FILE *res_output_file = fopen("res.txt", "w");
-    fprintf(res_output_file, "32 32\n\n");
+    /*    FILE *res_output_file = fopen("res.txt", "w");
+        fprintf(res_output_file, "32 32\n\n");
 
-    int jump = 0;
+        int jump = 0;
 
-    // For each input in the batch:
-    for (size_t n = 0; n < inChannels; n++) { // n: 0
-        // For each output channel in the group. Process 'depthUnroll' output layers together.
-        for (size_t d = 0; d < outCperG; d += depthUnroll) { // d: 0 -> 8 -> 16 -> 24 // outCperG
-            // For each convolution 'jump' in the input tensor:
-            ssize_t x = -(ssize_t)pad_t; // -1 -> 30
+        // For each input in the batch:
+        for (size_t n = 0; n < inChannels; n++) { // n: 0
+            // For each output channel in the group. Process 'depthUnroll' output layers together.
+            for (size_t d = 0; d < outCperG; d += depthUnroll) { // d: 0 -> 8 -> 16 -> 24 // outCperG
+                // For each convolution 'jump' in the input tensor:
+                ssize_t x = -(ssize_t)pad_t; // -1 -> 30
 
-            for (size_t ax = 0; ax < outWdims[1]; x += stride_h, ax++) { // 32
+                for (size_t ax = 0; ax < outWdims[1]; x += stride_h, ax++) { // 32
 
-                ssize_t y = -(ssize_t)pad_l;
+                    ssize_t y = -(ssize_t)pad_l;
 
-                for (size_t ay = 0; ay < outWdims[2]; y += stride_w, ay++) { // 32
-                    int32_t sum;                                             // int32_t sum[depthUnroll];
+                    for (size_t ay = 0; ay < outWdims[2]; y += stride_w, ay++) { // 32
+                        int32_t sum;                                             // int32_t sum[depthUnroll];
 
-                    sum = libjit_scale_i32i8((int32_t)biasW[d] - biasOffset, biasPre, biasPost, biasScale, 0);
+                        sum = libjit_scale_i32i8((int32_t)biasW[d] - biasOffset, biasPre, biasPost, biasScale, 0);
 
-                    // For each element in the convolution-filter:
-                    for (size_t fx = 0; fx < kernel_h; fx++) {     // 0, 1, 2
-                        for (size_t fy = 0; fy < kernel_w; fy++) { // 0, 1, 2
-                            ssize_t ox = x + fx;                   // * dilation; ox: -1 -> 32
-                            ssize_t oy = y + fy;                   // * dilation; oy: -1 -> 32
+                        // For each element in the convolution-filter:
+                        for (size_t fx = 0; fx < kernel_h; fx++) {     // 0, 1, 2
+                            for (size_t fy = 0; fy < kernel_w; fy++) { // 0, 1, 2
+                                ssize_t ox = x + fx;                   // * dilation; ox: -1 -> 32
+                                ssize_t oy = y + fy;                   // * dilation; oy: -1 -> 32
 
-                            // Ignore index access below zero (this is due to padding).
-                            if (ox < 0 || oy < 0 || ox >= (ssize_t)inWdims[1] || oy >= (ssize_t)inWdims[2]) {
-                                continue;
-                            }
+                                // Ignore index access below zero (this is due to padding).
+                                if (ox < 0 || oy < 0 || ox >= (ssize_t)inWdims[1] || oy >= (ssize_t)inWdims[2]) {
+                                    continue;
+                                }
 
-                            // Calculate the indices into the Filter and Input buffers.
-                            //                                size_t inIdx = libjit_getXYZW(inWdims, n, (size_t) ox, (size_t) oy, g * inCperG);
-                            size_t inIdx = (n * inWdims[1] * inWdims[2] * inWdims[3]) + // 0 * 32 * 32 * 1
-                                           (ox * inWdims[2] * inWdims[3]) +             // (0 -> 31) * 32 * 1
-                                           (oy * inWdims[3]) +                          // (0 -> 31) * 1
-                                           (g * inCperG);                               // 0 * 1
+                                // Calculate the indices into the Filter and Input buffers.
+                                //                                size_t inIdx = libjit_getXYZW(inWdims, n, (size_t) ox, (size_t) oy, g * inCperG);
+                                size_t inIdx = (n * inWdims[1] * inWdims[2] * inWdims[3]) + // 0 * 32 * 32 * 1
+                                               (ox * inWdims[2] * inWdims[3]) +             // (0 -> 31) * 32 * 1
+                                               (oy * inWdims[3]) +                          // (0 -> 31) * 1
+                                               (g * inCperG);                               // 0 * 1
 
-                            //                            printf("%lu ", inIdx);
+                                //                            printf("%lu ", inIdx);
 
-                            //                                size_t filterIdx = libjit_getXYZW(filterWdims, d, fx, fy, 0);
-                            size_t filterIdx = (d * filterWdims[1] * filterWdims[2] * filterWdims[3]) + (fx * filterWdims[2] * filterWdims[3]) +
-                                               (fy * filterWdims[3]);
+                                //                                size_t filterIdx = libjit_getXYZW(filterWdims, d, fx, fy, 0);
+                                size_t filterIdx = (d * filterWdims[1] * filterWdims[2] * filterWdims[3]) + (fx * filterWdims[2] * filterWdims[3]) +
+                                                   (fy * filterWdims[3]);
 
-                            //                                printf("%lu,", filterIdx);
+                                //                                printf("%lu,", filterIdx);
 
-                            //                            size_t sliceSize = filterWdims[1] * filterWdims[2] * filterWdims[3]; // 3 * 3 * 1
+                                //                            size_t sliceSize = filterWdims[1] * filterWdims[2] * filterWdims[3]; // 3 * 3 * 1
 
-                            for (size_t fd = 0; fd < inCperG; fd++) { // 0
-                                int32_t in = inW[inIdx + fd] - inOffset;
-                                //                                printf("%d,", inW[inIdx + fd] - inOffset);
-                                sum += (filterW[filterIdx + fd] - filterOffset) * in;
+                                for (size_t fd = 0; fd < inCperG; fd++) { // 0
+                                    int32_t in = inW[inIdx + fd] - inOffset;
+                                    //                                printf("%d,", inW[inIdx + fd] - inOffset);
+                                    sum += (filterW[filterIdx + fd] - filterOffset) * in;
+                                }
                             }
                         }
-                    }
 
-                    if (d == 0) {
-                        //                        if (jump % 32 == 0) fprintf(res_output_file, "\n");
-                        //                        if (jump % 1024 == 0) fprintf(res_output_file, "\n");
-                        //                    printf("%lu,", libjit_getXYZW(outWdims, n, ax, ay, d));
-                        fprintf(res_output_file, "%d ", sum);
-                        jump++;
-                    }
+                        if (d == 0) {
+                            //                        if (jump % 32 == 0) fprintf(res_output_file, "\n");
+                            //                        if (jump % 1024 == 0) fprintf(res_output_file, "\n");
+                            //                    printf("%lu,", libjit_getXYZW(outWdims, n, ax, ay, d));
+                            fprintf(res_output_file, "%d ", sum);
+                            jump++;
+                        }
 
-                    int32_t scaledSum = libjit_scale_i32i8(sum, outPre, outPost, outScale, outOffset);
+                        int32_t scaledSum = libjit_scale_i32i8(sum, outPre, outPost, outScale, outOffset);
 
-                    outW[libjit_getXYZW(outWdims, n, ax, ay, d)] = libjit_clip(scaledSum);
-                } // W
-                fprintf(res_output_file, "\n");
-            } // H
-        }     // C
-    }         // N
-              //    fclose(kernel_file);
-    fclose(res_output_file);*/
+                        outW[libjit_getXYZW(outWdims, n, ax, ay, d)] = libjit_clip(scaledSum);
+                    } // W
+                    fprintf(res_output_file, "\n");
+                } // H
+            }     // C
+        }         // N
+                  //    fclose(kernel_file);
+        fclose(res_output_file);*/
     /*#ifdef debug
         printf("\n********************** PRINTING OUTPUT IMAGE(s): AFTER **************************\n");
         write_layer_output(outWdims[1], outWdims[2], outCperG, outW);
