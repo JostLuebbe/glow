@@ -29,18 +29,15 @@
 #include <string.h>
 #include <sys/types.h>
 
-//#include "example.h"
 #include "libjit_defs.h"
 
 extern void glow_conv(int8_t *result, const int8_t *inW, const int8_t *filterW,
-                      const int32_t *biasW, const dim_t *outWdims,
-                      const dim_t *inWdims, const dim_t *filterWdims,
-                      const dim_t *biasWdims, int32_t outOffset, int32_t inOffset,
+                      const int32_t *biasW, const uint32_t *outWdims,
+                      const uint32_t *inWdims, const uint32_t *filterWdims,
+                      const uint32_t *biasWdims, int32_t outOffset, int32_t inOffset,
                       int32_t filterOffset, int32_t biasOffset, int32_t biasPre,
                       int32_t biasPost, int32_t biasScale, int32_t outPre,
                       int32_t outPost, int32_t outScale);
-
-extern int foo(int a, int b);
 
 namespace {
 // Initialize the convolution output frame for slice \p N with the bias \p
@@ -465,14 +462,8 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
        group, int32_t outOffset, int32_t inOffset, int32_t filterOffset, int32_t biasOffset, int32_t biasPre, int32_t biasPost, int32_t biasScale,
                        int32_t outPre, int32_t outPost, int32_t outScale, unsigned depthUnroll, dim_t dilation)*/
 
-    int a = 4, b = 6;
-
-    int c = foo(a, b);
-
-    printf("C: %d\n", c);
-
-/*    glow_conv(result, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, outOffset, inOffset, filterOffset, biasOffset, biasPre,
-              biasPost, biasScale, outPre, outPost, outScale);*/
+    glow_conv(result, inW, filterW, biasW, (uint32_t *) outWdims, (uint32_t *) inWdims, (uint32_t *) filterWdims, (uint32_t *) biasWdims, outOffset, inOffset, filterOffset, biasOffset, biasPre,
+              biasPost, biasScale, outPre, outPost, outScale);
 
     row_write_layer_output(outWdims[1], outWdims[2], outWdims[3], result);
 
