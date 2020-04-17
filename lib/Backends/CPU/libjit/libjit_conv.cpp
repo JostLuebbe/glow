@@ -30,7 +30,7 @@
 #include <sys/types.h>
 
 #include "libjit_defs.h"
-#include "example.h"
+//#include "example.h"
 
 extern void glow_conv(int8_t *result, const int8_t *inW, const int8_t *filterW,
                       const int32_t *biasW, const dim_t *outWdims,
