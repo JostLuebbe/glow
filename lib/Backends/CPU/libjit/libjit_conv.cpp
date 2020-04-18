@@ -42,9 +42,9 @@
                       int32_t outPost, int32_t outScale);*/
 
 extern void glow_conv(int8_t *result, const int8_t *inW, const int8_t *filterW,
-                      const int32_t *biasW, const unsigned long *outWdims,
-                      const uint8_t *inWdims, const unsigned long *filterWdims,
-                      const unsigned long *biasWdims, int32_t outOffset, int32_t inOffset,
+                      const int32_t *biasW, const uint8_t *outWdims,
+                      const uint8_t *inWdims, const uint8_t *filterWdims,
+                      const uint8_t *biasWdims, int32_t outOffset, int32_t inOffset,
                       int32_t filterOffset, int32_t biasOffset, int32_t biasPre,
                       int32_t biasPost, int32_t biasScale, int32_t outPre,
                       int32_t outPost, int32_t outScale);
@@ -404,10 +404,16 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
         fprintf(offset_output_file, "%d", filterOffset);
         fclose(offset_output_file);*/
 
-    const uint8_t real_inWdims[4] = {(uint8_t) inWdims[0], (uint8_t) inWdims[1], (uint8_t) inWdims[2], (uint8_t) inWdims[3]};
+    const uint8_t small_inWdims[4] = {(uint8_t) inWdims[0], (uint8_t) inWdims[1], (uint8_t) inWdims[2], (uint8_t) inWdims[3]};
+    const uint8_t small_filterWdims[4] = {(uint8_t) filterWdims[0], (uint8_t) filterWdims[1], (uint8_t) filterWdims[2], (uint8_t) filterWdims[3]};
+    const uint8_t small_biasWdims[1] = {(uint8_t) biasWdims[0]};
+    const uint8_t small_outWdims[4] = {(uint8_t) outWdims[0], (uint8_t) outWdims[1], (uint8_t) outWdims[2], (uint8_t) outWdims[3]};
 
 #ifdef debug
-    printf("real_inWdims: [%u,%u,%u,%u]\n", real_inWdims[0],real_inWdims[1],real_inWdims[2],real_inWdims[3]);
+    printf("small_inWdims: [%u,%u,%u,%u]\n", small_inWdims[0],small_inWdims[1],small_inWdims[2],small_inWdims[3]);
+    printf("small_filterWdims: [%u,%u,%u,%u]\n", small_filterWdims[0],small_filterWdims[1],small_filterWdims[2],small_filterWdims[3]);
+    printf("small_biasWdims: [%u]\n", small_biasWdims[0]);
+    printf("small_outWdims: [%u,%u,%u,%u]\n", small_outWdims[0],small_outWdims[1],small_outWdims[2],small_outWdims[3]);
 
 
     printf("group: %llu\n", group);             // always 0
@@ -421,10 +427,6 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
     printf("pad_l: %llu\n", pad_l);             // always 1
     printf("dilation: %llu\n", dilation);       // always 1
 
-    printf("filterWdims[0]: %llu\n", filterWdims[0]);
-    printf("filterWdims[1]: %llu\n", filterWdims[1]);
-    printf("filterWdims[2]: %llu\n", filterWdims[2]);
-    printf("filterWdims[3]: %llu\n", filterWdims[3]);
     printf("filterOffset: %d\n", filterOffset);
 
     printf("biasWdims[0]: %llu\n", biasWdims[0]);
@@ -470,11 +472,11 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
         }
         print_simple_matrix_32(filterWdims[1], filterWdims[2], filter);*/
 
-    int8_t result[outWdims[0] * outWdims[1] * outWdims[2] * outWdims[3]];
+    int8_t result[small_outWdims[0] * small_outWdims[1] * small_outWdims[2] * small_outWdims[3]];
 
 /*    glow_conv(result, inW, filterW, biasW, (uint32_t *) outWdims, (uint32_t *) inWdims, (uint32_t *) filterWdims, (uint32_t *) biasWdims, outOffset, inOffset, filterOffset, biasOffset, biasPre,
               biasPost, biasScale, outPre, outPost, outScale);*/
-    glow_conv(result, inW, filterW, biasW, outWdims, real_inWdims, filterWdims, biasWdims, outOffset, inOffset, filterOffset, biasOffset, biasPre,
+    glow_conv(result, inW, filterW, biasW, small_outWdims, small_inWdims, small_filterWdims, small_biasWdims, outOffset, inOffset, filterOffset, biasOffset, biasPre,
               biasPost, biasScale, outPre, outPost, outScale);
 
     row_write_layer_output(outWdims[1], outWdims[2], outWdims[3], result);
