@@ -405,6 +405,9 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
         fclose(offset_output_file);*/
 
 #ifdef debug
+    printf("inWdims: [%llu,%llu,%llu,%llu]\n:", inWdims[0],inWdims[1],inWdims[2],inWdims[3]);
+
+
     printf("group: %llu\n", group);             // always 0
     printf("inOffset: %d\n", inOffset);         // -128 > -106 > -60
     printf("depthUnroll: %u\n", depthUnroll);   // always 8
