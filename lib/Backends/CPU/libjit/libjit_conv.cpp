@@ -43,7 +43,7 @@
 
 extern void glow_conv(int8_t *result, const int8_t *inW, const int8_t *filterW,
                       const int32_t *biasW, const unsigned long *outWdims,
-                      const unsigned long *inWdims, const unsigned long *filterWdims,
+                      const uint8_t *inWdims, const unsigned long *filterWdims,
                       const unsigned long *biasWdims, int32_t outOffset, int32_t inOffset,
                       int32_t filterOffset, int32_t biasOffset, int32_t biasPre,
                       int32_t biasPost, int32_t biasScale, int32_t outPre,
@@ -404,8 +404,10 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
         fprintf(offset_output_file, "%d", filterOffset);
         fclose(offset_output_file);*/
 
+    const uint8_t real_inWdims[4] = {(uint8_t) inWdims[0], (uint8_t) inWdims[1], (uint8_t) inWdims[2], (uint8_t) inWdims[3]};
+
 #ifdef debug
-    printf("inWdims: [%lu,%lu,%lu,%lu]\n", inWdims[0],inWdims[1],inWdims[2],inWdims[3]);
+    printf("real_inWdims: [%u,%u,%u,%u]\n", real_inWdims[0],real_inWdims[1],real_inWdims[2],real_inWdims[3]);
 
 
     printf("group: %llu\n", group);             // always 0
@@ -472,7 +474,7 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
 
 /*    glow_conv(result, inW, filterW, biasW, (uint32_t *) outWdims, (uint32_t *) inWdims, (uint32_t *) filterWdims, (uint32_t *) biasWdims, outOffset, inOffset, filterOffset, biasOffset, biasPre,
               biasPost, biasScale, outPre, outPost, outScale);*/
-    glow_conv(result, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, outOffset, inOffset, filterOffset, biasOffset, biasPre,
+    glow_conv(result, inW, filterW, biasW, outWdims, real_inWdims, filterWdims, biasWdims, outOffset, inOffset, filterOffset, biasOffset, biasPre,
               biasPost, biasScale, outPre, outPost, outScale);
 
     row_write_layer_output(outWdims[1], outWdims[2], outWdims[3], result);
