@@ -31,10 +31,18 @@
 
 #include "libjit_defs.h"
 
-extern void glow_conv(int8_t *result, const int8_t *inW, const int8_t *filterW,
+/*extern void glow_conv(int8_t *result, const int8_t *inW, const int8_t *filterW,
                       const int32_t *biasW, const uint32_t *outWdims,
                       const uint32_t *inWdims, const uint32_t *filterWdims,
                       const uint32_t *biasWdims, int32_t outOffset, int32_t inOffset,
+                      int32_t filterOffset, int32_t biasOffset, int32_t biasPre,
+                      int32_t biasPost, int32_t biasScale, int32_t outPre,
+                      int32_t outPost, int32_t outScale);*/
+
+extern void glow_conv(int8_t *result, const int8_t *inW, const int8_t *filterW,
+                      const int32_t *biasW, const uint64_t *outWdims,
+                      const uint64_t *inWdims, const uint64_t *filterWdims,
+                      const uint64_t *biasWdims, int32_t outOffset, int32_t inOffset,
                       int32_t filterOffset, int32_t biasOffset, int32_t biasPre,
                       int32_t biasPost, int32_t biasScale, int32_t outPre,
                       int32_t outPost, int32_t outScale);
@@ -457,7 +465,9 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
 
     int8_t result[outWdims[0] * outWdims[1] * outWdims[2] * outWdims[3]];
 
-    glow_conv(result, inW, filterW, biasW, (uint32_t *) outWdims, (uint32_t *) inWdims, (uint32_t *) filterWdims, (uint32_t *) biasWdims, outOffset, inOffset, filterOffset, biasOffset, biasPre,
+/*    glow_conv(result, inW, filterW, biasW, (uint32_t *) outWdims, (uint32_t *) inWdims, (uint32_t *) filterWdims, (uint32_t *) biasWdims, outOffset, inOffset, filterOffset, biasOffset, biasPre,
+              biasPost, biasScale, outPre, outPost, outScale);*/
+    glow_conv(result, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, outOffset, inOffset, filterOffset, biasOffset, biasPre,
               biasPost, biasScale, outPre, outPost, outScale);
 
     row_write_layer_output(outWdims[1], outWdims[2], outWdims[3], result);
