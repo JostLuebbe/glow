@@ -31,21 +31,21 @@
 
 #include "libjit_defs.h"
 
-extern void glow_conv(int8_t *result, const int8_t *inW, const int8_t *filterW,
+/*extern void glow_conv(int8_t *result, const int8_t *inW, const int8_t *filterW,
                       const int32_t *biasW, const uint32_t *outWdims,
                       const uint32_t *inWdims, const uint32_t *filterWdims,
                       const uint32_t *biasWdims, int32_t outOffset, int32_t inOffset,
                       int32_t filterOffset, int32_t biasOffset, int32_t biasPre,
                       int32_t biasPost, int32_t biasScale, int32_t outPre,
-                      int32_t outPost, int32_t outScale);
+                      int32_t outPost, int32_t outScale);*/
 
-/*extern void glow_conv(int8_t *result, const int8_t *inW, const int8_t *filterW,
+extern void glow_conv(int8_t *result, const int8_t *inW, const int8_t *filterW,
                       const int32_t *biasW, const uint64_t *outWdims,
                       const uint64_t *inWdims, const uint64_t *filterWdims,
                       const uint64_t *biasWdims, int32_t outOffset, int32_t inOffset,
                       int32_t filterOffset, int32_t biasOffset, int32_t biasPre,
                       int32_t biasPost, int32_t biasScale, int32_t outPre,
-                      int32_t outPost, int32_t outScale);*/
+                      int32_t outPost, int32_t outScale);
 
 namespace {
 // Initialize the convolution output frame for slice \p N with the bias \p
