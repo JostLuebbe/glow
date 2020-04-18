@@ -405,7 +405,7 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
         fclose(offset_output_file);*/
 
 #ifdef debug
-    printf("inWdims: [%llu,%llu,%llu,%llu]\n", inWdims[0],inWdims[1],inWdims[2],inWdims[3]);
+    printf("inWdims: [%lu,%lu,%lu,%lu]\n", inWdims[0],inWdims[1],inWdims[2],inWdims[3]);
 
 
     printf("group: %llu\n", group);             // always 0
