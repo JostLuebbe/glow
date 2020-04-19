@@ -847,7 +847,7 @@ void libjit_convolution_i8_i32(int8_t *outW, const int8_t *inW, const int8_t *fi
                                    dilation);
 
         FILE *hardware_outW = fopen("hardware_outW.txt", "w");
-        for (int i = 0; i < 32 * 32 * 32; i++) fprintf(hardware_outW, "%d ", outW);
+        for (int i = 0; i < 32 * 32 * 32; i++) fprintf(hardware_outW, "%d ", outW[i]);
         fprintf(hardware_outW, "\n");
         fclose(hardware_outW);
 
@@ -856,7 +856,7 @@ void libjit_convolution_i8_i32(int8_t *outW, const int8_t *inW, const int8_t *fi
                                                               biasScale, outPre, outPost, outScale, depthUnroll, dilation);
 
         FILE *software_outW = fopen("software_outW.txt", "w");
-        for (int i = 0; i < 32 * 32 * 32; i++) fprintf(software_outW, "%d ", outW);
+        for (int i = 0; i < 32 * 32 * 32; i++) fprintf(software_outW, "%d ", outW[i]);
         fprintf(software_outW, "\n");
         fclose(software_outW);
 
