@@ -482,7 +482,7 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
 //    row_write_layer_output(outWdims[1], outWdims[2], outWdims[3], result);
 
     FILE *first_hardware_outW = fopen("first_hardware_outW.txt", "w");
-    for (int i = 0; i < 32 * 32 * 32; i++) fprintf(first_hardware_outW, "%d ", result[i]);
+    for (int i = 0; i < 32 * 32 * 32; i++) fprintf(first_hardware_outW, "%d,", result[i]);
     fprintf(first_hardware_outW, "\n");
     fclose(first_hardware_outW);
 
@@ -852,7 +852,7 @@ void libjit_convolution_i8_i32(int8_t *outW, const int8_t *inW, const int8_t *fi
                                    dilation);
 
         FILE *hardware_outW = fopen("hardware_outW.txt", "w");
-        for (int i = 0; i < 32 * 32 * 32; i++) fprintf(hardware_outW, "%d ", outW[i]);
+        for (int i = 0; i < 32 * 32 * 32; i++) fprintf(hardware_outW, "%d,", outW[i]);
         fprintf(hardware_outW, "\n");
         fclose(hardware_outW);
 
@@ -861,7 +861,7 @@ void libjit_convolution_i8_i32(int8_t *outW, const int8_t *inW, const int8_t *fi
                                                               biasScale, outPre, outPost, outScale, depthUnroll, dilation);
 
         FILE *software_outW = fopen("software_outW.txt", "w");
-        for (int i = 0; i < 32 * 32 * 32; i++) fprintf(software_outW, "%d ", outW[i]);
+        for (int i = 0; i < 32 * 32 * 32; i++) fprintf(software_outW, "%d,", outW[i]);
         fprintf(software_outW, "\n");
         fclose(software_outW);
     } else {
