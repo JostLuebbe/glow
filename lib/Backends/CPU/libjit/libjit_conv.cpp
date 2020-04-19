@@ -618,7 +618,7 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
 #ifdef debug
     printf("small_inWdims: [%u,%u,%u,%u]\n", small_inWdims[0],small_inWdims[1],small_inWdims[2],small_inWdims[3]);
     printf("small_filterWdims: [%u,%u,%u,%u]\n", small_filterWdims[0],small_filterWdims[1],small_filterWdims[2],small_filterWdims[3]);
-    printf("filterW:\n");
+/*    printf("filterW:\n");
     for (int c = 0;  c < filterWdims[3]; c++){
         for (int n = 0; n < filterWdims[0]; n++){
             for (int j = 0;  j < filterWdims[1]; j++){
@@ -630,7 +630,7 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
         }
         printf("\n");
     }
-    printf("\n");
+    printf("\n");*/
 
 
     printf("small_biasWdims: [%u]\n", small_biasWdims[0]);
@@ -709,19 +709,20 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
                                 // registers.
                                 for (size_t fd = 0; fd < inCperG; fd++) {
                                     int32_t in = inW[inIdx + fd] - inOffset;
-                                    for (unsigned i = 0; i < MIN(4, depthUnroll); i++) {
-                                        sum[i] += (filterW[filterIdx + (sliceSize * i) + fd] - filterOffset) * in;
-                                    }
+//                                    for (unsigned i = 0; i < MIN(4, depthUnroll); i++) {
+                                    printf("%lu, ", filterIdx + fd);
+                                    sum[0] += (filterW[filterIdx + fd] - filterOffset) * in;
+//                                    }
                                 }
 
                                 // And perform the innermost loop again with 4 more registers.
-                                if (depthUnroll > 4)
+/*                                if (depthUnroll > 4)
                                     for (size_t fd = 0; fd < inCperG; fd++) {
                                         int32_t in = inW[inIdx + fd] - inOffset;
                                         for (unsigned i = 4; i < MIN(8, depthUnroll); i++) {
                                             sum[i] += (filterW[filterIdx + (sliceSize * i) + fd] - filterOffset) * in;
                                         }
-                                    }
+                                    }*/
                             }
                         }
 
