@@ -479,7 +479,7 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
     glow_conv(result, inW, filterW, biasW, small_outWdims, small_inWdims, small_filterWdims, small_biasWdims, outOffset, inOffset, filterOffset, biasOffset, biasPre,
               biasPost, biasScale, outPre, outPost, outScale);
 
-    row_write_layer_output(outWdims[1], outWdims[2], outWdims[3], result);
+//    row_write_layer_output(outWdims[1], outWdims[2], outWdims[3], result);
 
     for (size_t n = 0; n < inChannels; n++) {
 
@@ -845,6 +845,22 @@ void libjit_convolution_i8_i32(int8_t *outW, const int8_t *inW, const int8_t *fi
         dlha_conv<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides, pads, group, outOffset,
                                    inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale, outPre, outPost, outScale, depthUnroll,
                                    dilation);
+
+        FILE *hardware_outW = fopen("hardware_outW.txt", "w");
+        for (int i = 0; i < 32 * 32 * 32; i++) fprintf(hardware_outW, "%d ", outW);
+        fprintf(hardware_outW, "\n");
+        fclose(hardware_outW);
+
+        libjit_quantized_convolution_generic<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes,
+                                                              strides, pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost,
+                                                              biasScale, outPre, outPost, outScale, depthUnroll, dilation);
+
+        FILE *software_outW = fopen("software_outW.txt", "w");
+        for (int i = 0; i < 32 * 32 * 32; i++) fprintf(software_outW, "%d ", outW);
+        fprintf(software_outW, "\n");
+        fclose(software_outW);
+
+
     } else {
         libjit_quantized_convolution_generic<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes,
                                                               strides, pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost,
