@@ -703,14 +703,14 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
                                 // Calculate the indices into the Filter and Input buffers.
                                 size_t inIdx = libjit_getXYZW(inWdims, n, (size_t)ox, (size_t)oy, g * inCperG);
                                 size_t filterIdx = libjit_getXYZW(filterWdims, d, fx, fy, 0);
-                                size_t sliceSize = filterWdims[1] * filterWdims[2] * filterWdims[3];
+//                                size_t sliceSize = filterWdims[1] * filterWdims[2] * filterWdims[3];
 
                                 // Perform the innermost loop of the convolution using 4 vector
                                 // registers.
                                 for (size_t fd = 0; fd < inCperG; fd++) {
                                     int32_t in = inW[inIdx + fd] - inOffset;
 //                                    for (unsigned i = 0; i < MIN(4, depthUnroll); i++) {
-                                    printf("%lu, ", filterIdx + fd);
+                                    printf("%u,", filterIdx + fd);
                                     sum[0] += (filterW[filterIdx + fd] - filterOffset) * in;
 //                                    }
                                 }
