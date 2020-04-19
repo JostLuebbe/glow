@@ -413,6 +413,11 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
     printf("small_inWdims: [%u,%u,%u,%u]\n", small_inWdims[0],small_inWdims[1],small_inWdims[2],small_inWdims[3]);
     printf("small_filterWdims: [%u,%u,%u,%u]\n", small_filterWdims[0],small_filterWdims[1],small_filterWdims[2],small_filterWdims[3]);
     printf("small_biasWdims: [%u]\n", small_biasWdims[0]);
+    printf("biasW: ");
+    for (int i = 0; i<biasWdims[0]; i++){
+        printf("%d,", libjit_scale_i32i8((int32_t) biasW[i] - biasOffset, biasPre, biasPost, biasScale, 0));
+    }
+    printf("\n");
     printf("small_outWdims: [%u,%u,%u,%u]\n", small_outWdims[0],small_outWdims[1],small_outWdims[2],small_outWdims[3]);
 
 
