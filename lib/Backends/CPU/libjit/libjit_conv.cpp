@@ -486,19 +486,19 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
     fprintf(first_hardware_outW, "\n");
     fclose(first_hardware_outW);
 
-    for (size_t n = 0; n < inChannels; n++) {
+//    for (size_t n = 0; n < inWdims[0]; n++) {
 
-        for (size_t d = 0; d < 1; d += depthUnroll) {
+        for (size_t n = 0; n < outCperG; n += depthUnroll) {
 
             for (size_t j = 0; j < outWdims[1]; j++) {
 
                 for (size_t i = 0; i < outWdims[2]; i++) {
 
-                    outW[libjit_getXYZW(outWdims, n, j, i, d)] = result[(n * outWdims[1] * outWdims[2]) + j * outWdims[1] + i];
+                    outW[libjit_getXYZW(outWdims, 0, j, i, n)] = result[(n * outWdims[1] * outWdims[2]) + j * outWdims[1] + i];
                 }
             }
         }
-    }
+//    }
 
     //    size_t g = 0;
 
