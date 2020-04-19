@@ -645,45 +645,43 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
     printf("outScale: %d\n", outScale);   // 300
 #endif                                    // debug
 
-    // For each input in the batch:
-    for (size_t n = 0; n < inWdims[0]; n++) {
-        // For each output channel
-        for (size_t c = 0; c < outChannels; c++) {
-            // For each convolution 'jump' in the input tensor:
-            ssize_t x = -(ssize_t)pad_t;
-            for (size_t ax = 0; ax < outWdims[1]; x += stride_h, ax++) {
-                ssize_t y = -(ssize_t)pad_l;
-                for (size_t ay = 0; ay < outWdims[2]; y += stride_w, ay++) {
-                    int32_t sum = libjit_scale_i32i8((int32_t)biasW[c] - biasOffset, biasPre, biasPost, biasScale, 0);
 
-                    // For each element in the convolution-filter:
-                    for (size_t fx = 0; fx < kernel_h; fx++) {
-                        for (size_t fy = 0; fy < kernel_w; fy++) {
-                            ssize_t ox = x + fx * dilation;
-                            ssize_t oy = y + fy * dilation;
+    // For each output channel
+    for (size_t c = 0; c < outChannels; c++) {
+        // For each convolution 'jump' in the input tensor:
+        ssize_t x = -(ssize_t)pad_t;
+        for (size_t ax = 0; ax < outWdims[1]; x += stride_h, ax++) {
+            ssize_t y = -(ssize_t)pad_l;
+            for (size_t ay = 0; ay < outWdims[2]; y += stride_w, ay++) {
+                int32_t sum = libjit_scale_i32i8((int32_t) biasW[c] - biasOffset, biasPre, biasPost, biasScale, 0);
 
-                            // Ignore index access below zero (this is due to padding).
-                            if (ox < 0 || oy < 0 || ox >= (ssize_t)inWdims[1] || oy >= (ssize_t)inWdims[2]) {
-                                continue;
-                            }
+                // For each element in the convolution-filter:
+                for (size_t fx = 0; fx < kernel_h; fx++) {
+                    for (size_t fy = 0; fy < kernel_w; fy++) {
+                        ssize_t ox = x + fx * dilation;
+                        ssize_t oy = y + fy * dilation;
 
-                            // Calculate the indices into the Filter and Input buffers.
-                            size_t inIdx = libjit_getXYZW(inWdims, n, (size_t)ox, (size_t)oy, 0);
-                            size_t filterIdx = libjit_getXYZW(filterWdims, c, fx, fy, 0);
+                        // Ignore index access below zero (this is due to padding).
+                        if (ox < 0 || oy < 0 || ox >= (ssize_t)inWdims[1] || oy >= (ssize_t)inWdims[2]) {
+                            continue;
+                        }
 
-                            for (size_t fd = 0; fd < inCperG; fd++) { // 0 -> 31
-                                int32_t in = inW[inIdx + fd] - inOffset;
-                                sum += (filterW[filterIdx + fd] - filterOffset) * in;
-                            }
+                        // Calculate the indices into the Filter and Input buffers.
+                        size_t inIdx = libjit_getXYZW(inWdims, 0, (size_t)ox, (size_t)oy, 0);
+                        size_t filterIdx = libjit_getXYZW(filterWdims, c, fx, fy, 0);
+
+                        for (size_t fd = 0; fd < inCperG; fd++) { // 0 -> 31
+                            int32_t in = inW[inIdx + fd] - inOffset;
+                            sum += (filterW[filterIdx + fd] - filterOffset) * in;
                         }
                     }
+                }
 
-                    int32_t scaledSum = libjit_scale_i32i8(sum, outPre, outPost, outScale, outOffset);
-                    outW[libjit_getXYZW(outWdims, n, ax, ay, c)] = libjit_clip(scaledSum);
-                } // W
-            }     // H
-        }         // C
-    }             // N
+                int32_t scaledSum = libjit_scale_i32i8(sum, outPre, outPost, outScale, outOffset);
+                outW[libjit_getXYZW(outWdims, 0, ax, ay, c)] = libjit_clip(scaledSum);
+            } // W
+        }     // H
+    }         // C
 }
 
 /// Generic template for quantized convolution. The template allows choosing
