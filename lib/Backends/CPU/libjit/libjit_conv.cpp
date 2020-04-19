@@ -481,6 +481,11 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
 
 //    row_write_layer_output(outWdims[1], outWdims[2], outWdims[3], result);
 
+    FILE *first_hardware_outW = fopen("first_hardware_outW.txt", "w");
+    for (int i = 0; i < 32 * 32 * 32; i++) fprintf(first_hardware_outW, "%d ", result[i]);
+    fprintf(first_hardware_outW, "\n");
+    fclose(first_hardware_outW);
+
     for (size_t n = 0; n < inChannels; n++) {
 
         for (size_t d = 0; d < 1; d += depthUnroll) {
@@ -859,8 +864,6 @@ void libjit_convolution_i8_i32(int8_t *outW, const int8_t *inW, const int8_t *fi
         for (int i = 0; i < 32 * 32 * 32; i++) fprintf(software_outW, "%d ", outW[i]);
         fprintf(software_outW, "\n");
         fclose(software_outW);
-
-
     } else {
         libjit_quantized_convolution_generic<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes,
                                                               strides, pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost,
