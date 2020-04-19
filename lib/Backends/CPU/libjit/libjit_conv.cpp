@@ -623,7 +623,7 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
         for (int n = 0; n < filterWdims[0]; n++){
             for (int j = 0;  j < filterWdims[1]; j++){
                 for (int i = 0;  i < filterWdims[2]; i++){
-                    printf("%d ", filterW[(c * filterWdims[0] *  filterWdims[1] * filterWdims[2]) + (n *  filterWdims[1] * filterWdims[2]) + j * filterWdims[1] + i]);
+                    printf("%03d ", filterW[(c * filterWdims[0] *  filterWdims[1] * filterWdims[2]) + (n *  filterWdims[1] * filterWdims[2]) + j * filterWdims[1] + i]);
                 }
             }
             printf(",");
