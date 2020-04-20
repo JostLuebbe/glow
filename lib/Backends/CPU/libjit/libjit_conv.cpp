@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
+#include <sys/time.h>
 
 #include "libjit_defs.h"
 
@@ -501,9 +502,27 @@ void libjit_convolution_i8_i32(int8_t *outW, const int8_t *inW, const int8_t *fi
                                unsigned depthUnroll, dim_t dilation) {
 //    printf("JOST IN libjit_convolution_i8_i32\n");
 
+    struct timeval start, end;
+
+    gettimeofday(&start, nullptr);
     dlha_conv<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides, pads, group, outOffset,
                                inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale, outPre, outPost, outScale, depthUnroll,
                                dilation);
+    gettimeofday(&end, nullptr);
+
+    unsigned long seconds = (end.tv_sec - start.tv_sec);
+    unsigned long micros = ((seconds * 1000000) + end.tv_usec) - (start.tv_usec);
+    printf("Hardware Runtime: %lus:%luus\n", seconds, micros);
+
+    gettimeofday(&start, nullptr);
+    libjit_quantized_convolution_generic<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides,
+                                                         pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale,
+                                                         outPre, outPost, outScale, depthUnroll, dilation);
+    gettimeofday(&end, nullptr);
+
+    seconds = (end.tv_sec - start.tv_sec);
+    micros = ((seconds * 1000000) + end.tv_usec) - (start.tv_usec);
+    printf("Software Runtime: %lus:%luus\n", seconds, micros);
 }
 
 /*void libjit_convolution_i8_i8(int8_t *outW, const int8_t *inW, const int8_t *filterW, const int8_t *biasW, const dim_t *outWdims,
