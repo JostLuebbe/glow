@@ -502,27 +502,28 @@ void libjit_convolution_i8_i32(int8_t *outW, const int8_t *inW, const int8_t *fi
                                unsigned depthUnroll, dim_t dilation) {
 //    printf("JOST IN libjit_convolution_i8_i32\n");
 
-    struct timeval start, end;
+    struct timeval t1, t2;
 
-    gettimeofday(&start, nullptr);
+    gettimeofday(&t1, nullptr);
     dlha_conv<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides, pads, group, outOffset,
                                inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale, outPre, outPost, outScale, depthUnroll,
                                dilation);
-    gettimeofday(&end, nullptr);
+    gettimeofday(&t2, nullptr);
 
-    unsigned long seconds = (end.tv_sec - start.tv_sec);
-    unsigned long micros = ((seconds * 1000000) + end.tv_usec) - (start.tv_usec);
-    printf("Hardware Runtime: %lus:%luus\n", seconds, micros);
+    double time;
+    time = (t2.tv_sec - t1.tv_sec)*1000.0 + (t2.tv_usec - t1.tv_usec)/1000.0;
+    printf("Hardware Runtime: %f\n", time);
 
-    gettimeofday(&start, nullptr);
+    struct timeval soft_t1, soft_t2;
+
+    gettimeofday(&soft_t1, nullptr);
     libjit_quantized_convolution_generic<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides,
                                                          pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale,
                                                          outPre, outPost, outScale, depthUnroll, dilation);
-    gettimeofday(&end, nullptr);
+    gettimeofday(&soft_t2, nullptr);
 
-    seconds = (end.tv_sec - start.tv_sec);
-    micros = ((seconds * 1000000) + end.tv_usec) - (start.tv_usec);
-    printf("Software Runtime: %lus:%luus\n", seconds, micros);
+    time = (soft_t2.tv_sec - soft_t1.tv_sec)*1000.0 + (soft_t2.tv_usec - soft_t1.tv_usec)/1000.0;
+    printf("Software Runtime: %f\n", time);
 }
 
 /*void libjit_convolution_i8_i8(int8_t *outW, const int8_t *inW, const int8_t *filterW, const int8_t *biasW, const dim_t *outWdims,
