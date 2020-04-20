@@ -939,13 +939,20 @@ void libjit_convolution_i8_i32(int8_t *outW, const int8_t *inW, const int8_t *fi
     dlha_conv<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides, pads, group, outOffset,
                                inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale, outPre, outPost, outScale, depthUnroll,
                                dilation);
+    FILE *hardware_outW;
 
-    char hardware_buf[30];
-    snprintf(hardware_buf, 30, "hardware_outW_%02du.txt", 32);
+    switch(inWdims[3]){
+    case 1:
+        hardware_outW = fopen("hardware_outW_1.txt", "w");
+        break;
+    case 32:
+        hardware_outW = fopen("hardware_outW_32.txt", "w");
+        break;
+    case 64:
+        hardware_outW = fopen("hardware_outW_64.txt", "w");
+        break;
+    }
 
-    puts(hardware_buf);
-
-    FILE *hardware_outW = fopen(hardware_buf, "w");
     if (hardware_outW == NULL) printf("Failed to open hardware output file\n");
     else{
         for (int i = 0; i < outWdims[0] * outWdims[1] * outWdims[2] * outWdims[3]; i++)
@@ -959,12 +966,20 @@ void libjit_convolution_i8_i32(int8_t *outW, const int8_t *inW, const int8_t *fi
                                                           strides, pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost,
                                                           biasScale, outPre, outPost, outScale, depthUnroll, dilation);
 
-    char software_buf[30];
-    snprintf(software_buf, 30, "software_outW_%02du.txt", 32);
+    FILE *software_outW;
 
-    puts(software_buf);
+    switch(inWdims[3]){
+    case 1:
+        software_outW = fopen("software_outW_1.txt", "w");
+        break;
+    case 32:
+        software_outW = fopen("software_outW_32.txt", "w");
+        break;
+    case 64:
+        software_outW = fopen("software_outW_64.txt", "w");
+        break;
+    }
 
-    FILE *software_outW = fopen(software_buf, "w");
     if (software_outW == NULL) printf("Failed to open hardware output file\n");
     else{
         for (int i = 0; i < outWdims[0] * outWdims[1] * outWdims[2] * outWdims[3]; i++)
