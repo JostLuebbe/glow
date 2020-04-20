@@ -344,6 +344,16 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
 }
 
 } // namespace
+#define DBG_P(...) printf(__VA_ARGS__)
+
+#define DBG_TIME_START(X) struct timeval _DTS_ ## X; \
+                          gettimeofday(& _DTS_ ## X, NULL)
+
+#define DBG_TIME_END(X) struct timeval _DTE_ ## X; \
+                        gettimeofday(& _DTE_ ## X, NULL); \
+                        struct timeval _DTD_ ## X; \
+                        timersub(& _DTE_ ## X , & _DTS_ ## X , & _DTD_ ## X); \
+                        DBG_P("TIME: %s: %ld.%06ld sec\n", #X, _DTD_ ## X .tv_sec, _DTD_ ## X .tv_usec)
 
 extern "C" {
 void libjit_convDKKC8_f(float *outW, const float *inW, const float *filterW, const float *biasW, const dim_t *outWdims, const dim_t *inWdims,
@@ -502,27 +512,18 @@ void libjit_convolution_i8_i32(int8_t *outW, const int8_t *inW, const int8_t *fi
                                unsigned depthUnroll, dim_t dilation) {
 //    printf("JOST IN libjit_convolution_i8_i32\n");
 
-    struct timeval t1, t2;
-
-    gettimeofday(&t1, NULL);
+    DBG_TIME_START(HARDWARE);
     dlha_conv<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides, pads, group, outOffset,
                                inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale, outPre, outPost, outScale, depthUnroll,
                                dilation);
-    sleep(1);
-    gettimeofday(&t2, NULL);
+    DBG_TIME_END(HARDWARE);
 
-    double time = (t2.tv_sec - t1.tv_sec)*1000.0 + (t2.tv_usec - t1.tv_usec)/1000.0;
-    printf("Hardware Runtime: %f\n", time);
 
-    gettimeofday(&t1, NULL);
+    DBG_TIME_START(SOFTWARE);
     libjit_quantized_convolution_generic<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides,
                                                          pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale,
                                                          outPre, outPost, outScale, depthUnroll, dilation);
-    sleep(1);
-    gettimeofday(&t2, NULL);
-
-    time = (t2.tv_sec - t1.tv_sec)*1000.0 + (t2.tv_usec - t1.tv_usec)/1000.0;
-    printf("Software Runtime: %f\n", time);
+    DBG_TIME_END(SOFTWARE);
 }
 
 /*void libjit_convolution_i8_i8(int8_t *outW, const int8_t *inW, const int8_t *filterW, const int8_t *biasW, const dim_t *outWdims,
