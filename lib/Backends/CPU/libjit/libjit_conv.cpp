@@ -936,6 +936,32 @@ void libjit_convolution_i8_i32(int8_t *outW, const int8_t *inW, const int8_t *fi
                                unsigned depthUnroll, dim_t dilation) {
     printf("JOST IN libjit_convolution_i8_i32\n");
 
+    dlha_conv<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides, pads, group, outOffset,
+                               inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale, outPre, outPost, outScale, depthUnroll,
+                               dilation);
+
+    char hardware_buf[20];
+    snprintf(hardware_buf, 20, "hardware_outW_%02llu.txt", inWdims[3]);
+
+    FILE *hardware_outW = fopen(hardware_buf, "w");
+    for (int i = 0; i < outWdims[0] * outWdims[1] * outWdims[2] * outWdims[3]; i++)
+        fprintf(hardware_outW, "%d,", outW[i]);
+    fprintf(hardware_outW, "\n");
+    fclose(hardware_outW);
+
+    libjit_quantized_convolution_generic<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes,
+                                                          strides, pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost,
+                                                          biasScale, outPre, outPost, outScale, depthUnroll, dilation);
+
+    char software_buf[20];
+    snprintf(software_buf, 20, "software_outW_%02llu.txt", inWdims[3]);
+
+    FILE *software_outW = fopen(software_buf, "w");
+    for (int i = 0; i < outWdims[0] * outWdims[1] * outWdims[2] * outWdims[3]; i++)
+        fprintf(software_outW, "%d,", outW[i]);
+    fprintf(software_outW, "\n");
+    fclose(software_outW);
+
     /*    libjit_quantized_convolution_generic<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes,
        strides, pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale, outPre, outPost, outScale, depthUnroll,
        dilation);*/
@@ -944,7 +970,7 @@ void libjit_convolution_i8_i32(int8_t *outW, const int8_t *inW, const int8_t *fi
                                                              pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale,
                                                              outPre, outPost, outScale, depthUnroll, dilation);*/
 
-    if (inWdims[3] == 1) {
+/*    if (inWdims[3] == 1) {
         dlha_conv<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides, pads, group, outOffset,
                                    inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale, outPre, outPost, outScale, depthUnroll,
                                    dilation);
@@ -965,24 +991,24 @@ void libjit_convolution_i8_i32(int8_t *outW, const int8_t *inW, const int8_t *fi
         fprintf(software_outW, "\n");
         fclose(software_outW);
     } else if (inWdims[3] == 32) {
-        /*        dlha_conv<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides, pads, group,
+        *//*        dlha_conv<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides, pads, group,
            outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale, outPre, outPost, outScale, depthUnroll, dilation); FILE
            *our_software = fopen("our_software.txt", "w"); for (int i = 0; i < outWdims[1] * outWdims[2] * outWdims[3]; i++) fprintf(our_software,
-           "%d,", outW[i]); fprintf(our_software, "\n"); fclose(our_software);*/
+           "%d,", outW[i]); fprintf(our_software, "\n"); fclose(our_software);*//*
 
         libjit_quantized_convolution_generic<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes,
                                                               strides, pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost,
                                                               biasScale, outPre, outPost, outScale, depthUnroll, dilation);
 
-        /*        FILE *their_software = fopen("their_software.txt", "w");
+        *//*        FILE *their_software = fopen("their_software.txt", "w");
                 for (int i = 0; i < outWdims[1] * outWdims[2] * outWdims[3]; i++) fprintf(their_software, "%d,", outW[i]);
                 fprintf(their_software, "\n");
-                fclose(their_software);*/
+                fclose(their_software);*//*
     } else {
         libjit_quantized_convolution_generic<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes,
                                                               strides, pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost,
                                                               biasScale, outPre, outPost, outScale, depthUnroll, dilation);
-    }
+    }*/
 }
 
 /*void libjit_convolution_i8_i8(int8_t *outW, const int8_t *inW, const int8_t *filterW, const int8_t *biasW, const dim_t *outWdims,
