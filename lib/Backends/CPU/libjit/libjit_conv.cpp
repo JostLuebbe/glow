@@ -590,51 +590,43 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
                const dim_t *filterWdims, const dim_t *biasWdims, const dim_t *kernelSizes, const dim_t *strides, const dim_t *pads, dim_t group,
                int32_t outOffset, int32_t inOffset, int32_t filterOffset, int32_t biasOffset, int32_t biasPre, int32_t biasPost, int32_t biasScale,
                int32_t outPre, int32_t outPost, int32_t outScale, unsigned depthUnroll, dim_t dilation) {
-    dim_t inChannels = inWdims[3];
-    dim_t outChannels = outWdims[3];
-    dim_t inCperG = inChannels / group;
-    dim_t outCperG = outChannels / group;
-    dim_t pad_t = pads[0];
-    dim_t pad_l = pads[1];
-    dim_t stride_h = strides[0];
-    size_t stride_w = strides[1];
-    size_t kernel_h = kernelSizes[0];
-    size_t kernel_w = kernelSizes[1];
+    //    dim_t inChannels = inWdims[3];
+    //    dim_t outChannels = outWdims[3];
+    //    dim_t inCperG = inChannels / group;
+    //    dim_t outCperG = outChannels / group;
+    //    dim_t pad_t = pads[0];
+    //    dim_t pad_l = pads[1];
+    //    size_t kernel_h = kernelSizes[0];
+    //    size_t kernel_w = kernelSizes[1];
 
     // size_t == lu == unsigned long
     // dim_t == llu = unsigned long long
 
-    const uint8_t small_inWdims[4] = {(uint8_t)inWdims[0], (uint8_t)inWdims[1], (uint8_t)inWdims[2], (uint8_t)inWdims[3]};
-    const uint8_t small_filterWdims[4] = {(uint8_t)filterWdims[0], (uint8_t)filterWdims[1], (uint8_t)filterWdims[2], (uint8_t)filterWdims[3]};
-    const uint8_t small_biasWdims[1] = {(uint8_t)biasWdims[0]};
-    const uint8_t small_outWdims[4] = {(uint8_t)outWdims[0], (uint8_t)outWdims[1], (uint8_t)outWdims[2], (uint8_t)outWdims[3]};
-
 #ifdef debug
-    printf("small_inWdims: [%u,%u,%u,%u]\n", small_inWdims[0], small_inWdims[1], small_inWdims[2], small_inWdims[3]);
-    printf("small_filterWdims: [%u,%u,%u,%u]\n", small_filterWdims[0], small_filterWdims[1], small_filterWdims[2], small_filterWdims[3]);
+//    printf("small_inWdims: [%u,%u,%u,%u]\n", small_inWdims[0], small_inWdims[1], small_inWdims[2], small_inWdims[3]);
+//    printf("small_filterWdims: [%u,%u,%u,%u]\n", small_filterWdims[0], small_filterWdims[1], small_filterWdims[2], small_filterWdims[3]);
+//
+//    printf("small_biasWdims: [%u]\n", small_biasWdims[0]);
+//    printf("biasW: ");
+//    for (int i = 0; i < biasWdims[0]; i++) {
+//        printf("%d,", (int8_t)libjit_scale_i32i8((int32_t)biasW[i] - biasOffset, biasPre, biasPost, biasScale, 0));
+//    }
+//    printf("\n");
+//    printf("small_outWdims: [%u,%u,%u,%u]\n", small_outWdims[0], small_outWdims[1], small_outWdims[2], small_outWdims[3]);
 
-    printf("small_biasWdims: [%u]\n", small_biasWdims[0]);
-    printf("biasW: ");
-    for (int i = 0; i < biasWdims[0]; i++) {
-        printf("%d,", (int8_t)libjit_scale_i32i8((int32_t)biasW[i] - biasOffset, biasPre, biasPost, biasScale, 0));
-    }
-    printf("\n");
-    printf("small_outWdims: [%u,%u,%u,%u]\n", small_outWdims[0], small_outWdims[1], small_outWdims[2], small_outWdims[3]);
+//    printf("group: %llu\n", group);             // always 0
+//    printf("inOffset: %d\n", inOffset);         // -128 > -106 > -60
+//    printf("depthUnroll: %u\n", depthUnroll);   // always 8
+//    printf("inChannels: %llu\n", inChannels);   // 1 > 32 >  64
+//    printf("outChannels: %llu\n", outChannels); // 32 > 64 > 128
 
-    printf("group: %llu\n", group);             // always 0
-    printf("inOffset: %d\n", inOffset);         // -128 > -106 > -60
-    printf("depthUnroll: %u\n", depthUnroll);   // always 8
-    printf("inChannels: %llu\n", inChannels);   // 1 > 32 >  64
-    printf("outChannels: %llu\n", outChannels); // 32 > 64 > 128
-    printf("inCperG: %llu\n", inCperG);         // 1 > 32 >  64
-    printf("outCperG: %llu\n", outCperG);       // 32 > 64 > 128
-    printf("pad_t: %llu\n", pad_t);             // always 1
-    printf("pad_l: %llu\n", pad_l);             // always 1
-    printf("dilation: %llu\n", dilation);       // always 1
+//    printf("pad_t: %llu\n", pad_t);             // always 1
+//    printf("pad_l: %llu\n", pad_l);             // always 1
+//    printf("dilation: %llu\n", dilation);       // always 1
 
-    printf("filterOffset: %d\n", filterOffset);
+//    printf("filterOffset: %d\n", filterOffset);
 
-    printf("biasOffset: %d\n", biasOffset); // 0
+/*    printf("biasOffset: %d\n", biasOffset); // 0
     printf("biasPre: %d\n", biasPre);       // 0
     printf("biasPost: %d\n", biasPost);     // 0
     printf("biasScale: %d\n", biasScale);   // 1
@@ -642,46 +634,60 @@ void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const Bia
     printf("outOffset: %d\n", outOffset); // -22
     printf("outPre: %d\n", outPre);       // 3
     printf("outPost: %d\n", outPost);     // 15
-    printf("outScale: %d\n", outScale);   // 300
-#endif                                    // debug
+    printf("outScale: %d\n", outScale);   // 300*/
+#endif
 
+    const uint8_t small_inWdims[4] = {(uint8_t)inWdims[0], (uint8_t)inWdims[1], (uint8_t)inWdims[2], (uint8_t)inWdims[3]};
+    const uint8_t small_filterWdims[4] = {(uint8_t)filterWdims[0], (uint8_t)filterWdims[1], (uint8_t)filterWdims[2], (uint8_t)filterWdims[3]};
+    const uint8_t small_biasWdims[1] = {(uint8_t)biasWdims[0]};
+    const uint8_t small_outWdims[4] = {(uint8_t)outWdims[0], (uint8_t)outWdims[1], (uint8_t)outWdims[2], (uint8_t)outWdims[3]};
 
-    // For each output channel
-    for (size_t c = 0; c < outChannels; c++) {
-        // For each convolution 'jump' in the input tensor:
-        ssize_t x = -(ssize_t)pad_t;
-        for (size_t ax = 0; ax < outWdims[1]; x += stride_h, ax++) {
-            ssize_t y = -(ssize_t)pad_l;
-            for (size_t ay = 0; ay < outWdims[2]; y += stride_w, ay++) {
-                int32_t sum = libjit_scale_i32i8((int32_t) biasW[c] - biasOffset, biasPre, biasPost, biasScale, 0);
+    glow_conv(outW, inW, filterW, biasW, small_outWdims, small_inWdims, small_filterWdims, small_biasWdims, outOffset, inOffset, filterOffset,
+              biasOffset, biasPre, biasPost, biasScale, outPre, outPost, outScale);
 
-                // For each element in the convolution-filter:
-                for (size_t fx = 0; fx < kernel_h; fx++) {
-                    for (size_t fy = 0; fy < kernel_w; fy++) {
-                        ssize_t ox = x + fx * dilation;
-                        ssize_t oy = y + fy * dilation;
+    /*    // For each output channel
+        for (size_t c = 0; c < outWdims[3]; c++) {
+            // For each convolution 'jump' in the input tensor:
+            ssize_t x = -(ssize_t) 1;
+            for (size_t ax = 0; ax < outWdims[1]; x++, ax++) {
+                ssize_t y = -(ssize_t) 1;
+                for (size_t ay = 0; ay < outWdims[2]; y++, ay++) {
+                    int32_t sum = libjit_scale_i32i8((int32_t) biasW[c] - biasOffset, biasPre, biasPost, biasScale, 0);
 
-                        // Ignore index access below zero (this is due to padding).
-                        if (ox < 0 || oy < 0 || ox >= (ssize_t)inWdims[1] || oy >= (ssize_t)inWdims[2]) {
-                            continue;
-                        }
+                    // For each element in the convolution-filter:
+                    for (size_t fx = 0; fx < kernel_h; fx++) {
+                        for (size_t fy = 0; fy < kernel_w; fy++) {
+                            ssize_t ox = x + fx; // 0 -> 15
+                            ssize_t oy = y + fy; // 0 -> 15
 
-                        // Calculate the indices into the Filter and Input buffers.
-                        size_t inIdx = libjit_getXYZW(inWdims, 0, (size_t)ox, (size_t)oy, 0);
-                        size_t filterIdx = libjit_getXYZW(filterWdims, c, fx, fy, 0);
+                            // Ignore index access below zero (this is due to padding).
+                            if (ox < 0 || oy < 0 || ox >= (ssize_t)inWdims[1] || oy >= (ssize_t) inWdims[2]) {
+                                continue;
+                            }
 
-                        for (size_t fd = 0; fd < inCperG; fd++) { // 0 -> 31
-                            int32_t in = inW[inIdx + fd] - inOffset;
-                            sum += (filterW[filterIdx + fd] - filterOffset) * in;
+    //                        inline dim_t libjit_getXYZW(const dim_t *dims, dim_t x, dim_t y, dim_t z, dim_t w)
+    //                            return (x * dims[1] * dims[2] * dims[3]) + (y * dims[2] * dims[3]) + (z * dims[3]) + w;
+
+                            // inIdx = (ox * 16 * 32) + (oy * 32)
+
+                            // inIdx: 0,32,64,96
+
+                            // Calculate the indices into the Filter and Input buffers.
+                            size_t inIdx = libjit_getXYZW(inWdims, 0, (size_t) ox, (size_t) oy, 0); // 0 -> 8160
+                            size_t filterIdx = libjit_getXYZW(filterWdims, c, fx, fy, 0);
+
+                            for (size_t fd = 0; fd < inCperG; fd++) { // 0 -> 31
+                                int32_t in = inW[inIdx + fd] - inOffset;
+                                sum += (filterW[filterIdx + fd] - filterOffset) * in;
+                            }
                         }
                     }
-                }
 
-                int32_t scaledSum = libjit_scale_i32i8(sum, outPre, outPost, outScale, outOffset);
-                outW[libjit_getXYZW(outWdims, 0, ax, ay, c)] = libjit_clip(scaledSum);
-            } // W
-        }     // H
-    }         // C
+                    int32_t scaledSum = libjit_scale_i32i8(sum, outPre, outPost, outScale, outOffset);
+                    outW[libjit_getXYZW(outWdims, 0, ax, ay, c)] = libjit_clip(scaledSum);
+                } // W
+            }     // H
+        }         // C*/
 }
 
 /// Generic template for quantized convolution. The template allows choosing
@@ -939,40 +945,39 @@ void libjit_convolution_i8_i32(int8_t *outW, const int8_t *inW, const int8_t *fi
                                                              outPre, outPost, outScale, depthUnroll, dilation);*/
 
     if (inWdims[3] == 1) {
-        dlha_layer1_conv<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides, pads, group,
-                                          outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale, outPre, outPost, outScale,
-                                          depthUnroll, dilation);
-
-        /*        FILE *hardware_outW = fopen("hardware_outW.txt", "w");
-                for (int i = 0; i < 32 * 32 * 32; i++) fprintf(hardware_outW, "%d,", outW[i]);
-                fprintf(hardware_outW, "\n");
-                fclose(hardware_outW);
-
-                libjit_quantized_convolution_generic<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims,
-           kernelSizes, strides, pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale, outPre, outPost, outScale,
-           depthUnroll, dilation);
-
-                FILE *software_outW = fopen("software_outW.txt", "w");
-                for (int i = 0; i < 32 * 32 * 32; i++) fprintf(software_outW, "%d,", outW[i]);
-                fprintf(software_outW, "\n");
-                fclose(software_outW);*/
-    } else if (inWdims[3] == 32) {
         dlha_conv<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides, pads, group, outOffset,
                                    inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale, outPre, outPost, outScale, depthUnroll,
                                    dilation);
-        FILE *our_software = fopen("our_software.txt", "w");
-        for (int i = 0; i < outWdims[1] * outWdims[2] * outWdims[3]; i++) fprintf(our_software, "%d,", outW[i]);
-        fprintf(our_software, "\n");
-        fclose(our_software);
+
+        FILE *hardware_outW = fopen("hardware_outW.txt", "w");
+        for (int i = 0; i < outWdims[0] * outWdims[1] * outWdims[2] * outWdims[3]; i++)
+            fprintf(hardware_outW, "%d,", outW[i]);
+        fprintf(hardware_outW, "\n");
+        fclose(hardware_outW);
 
         libjit_quantized_convolution_generic<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes,
                                                               strides, pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost,
                                                               biasScale, outPre, outPost, outScale, depthUnroll, dilation);
 
-        FILE *their_software = fopen("their_software.txt", "w");
-        for (int i = 0; i < outWdims[1] * outWdims[2] * outWdims[3]; i++) fprintf(their_software, "%d,", outW[i]);
-        fprintf(their_software, "\n");
-        fclose(their_software);
+        FILE *software_outW = fopen("software_outW.txt", "w");
+        for (int i = 0; i < outWdims[0] * outWdims[1] * outWdims[2] * outWdims[3]; i++)
+            fprintf(software_outW, "%d,", outW[i]);
+        fprintf(software_outW, "\n");
+        fclose(software_outW);
+    } else if (inWdims[3] == 32) {
+        /*        dlha_conv<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides, pads, group,
+           outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale, outPre, outPost, outScale, depthUnroll, dilation); FILE
+           *our_software = fopen("our_software.txt", "w"); for (int i = 0; i < outWdims[1] * outWdims[2] * outWdims[3]; i++) fprintf(our_software,
+           "%d,", outW[i]); fprintf(our_software, "\n"); fclose(our_software);*/
+
+        libjit_quantized_convolution_generic<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes,
+                                                              strides, pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost,
+                                                              biasScale, outPre, outPost, outScale, depthUnroll, dilation);
+
+        /*        FILE *their_software = fopen("their_software.txt", "w");
+                for (int i = 0; i < outWdims[1] * outWdims[2] * outWdims[3]; i++) fprintf(their_software, "%d,", outW[i]);
+                fprintf(their_software, "\n");
+                fclose(their_software);*/
     } else {
         libjit_quantized_convolution_generic<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes,
                                                               strides, pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost,
