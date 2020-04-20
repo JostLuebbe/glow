@@ -941,7 +941,7 @@ void libjit_convolution_i8_i32(int8_t *outW, const int8_t *inW, const int8_t *fi
                                dilation);
 
     char hardware_buf[30];
-    snprintf(hardware_buf, 30, "hardware_outW_%02lu.txt", 32);
+    snprintf(hardware_buf, 30, "hardware_outW_%02du.txt", 32);
 
     puts(hardware_buf);
 
@@ -960,7 +960,7 @@ void libjit_convolution_i8_i32(int8_t *outW, const int8_t *inW, const int8_t *fi
                                                           biasScale, outPre, outPost, outScale, depthUnroll, dilation);
 
     char software_buf[30];
-    snprintf(software_buf, 30, "software_outW_%02lu.txt", 32);
+    snprintf(software_buf, 30, "software_outW_%02du.txt", 32);
 
     puts(software_buf);
 
