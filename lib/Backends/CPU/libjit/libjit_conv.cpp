@@ -504,27 +504,24 @@ void libjit_convolution_i8_i32(int8_t *outW, const int8_t *inW, const int8_t *fi
 
     struct timeval t1, t2;
 
-    gettimeofday(&t1, nullptr);
+    gettimeofday(&t1, NULL);
     dlha_conv<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides, pads, group, outOffset,
                                inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale, outPre, outPost, outScale, depthUnroll,
                                dilation);
     sleep(1);
-    gettimeofday(&t2, nullptr);
+    gettimeofday(&t2, NULL);
 
-    double time;
-    time = (t2.tv_sec - t1.tv_sec)*1000.0 + (t2.tv_usec - t1.tv_usec)/1000.0;
+    double time = (t2.tv_sec - t1.tv_sec)*1000.0 + (t2.tv_usec - t1.tv_usec)/1000.0;
     printf("Hardware Runtime: %f\n", time);
 
-    struct timeval soft_t1, soft_t2;
-
-    gettimeofday(&soft_t1, nullptr);
+    gettimeofday(&t1, NULL);
     libjit_quantized_convolution_generic<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides,
                                                          pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale,
                                                          outPre, outPost, outScale, depthUnroll, dilation);
     sleep(1);
-    gettimeofday(&soft_t2, nullptr);
+    gettimeofday(&t2, NULL);
 
-    time = (soft_t2.tv_sec - soft_t1.tv_sec)*1000.0 + (soft_t2.tv_usec - soft_t1.tv_usec)/1000.0;
+    time = (t2.tv_sec - t1.tv_sec)*1000.0 + (t2.tv_usec - t1.tv_usec)/1000.0;
     printf("Software Runtime: %f\n", time);
 }
 
