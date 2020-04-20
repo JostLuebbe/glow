@@ -940,10 +940,10 @@ void libjit_convolution_i8_i32(int8_t *outW, const int8_t *inW, const int8_t *fi
                                inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale, outPre, outPost, outScale, depthUnroll,
                                dilation);
 
-    char hardware_buf[20];
-    snprintf(hardware_buf, 20, "hardware_outW_%02lu.txt", inWdims[3]);
+//    char hardware_buf[20];
+//    snprintf(hardware_buf, 20, "hardware_outW_%02lu.txt", inWdims[3]);
 
-    FILE *hardware_outW = fopen(hardware_buf, "w");
+    FILE *hardware_outW = fopen("hardware_output.txt", "w");
     if (hardware_outW == NULL) printf("Failed to open hardware output file\n");
     else{
         for (int i = 0; i < outWdims[0] * outWdims[1] * outWdims[2] * outWdims[3]; i++)
@@ -957,10 +957,10 @@ void libjit_convolution_i8_i32(int8_t *outW, const int8_t *inW, const int8_t *fi
                                                           strides, pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost,
                                                           biasScale, outPre, outPost, outScale, depthUnroll, dilation);
 
-    char software_buf[20];
-    snprintf(software_buf, 20, "software_outW_%02lu.txt", inWdims[3]);
+//    char software_buf[20];
+//    snprintf(software_buf, 20, "software_outW_%02lu.txt", inWdims[3]);
 
-    FILE *software_outW = fopen(software_buf, "w");
+    FILE *software_outW = fopen("software_output.txt", "w");
     if (software_outW == NULL) printf("Failed to open hardware output file\n");
     else{
         for (int i = 0; i < outWdims[0] * outWdims[1] * outWdims[2] * outWdims[3]; i++)
