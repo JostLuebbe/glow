@@ -512,11 +512,11 @@ void libjit_convolution_i8_i32(int8_t *outW, const int8_t *inW, const int8_t *fi
                                unsigned depthUnroll, dim_t dilation) {
 //    printf("JOST IN libjit_convolution_i8_i32\n");
 
-//    DBG_TIME_START(HARDWARE);
-    dlha_conv<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides, pads, group, outOffset,
+    int8_t hardware_outW[outWdims[0] *  outWdims[1] * outWdims[2] * outWdims[3]];
+
+    dlha_conv<int8_t, int32_t>(hardware_outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides, pads, group, outOffset,
                                inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale, outPre, outPost, outScale, depthUnroll,
                                dilation);
-//    DBG_TIME_END(HARDWARE);
 
 
     DBG_TIME_START(SOFTWARE);
@@ -524,6 +524,12 @@ void libjit_convolution_i8_i32(int8_t *outW, const int8_t *inW, const int8_t *fi
                                                          pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale,
                                                          outPre, outPost, outScale, depthUnroll, dilation);
     DBG_TIME_END(SOFTWARE);
+
+    int8_t n = memcmp(hardware_outW, outW, sizeof(int8_t) * outWdims[0] *  outWdims[1] * outWdims[2] * outWdims[3]);
+
+    if (n == 0 ) printf("Hardware and Software match!\n");
+    else printf("Hardware and Software differ.\n");
+
 }
 
 /*void libjit_convolution_i8_i8(int8_t *outW, const int8_t *inW, const int8_t *filterW, const int8_t *biasW, const dim_t *outWdims,
