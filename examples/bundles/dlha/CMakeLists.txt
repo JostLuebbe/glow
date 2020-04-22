@@ -16,10 +16,10 @@ add_custom_target(DLHABundleDir ALL
 # Final Executables
 # =================
 # Regular
-#add_executable(DLHABundle $<TARGET_OBJECTS:DLHABundleMain>)
-#set_target_properties(DLHABundle PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${BUNDLE_OUTPUT_DIRECTORY})
-#target_link_libraries(DLHABundle ${BUNDLE_OUTPUT_DIRECTORY}/dlha.o png)
-#add_dependencies(DLHABundle DLHABundleMain DLHABundleNet)
+add_executable(DLHABundle $<TARGET_OBJECTS:DLHABundleMain>)
+set_target_properties(DLHABundle PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${BUNDLE_OUTPUT_DIRECTORY})
+target_link_libraries(DLHABundle ${BUNDLE_OUTPUT_DIRECTORY}/dlha.o png)
+add_dependencies(DLHABundle DLHABundleMain DLHABundleNet)
 
 # Quantized
 #[[add_executable(QuantizedDLHABundle $<TARGET_OBJECTS:QuantizedDLHABundleMain>)
@@ -36,9 +36,9 @@ add_custom_command(
         COMMAND
         model-compiler
 
-        -target=arm
-        -mcpu=cortex-a9
-        -float-abi=hard
+#        -target=arm
+#        -mcpu=cortex-a9
+#        -float-abi=hard
 
         -verbose
         -g
@@ -107,13 +107,13 @@ add_custom_command(
 add_custom_target(QuantizedDLHABundleNet ALL DEPENDS ${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY}/dlha.o DLHABundleQuantizationProfile)
 
 # Driver program with main function for regular bundle
-#[[add_library(DLHABundleMain OBJECT main.cpp)
+add_library(DLHABundleMain OBJECT main.cpp)
 target_compile_options(DLHABundleMain PRIVATE -std=c++11 -g)
 target_include_directories(DLHABundleMain PUBLIC ${BUNDLE_OUTPUT_DIRECTORY})
 add_dependencies(DLHABundleMain DLHABundleNet)
 
 # Driver program with main function for quantized bundle
-add_library(QuantizedDLHABundleMain OBJECT main.cpp)
-target_compile_options(QuantizedDLHABundleMain PRIVATE -std=c++11 -g)
-target_include_directories(QuantizedDLHABundleMain PUBLIC ${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY})
-add_dependencies(QuantizedDLHABundleMain QuantizedDLHABundleNet)]]
+#add_library(QuantizedDLHABundleMain OBJECT main.cpp)
+#target_compile_options(QuantizedDLHABundleMain PRIVATE -std=c++11 -g)
+#target_include_directories(QuantizedDLHABundleMain PUBLIC ${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY})
+#add_dependencies(QuantizedDLHABundleMain QuantizedDLHABundleNet)
