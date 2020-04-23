@@ -5,11 +5,11 @@ set(MODEL_DIR /home/jost/PycharmProjects/DLHA/application/model/models)
 set(IMAGES ${GLOW_SOURCE_DIR}/tests/images/dlha)
 
 # Output directories for regular and quantized outputs
-set(BUNDLE_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dlha)
+#set(BUNDLE_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dlha)
 set(QUANTIZED_BUNDLE_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/quantized_dlha)
 
 add_custom_target(DLHABundleDir ALL
-        COMMAND ${CMAKE_COMMAND} -E make_directory ${BUNDLE_OUTPUT_DIRECTORY}
+#        COMMAND ${CMAKE_COMMAND} -E make_directory ${BUNDLE_OUTPUT_DIRECTORY}
         COMMAND ${CMAKE_COMMAND} -E make_directory ${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY}
         )
 
@@ -30,7 +30,7 @@ add_dependencies(QuantizedDLHABundle QuantizedDLHABundleMain QuantizedDLHABundle
 # Glow Bundles
 # ============
 # Regular Bundle
-add_custom_command(
+#[[add_custom_command(
         OUTPUT
         ${BUNDLE_OUTPUT_DIRECTORY}/dlha.o
         COMMAND
@@ -51,7 +51,7 @@ add_custom_command(
         DEPENDS
         model-compiler DLHABundleDir
 )
-add_custom_target(DLHABundleNet ALL DEPENDS ${BUNDLE_OUTPUT_DIRECTORY}/dlha.o)
+add_custom_target(DLHABundleNet ALL DEPENDS ${BUNDLE_OUTPUT_DIRECTORY}/dlha.o)]]
 
 # Quantization Profile
 add_custom_command(
@@ -61,14 +61,9 @@ add_custom_command(
         image-classifier ${IMAGES}/*.png
         -g
         -verbose
-#        -dump-graph
         -dump-graph-DAG=${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY}/dlha_quantization_profile_graph.dot
-#        -image-mode=neg128to127
-#        -image-channel-order=RGB
-#        -image-layout=NCHW
         -dump-profile=${DLHA_BUNDLE_DIR}/profile.yml
         -onnx-define-symbol=N,1
-#        -model-input=${MODEL_INPUT_NAME},int32,[1,1,32,32]
         -m=${MODEL_DIR}/dlha.onnx
         -model-input-name=${MODEL_INPUT_NAME}
         DEPENDS
