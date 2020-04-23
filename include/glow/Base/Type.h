@@ -295,7 +295,7 @@ struct ShapeTHW {
 /// of the rest of the dimensions. For example, ([7, 3, 4, 2], 1) -> [7, 24]
 inline std::pair<dim_t, dim_t> flattenCdr(llvm::ArrayRef<dim_t> dims,
                                           unsigned_t n = 1) {
-//    printf("n:%d\n",n);
+    n = 1;
     std::cout << n << std::endl;
   assert(1 <= n && n <= dims.size());
   size_t first = dims[0];
