@@ -32,6 +32,8 @@
 
 #include "libjit_defs.h"
 
+#define DEBUG 1
+
 extern void glow_conv(
     int8_t *outW,
     const int8_t *inW,
