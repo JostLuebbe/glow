@@ -61,7 +61,7 @@ add_custom_command(
         image-classifier ${IMAGES}/*.png
         -g
         -verbose
-        -dump-graph-DAG=${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY}/dlha_quantization_profile_graph.dot
+#        -dump-graph-DAG=${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY}/dlha_quantization_profile_graph.dot
         -dump-profile=${DLHA_BUNDLE_DIR}/profile.yml
         -onnx-define-symbol=N,1
         -m=${MODEL_DIR}/dlha.onnx
