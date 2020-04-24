@@ -340,6 +340,33 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
                                           int32_t filterOffset, int32_t biasOffset, int32_t biasPre, int32_t biasPost, int32_t biasScale,
                                           int32_t outPre, int32_t outPost, int32_t outScale, unsigned depthUnroll, dim_t dilation) {
 
+    // Begin Jost Zone
+    const uint32_t _outWdims[4] = {(uint32_t)outWdims[0], (uint32_t)outWdims[1], (uint32_t)outWdims[2], (uint32_t)outWdims[3]};
+    const uint32_t _inWdims[4] = {(uint32_t)inWdims[0], (uint32_t)inWdims[1], (uint32_t)inWdims[2], (uint32_t)inWdims[3]};
+    const uint32_t _filterWdims[4] = {(uint32_t)filterWdims[0], (uint32_t)filterWdims[1], (uint32_t)filterWdims[2], (uint32_t)filterWdims[3]};
+    const uint32_t biasWdim = (uint32_t) biasWdims[0];
+    const uint32_t _kernelSizes[2] = {(uint32_t)kernelSizes[0], (uint32_t)kernelSizes[1]};
+    const uint32_t _strides[2] = {(uint32_t) strides[0], (uint32_t) strides[1]};
+    const uint32_t _pads[2] = {(uint32_t) pads[0], (uint32_t) pads[1]};
+    uint32_t _group = (uint32_t) group;
+    uint32_t _depthUnroll = (uint32_t) depthUnroll;
+    uint32_t _dilation = (uint32_t) dilation;
+
+#ifdef DEBUG
+    printf("outWdims:                                     [%u,%u,%u,%u]", _outWdims[0], _outWdims[1], _outWdims[2], _outWdims[3]);
+    printf("inWdims:                                      [%u,%u,%u,%u]", _inWdims[0], _inWdims[1], _inWdims[2], _inWdims[3]);
+    printf("filterWdims:                                  [%u,%u,%u,%u]", _filterWdims[0], _filterWdims[1], _filterWdims[2], _filterWdims[3]);
+    printf("biasWdim:                                     [%u]", biasWdim);
+    printf("kernelSizes:                                  [%u,%u]", _kernelSizes[0], _kernelSizes[1]);
+    printf("strides:                                      [%u,%u]", _strides[0], _strides[1]);
+    printf("pads:                                         [%u,%u]", _pads[0], _pads[1]);
+    printf("[outOffset,inOffset,filterOffset,biasOffset]: [%d,%d,%d,%d]",outOffset, inOffset, filterOffset, biasOffset);
+    printf("[biasPre,biasPost,biasScale]:                 [%d,%d,%d]", biasPre, biasPost, biasScale);
+    printf("[outPre,outPost,outScale]:                    [%d,%d,%d]", outPre, outPost, outScale);
+    printf("[group,depthUnroll,dilation]:                 [%u,%u,%u]", _group, _depthUnroll, _dilation);
+#endif
+    // End Jost Zone
+
     dim_t inChannels = inWdims[3];
     dim_t outChannels = outWdims[3];
     dim_t inCperG = inChannels / group;
@@ -587,9 +614,10 @@ void libjit_convolution_i8_i32(int8_t *outW, const int8_t *inW, const int8_t *fi
                                unsigned depthUnroll, dim_t dilation) {
 
 #ifdef HARDWARE_ENABLE
-    if (inWdims[0] * inWdims[1] * inWdims[2] * inWdims[3] < 188160 &&
-        filterWdims[0] * filterWdims[1] * filterWdims[2] * filterWdims[3] < 55296 &&
-        outWdims[0] * outWdims[1] * outWdims[2] * outWdims[3] < 188160) {
+    if (inWdims[0] * inWdims[1] * inWdims[2] * inWdims[3] < (37 * 4096) &&
+        filterWdims[0] * filterWdims[1] * filterWdims[2] * filterWdims[3] < (14 * 4096) &&
+        outWdims[0] * outWdims[1] * outWdims[2] * outWdims[3] < (37 * 4096) &&
+        biasWdims[0] * 4 < (1 * 4096)) {
 
         int8_t hardware_outW[outWdims[0] * outWdims[1] * outWdims[2] * outWdims[3]];
         dlha_conv<int8_t, int32_t>(hardware_outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides, pads, group,
