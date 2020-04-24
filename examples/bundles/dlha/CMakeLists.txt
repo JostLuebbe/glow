@@ -4,6 +4,8 @@ set(MODEL_INPUT_NAME "input")
 set(MODEL_DIR /home/jost/PycharmProjects/DLHA/application/model/models)
 set(IMAGES ${GLOW_SOURCE_DIR}/tests/images/dlha)
 
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
+
 # Output directories for regular and quantized outputs
 #set(BUNDLE_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dlha)
 set(QUANTIZED_BUNDLE_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/quantized_dlha)
