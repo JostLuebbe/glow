@@ -32,9 +32,27 @@
 
 #include "libjit_defs.h"
 
-extern void glow_conv(int8_t *result, const int8_t *inW, const int8_t *filterW, const int32_t *biasW, const uint8_t *outWdims, const uint8_t *inWdims,
-                      const uint8_t *filterWdims, const uint8_t *biasWdims, int32_t outOffset, int32_t inOffset, int32_t filterOffset,
-                      int32_t biasOffset, int32_t biasPre, int32_t biasPost, int32_t biasScale, int32_t outPre, int32_t outPost, int32_t outScale);
+extern void glow_conv(
+    int8_t *outW,
+    const int8_t *inW,
+    const int8_t *filterW,
+    const int32_t *biasW,
+    const uint32_t *outWdims,
+    const uint32_t *inWdims,
+    const uint32_t *filterWdims,
+    const uint32_t biasWdim,
+    const uint32_t *kernelSizes,
+    const uint32_t *strides,
+    const uint32_t *pads,
+    uint32_t group,
+    int32_t outOffset,
+    int32_t inOffset,
+    int32_t filterOffset,
+    int32_t biasOffset, int32_t biasPre, int32_t biasPost, int32_t biasScale,
+    int32_t outPre, int32_t outPost, int32_t outScale,
+    uint32_t depthUnroll,
+    uint32_t dilation
+);
 
 namespace {
 // Initialize the convolution output frame for slice \p N with the bias \p
@@ -243,17 +261,74 @@ void libjit_convDKKC8_foreach_xy_pixels_filter(size_t sampleN, dim_t outChannel,
 }
 
 template <typename ElemTy, typename BiasElemTy>
-void dlha_conv(ElemTy *outW, const ElemTy *inW, const ElemTy *filterW, const BiasElemTy *biasW, const dim_t *outWdims, const dim_t *inWdims,
-               const dim_t *filterWdims, const dim_t *biasWdims, const dim_t *kernelSizes, const dim_t *strides, const dim_t *pads, dim_t group,
-               int32_t outOffset, int32_t inOffset, int32_t filterOffset, int32_t biasOffset, int32_t biasPre, int32_t biasPost, int32_t biasScale,
-               int32_t outPre, int32_t outPost, int32_t outScale, unsigned depthUnroll, dim_t dilation) {
-    const uint8_t small_inWdims[4] = {(uint8_t)inWdims[0], (uint8_t)inWdims[1], (uint8_t)inWdims[2], (uint8_t)inWdims[3]};
-    const uint8_t small_filterWdims[4] = {(uint8_t)filterWdims[0], (uint8_t)filterWdims[1], (uint8_t)filterWdims[2], (uint8_t)filterWdims[3]};
-    const uint8_t small_biasWdims[1] = {(uint8_t)biasWdims[0]};
-    const uint8_t small_outWdims[4] = {(uint8_t)outWdims[0], (uint8_t)outWdims[1], (uint8_t)outWdims[2], (uint8_t)outWdims[3]};
+void dlha_conv(
+    ElemTy *outW,
+    const ElemTy *inW,
+    const ElemTy *filterW,
+    const BiasElemTy *biasW,
+    const dim_t *outWdims,
+    const dim_t *inWdims,
+    const dim_t *filterWdims,
+    const dim_t *biasWdims,
+    const dim_t *kernelSizes,
+    const dim_t *strides,
+    const dim_t *pads,
+    dim_t group,
+    int32_t outOffset,
+    int32_t inOffset,
+    int32_t filterOffset,
+    int32_t biasOffset,
+    int32_t biasPre, int32_t biasPost, int32_t biasScale,
+    int32_t outPre, int32_t outPost, int32_t outScale,
+    unsigned depthUnroll,
+    dim_t dilation)
+    {
 
-    glow_conv(outW, inW, filterW, biasW, small_outWdims, small_inWdims, small_filterWdims, small_biasWdims, outOffset, inOffset, filterOffset,
-              biasOffset, biasPre, biasPost, biasScale, outPre, outPost, outScale);
+    const uint32_t _outWdims[4] = {(uint32_t)outWdims[0], (uint32_t)outWdims[1], (uint32_t)outWdims[2], (uint32_t)outWdims[3]};
+    const uint32_t _inWdims[4] = {(uint32_t)inWdims[0], (uint32_t)inWdims[1], (uint32_t)inWdims[2], (uint32_t)inWdims[3]};
+    const uint32_t _filterWdims[4] = {(uint32_t)filterWdims[0], (uint32_t)filterWdims[1], (uint32_t)filterWdims[2], (uint32_t)filterWdims[3]};
+    const uint32_t biasWdim = (uint32_t) biasWdims[0];
+    const uint32_t _kernelSizes[2] = {(uint32_t)kernelSizes[0], (uint32_t)kernelSizes[1]};
+    const uint32_t _strides[2] = {(uint32_t) strides[0], (uint32_t) strides[1]};
+    const uint32_t _pads[2] = {(uint32_t) pads[0], (uint32_t) pads[1]};
+    uint32_t _group = (uint32_t) group;
+    uint32_t _depthUnroll = (uint32_t) depthUnroll;
+    uint32_t _dilation = (uint32_t) dilation;
+
+#ifdef DEBUG
+    printf("outWdims:                                     [%u,%u,%u,%u]", _outWdims[0], _outWdims[1], _outWdims[2], _outWdims[3]);
+    printf("inWdims:                                      [%u,%u,%u,%u]", _inWdims[0], _inWdims[1], _inWdims[2], _inWdims[3]);
+    printf("filterWdims:                                  [%u,%u,%u,%u]", _filterWdims[0], _filterWdims[1], _filterWdims[2], _filterWdims[3]);
+    printf("biasWdim:                                     [%u]", biasWdim);
+    printf("kernelSizes:                                  [%u,%u]", _kernelSizes[0], _kernelSizes[1]);
+    printf("strides:                                      [%u,%u]", _strides[0], _strides[1]);
+    printf("pads:                                         [%u,%u]", _pads[0], _pads[1]);
+    printf("[outOffset,inOffset,filterOffset,biasOffset]: [%d,%d,%d,%d]",outOffset, inOffset, filterOffset, biasOffset);
+    printf("[biasPre,biasPost,biasScale]:                 [%d,%d,%d]", biasPre, biasPost, biasScale);
+    printf("[outPre,outPost,outScale]:                    [%d,%d,%d]", outPre, outPost, outScale);
+    printf("[group,depthUnroll,dilation]:                 [%u,%u,%u]", _group, _depthUnroll, _dilation);
+#endif
+
+    glow_conv(
+        outW,
+        inW,
+        filterW,
+        biasW,
+        _outWdims,
+        _inWdims,
+        _filterWdims,
+        biasWdim,
+        _kernelSizes,
+        _strides,
+        _pads,
+        _group,
+        outOffset,
+        inOffset,
+        filterOffset, biasOffset, biasPre, biasPost, biasScale,
+        outPre, outPost, outScale,
+        _depthUnroll,
+        _dilation
+    );
 }
 
 /// Generic template for quantized convolution. The template allows choosing
@@ -510,26 +585,42 @@ void libjit_convolution_i8_i32(int8_t *outW, const int8_t *inW, const int8_t *fi
                                const dim_t *pads, dim_t group, int32_t outOffset, int32_t inOffset, int32_t filterOffset, int32_t biasOffset,
                                int32_t biasPre, int32_t biasPost, int32_t biasScale, int32_t outPre, int32_t outPost, int32_t outScale,
                                unsigned depthUnroll, dim_t dilation) {
-//    printf("JOST IN libjit_convolution_i8_i32\n");
 
-/*    int8_t hardware_outW[outWdims[0] *  outWdims[1] * outWdims[2] * outWdims[3]];
+#ifdef HARDWARE_ENABLE
+    if (inWdims[0] * inWdims[1] * inWdims[2] * inWdims[3] < 188160 &&
+        filterWdims[0] * filterWdims[1] * filterWdims[2] * filterWdims[3] < 55296 &&
+        outWdims[0] * outWdims[1] * outWdims[2] * outWdims[3] < 188160) {
 
-    dlha_conv<int8_t, int32_t>(hardware_outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides, pads, group, outOffset,
-                               inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale, outPre, outPost, outScale, depthUnroll,
-                               dilation);*/
+        int8_t hardware_outW[outWdims[0] * outWdims[1] * outWdims[2] * outWdims[3]];
+        dlha_conv<int8_t, int32_t>(hardware_outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides, pads, group,
+                                   outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale, outPre, outPost, outScale,
+                                   depthUnroll, dilation);
 
 
-    DBG_TIME_START(SOFTWARE);
+        DBG_TIME_START(SOFTWARE);
+        libjit_quantized_convolution_generic<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides,
+                                                              pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale,
+                                                              outPre, outPost, outScale, depthUnroll, dilation);
+        DBG_TIME_END(SOFTWARE);
+
+        int8_t n = memcmp(hardware_outW, outW, sizeof(int8_t) * outWdims[0] * outWdims[1] * outWdims[2] * outWdims[3]);
+
+        if (n == 0)
+            printf("Hardware and Software match!\n");
+        else
+            printf("Hardware and Software differ.\n");
+    }
+    else{
+        libjit_quantized_convolution_generic<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides,
+                                                              pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale,
+                                                              outPre, outPost, outScale, depthUnroll, dilation);
+    }
+#endif
+#ifndef HARDWARE_ENABLE
     libjit_quantized_convolution_generic<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides,
-                                                         pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale,
-                                                         outPre, outPost, outScale, depthUnroll, dilation);
-    DBG_TIME_END(SOFTWARE);
-
-/*    int8_t n = memcmp(hardware_outW, outW, sizeof(int8_t) * outWdims[0] *  outWdims[1] * outWdims[2] * outWdims[3]);
-
-    if (n == 0 ) printf("Hardware and Software match!\n");
-    else printf("Hardware and Software differ.\n");*/
-
+                                                          pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale,
+                                                          outPre, outPost, outScale, depthUnroll, dilation);
+#endif
 }
 
 /*void libjit_convolution_i8_i8(int8_t *outW, const int8_t *inW, const int8_t *filterW, const int8_t *biasW, const dim_t *outWdims,
