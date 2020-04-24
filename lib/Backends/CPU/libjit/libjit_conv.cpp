@@ -34,6 +34,8 @@
 
 #define DEBUG 1
 
+uint8_t num_conv = 0;
+
 extern void glow_conv(
     int8_t *outW,
     const int8_t *inW,
@@ -298,6 +300,7 @@ void dlha_conv(
     uint32_t _dilation = (uint32_t) dilation;
 
 #ifdef DEBUG
+    printf("Convolution %u\n", num_conv++);
     printf("outWdims:                                     [%u,%u,%u,%u]\n", _outWdims[0], _outWdims[1], _outWdims[2], _outWdims[3]);
     printf("inWdims:                                      [%u,%u,%u,%u]\n", _inWdims[0], _inWdims[1], _inWdims[2], _inWdims[3]);
     printf("filterWdims:                                  [%u,%u,%u,%u]\n", _filterWdims[0], _filterWdims[1], _filterWdims[2], _filterWdims[3]);
