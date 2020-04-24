@@ -298,17 +298,17 @@ void dlha_conv(
     uint32_t _dilation = (uint32_t) dilation;
 
 #ifdef DEBUG
-    printf("outWdims:                                     [%u,%u,%u,%u]", _outWdims[0], _outWdims[1], _outWdims[2], _outWdims[3]);
-    printf("inWdims:                                      [%u,%u,%u,%u]", _inWdims[0], _inWdims[1], _inWdims[2], _inWdims[3]);
-    printf("filterWdims:                                  [%u,%u,%u,%u]", _filterWdims[0], _filterWdims[1], _filterWdims[2], _filterWdims[3]);
-    printf("biasWdim:                                     [%u]", biasWdim);
-    printf("kernelSizes:                                  [%u,%u]", _kernelSizes[0], _kernelSizes[1]);
-    printf("strides:                                      [%u,%u]", _strides[0], _strides[1]);
-    printf("pads:                                         [%u,%u]", _pads[0], _pads[1]);
-    printf("[outOffset,inOffset,filterOffset,biasOffset]: [%d,%d,%d,%d]",outOffset, inOffset, filterOffset, biasOffset);
-    printf("[biasPre,biasPost,biasScale]:                 [%d,%d,%d]", biasPre, biasPost, biasScale);
-    printf("[outPre,outPost,outScale]:                    [%d,%d,%d]", outPre, outPost, outScale);
-    printf("[group,depthUnroll,dilation]:                 [%u,%u,%u]", _group, _depthUnroll, _dilation);
+    printf("outWdims:                                     [%u,%u,%u,%u]\n", _outWdims[0], _outWdims[1], _outWdims[2], _outWdims[3]);
+    printf("inWdims:                                      [%u,%u,%u,%u]\n", _inWdims[0], _inWdims[1], _inWdims[2], _inWdims[3]);
+    printf("filterWdims:                                  [%u,%u,%u,%u]\n", _filterWdims[0], _filterWdims[1], _filterWdims[2], _filterWdims[3]);
+    printf("biasWdim:                                     [%u]\n", biasWdim);
+    printf("kernelSizes:                                  [%u,%u]\n", _kernelSizes[0], _kernelSizes[1]);
+    printf("strides:                                      [%u,%u]\n", _strides[0], _strides[1]);
+    printf("pads:                                         [%u,%u]\n", _pads[0], _pads[1]);
+    printf("[outOffset,inOffset,filterOffset,biasOffset]: [%d,%d,%d,%d]\n",outOffset, inOffset, filterOffset, biasOffset);
+    printf("[biasPre,biasPost,biasScale]:                 [%d,%d,%d]\n", biasPre, biasPost, biasScale);
+    printf("[outPre,outPost,outScale]:                    [%d,%d,%d]\n", outPre, outPost, outScale);
+    printf("[group,depthUnroll,dilation]:                 [%u,%u,%u]\n\n", _group, _depthUnroll, _dilation);
 #endif
 
     glow_conv(
@@ -355,17 +355,17 @@ void libjit_quantized_convolution_generic(ElemTy *outW, const ElemTy *inW, const
     uint32_t _dilation = (uint32_t) dilation;
 
 #ifdef DEBUG
-    printf("outWdims:                                     [%u,%u,%u,%u]", _outWdims[0], _outWdims[1], _outWdims[2], _outWdims[3]);
-    printf("inWdims:                                      [%u,%u,%u,%u]", _inWdims[0], _inWdims[1], _inWdims[2], _inWdims[3]);
-    printf("filterWdims:                                  [%u,%u,%u,%u]", _filterWdims[0], _filterWdims[1], _filterWdims[2], _filterWdims[3]);
-    printf("biasWdim:                                     [%u]", biasWdim);
-    printf("kernelSizes:                                  [%u,%u]", _kernelSizes[0], _kernelSizes[1]);
-    printf("strides:                                      [%u,%u]", _strides[0], _strides[1]);
-    printf("pads:                                         [%u,%u]", _pads[0], _pads[1]);
-    printf("[outOffset,inOffset,filterOffset,biasOffset]: [%d,%d,%d,%d]",outOffset, inOffset, filterOffset, biasOffset);
-    printf("[biasPre,biasPost,biasScale]:                 [%d,%d,%d]", biasPre, biasPost, biasScale);
-    printf("[outPre,outPost,outScale]:                    [%d,%d,%d]", outPre, outPost, outScale);
-    printf("[group,depthUnroll,dilation]:                 [%u,%u,%u]", _group, _depthUnroll, _dilation);
+    printf("outWdims:                                     [%u,%u,%u,%u]\n", _outWdims[0], _outWdims[1], _outWdims[2], _outWdims[3]);
+    printf("inWdims:                                      [%u,%u,%u,%u]\n", _inWdims[0], _inWdims[1], _inWdims[2], _inWdims[3]);
+    printf("filterWdims:                                  [%u,%u,%u,%u]\n", _filterWdims[0], _filterWdims[1], _filterWdims[2], _filterWdims[3]);
+    printf("biasWdim:                                     [%u]\n", biasWdim);
+    printf("kernelSizes:                                  [%u,%u]\n", _kernelSizes[0], _kernelSizes[1]);
+    printf("strides:                                      [%u,%u]\n", _strides[0], _strides[1]);
+    printf("pads:                                         [%u,%u]\n", _pads[0], _pads[1]);
+    printf("[outOffset,inOffset,filterOffset,biasOffset]: [%d,%d,%d,%d]\n",outOffset, inOffset, filterOffset, biasOffset);
+    printf("[biasPre,biasPost,biasScale]:                 [%d,%d,%d]\n", biasPre, biasPost, biasScale);
+    printf("[outPre,outPost,outScale]:                    [%d,%d,%d]\n", outPre, outPost, outScale);
+    printf("[group,depthUnroll,dilation]:                 [%u,%u,%u]\n\n", _group, _depthUnroll, _dilation);
 #endif
     // End Jost Zone
 
