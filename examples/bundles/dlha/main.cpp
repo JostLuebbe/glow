@@ -165,7 +165,7 @@ static void loadImagesAndPreprocess(const std::vector<std::string> &filenames, f
     resultDims[2] = DEFAULT_WIDTH;
     resultDims[3] = 1;
     size_t resultSizeInBytes = numImages * resultDims[1] * DEFAULT_HEIGHT * DEFAULT_WIDTH * sizeof(uint8_t);
-    resultT = static_cast<uint8_t *>(malloc(resultSizeInBytes));
+    resultT = static_cast<float *>(malloc(resultSizeInBytes));
 
     size_t dims[3];
     bool loadSuccess = !readPngImage(filenames[0].c_str(), resultT, dims);
