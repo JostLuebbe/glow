@@ -33,6 +33,7 @@
 #include "libjit_defs.h"
 
 #define DEBUG 1
+#define HARDWARE_ENABLE 1
 
 uint8_t num_conv = 1;
 
@@ -621,9 +622,9 @@ void libjit_convolution_i8_i32(int8_t *outW, const int8_t *inW, const int8_t *fi
                                unsigned depthUnroll, dim_t dilation) {
 
 #ifdef HARDWARE_ENABLE
-    if (inWdims[0] * inWdims[1] * inWdims[2] * inWdims[3] < (37 * 4096) &&
+    if (inWdims[0] * inWdims[1] * inWdims[2] * inWdims[3] < (19 * 4096) &&
         filterWdims[0] * filterWdims[1] * filterWdims[2] * filterWdims[3] < (14 * 4096) &&
-        outWdims[0] * outWdims[1] * outWdims[2] * outWdims[3] < (37 * 4096) &&
+        outWdims[0] * outWdims[1] * outWdims[2] * outWdims[3] < (19 * 4096) &&
         biasWdims[0] * 4 < (1 * 4096)) {
 
         int8_t hardware_outW[outWdims[0] * outWdims[1] * outWdims[2] * outWdims[3]];
