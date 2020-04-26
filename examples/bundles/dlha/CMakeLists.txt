@@ -45,6 +45,7 @@ add_custom_command(
         -model=${MODEL_DIR}/dlha.onnx
         -onnx-define-symbol=N,1
 #        -model-input=${MODEL_INPUT_NAME} #,float,[1,224,224,1]
+        -image-layout=NHWC
         -backend=CPU
         -emit-bundle=${BUNDLE_OUTPUT_DIRECTORY}
         -bundle-api=dynamic
@@ -62,6 +63,7 @@ add_custom_command(
         -g
         -verbose
 #        -dump-graph-DAG=${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY}/dlha_quantization_profile_graph.dot
+        -image-layout=NHWC
         -dump-profile=${DLHA_BUNDLE_DIR}/profile.yml
         -onnx-define-symbol=N,1
         -m=${MODEL_DIR}/dlha.onnx
