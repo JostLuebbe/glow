@@ -9,17 +9,17 @@ set(IMAGES ${GLOW_SOURCE_DIR}/tests/images/dlha)
 set(QUANTIZED_BUNDLE_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/quantized_dlha)
 
 add_custom_target(DLHABundleDir ALL
-#        COMMAND ${CMAKE_COMMAND} -E make_directory ${BUNDLE_OUTPUT_DIRECTORY}
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${BUNDLE_OUTPUT_DIRECTORY}
         COMMAND ${CMAKE_COMMAND} -E make_directory ${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY}
         )
 
 # Final Executables
 # =================
 # Regular
-#[[add_executable(DLHABundle $<TARGET_OBJECTS:DLHABundleMain>)
+add_executable(DLHABundle $<TARGET_OBJECTS:DLHABundleMain>)
 set_target_properties(DLHABundle PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${BUNDLE_OUTPUT_DIRECTORY})
 target_link_libraries(DLHABundle ${BUNDLE_OUTPUT_DIRECTORY}/dlha.o png)
-add_dependencies(DLHABundle DLHABundleMain DLHABundleNet)]]
+add_dependencies(DLHABundle DLHABundleMain DLHABundleNet)
 
 # Quantized
 #[[add_executable(QuantizedDLHABundle $<TARGET_OBJECTS:QuantizedDLHABundleMain>)
@@ -30,15 +30,15 @@ add_dependencies(QuantizedDLHABundle QuantizedDLHABundleMain QuantizedDLHABundle
 # Glow Bundles
 # ============
 # Regular Bundle
-#[[add_custom_command(
+add_custom_command(
         OUTPUT
         ${BUNDLE_OUTPUT_DIRECTORY}/dlha.o
         COMMAND
         model-compiler
 
-        -target=arm
-        -mcpu=cortex-a9
-        -float-abi=hard
+#        -target=arm
+#        -mcpu=cortex-a9
+#        -float-abi=hard
 
         -verbose
         -g
@@ -51,7 +51,7 @@ add_dependencies(QuantizedDLHABundle QuantizedDLHABundleMain QuantizedDLHABundle
         DEPENDS
         model-compiler DLHABundleDir
 )
-add_custom_target(DLHABundleNet ALL DEPENDS ${BUNDLE_OUTPUT_DIRECTORY}/dlha.o)]]
+add_custom_target(DLHABundleNet ALL DEPENDS ${BUNDLE_OUTPUT_DIRECTORY}/dlha.o)
 
 # Quantization Profile
 add_custom_command(
@@ -102,10 +102,10 @@ add_custom_command(
 add_custom_target(QuantizedDLHABundleNet ALL DEPENDS ${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY}/dlha.o DLHABundleQuantizationProfile)
 
 # Driver program with main function for regular bundle
-#[[add_library(DLHABundleMain OBJECT main.cpp)
+add_library(DLHABundleMain OBJECT main.cpp)
 target_compile_options(DLHABundleMain PRIVATE -std=c++11 -g)
 target_include_directories(DLHABundleMain PUBLIC ${BUNDLE_OUTPUT_DIRECTORY})
-add_dependencies(DLHABundleMain DLHABundleNet)]]
+add_dependencies(DLHABundleMain DLHABundleNet)
 
 # Driver program with main function for quantized bundle
 #add_library(QuantizedDLHABundleMain OBJECT main.cpp)
