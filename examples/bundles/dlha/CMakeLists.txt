@@ -45,7 +45,6 @@ add_custom_command(
         -model=${MODEL_DIR}/dlha.onnx
         -onnx-define-symbol=N,1
 #        -model-input=${MODEL_INPUT_NAME} #,float,[1,224,224,1]
-        -image-layout=NHWC
         -backend=CPU
         -emit-bundle=${BUNDLE_OUTPUT_DIRECTORY}
         -bundle-api=dynamic
