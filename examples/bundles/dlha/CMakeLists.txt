@@ -93,7 +93,7 @@ add_custom_command(
         -keep-original-precision-for-nodes=SoftMax,Pow,Add,Div,Sub,Mul,Min,Max,Splat,InsertTensor,Reshape,BatchedAdd,MatMul,MaxPool,AvgPool
         -model=${MODEL_DIR}/dlha.onnx
         -onnx-define-symbol=N,1
-        -model-input=${MODEL_INPUT_NAME},float,[1,1,224,224]
+#        -model-input=${MODEL_INPUT_NAME},float,[1,1,224,224]
         -backend=CPU
         -emit-bundle=${QUANTIZED_BUNDLE_OUTPUT_DIRECTORY}
         -bundle-api=dynamic
