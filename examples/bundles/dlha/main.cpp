@@ -59,7 +59,7 @@ size_t getXYZ(const size_t *dims, size_t x, size_t y, size_t z) { return (x * di
 /// Reads a PNG image from a file into a newly allocated memory block \p imageT
 /// representing a WxHxNxC tensor and returns it. The client is responsible for
 /// freeing the memory block.
-bool readPngImage(const char *filename, uint8_t *&imageT, size_t *imageDims) {
+bool readPngImage(const char *filename, float *&imageT, size_t *imageDims) {
     unsigned char header[8];
     // open file and test for it being a png.
     FILE *fp = fopen(filename, "rb");
@@ -129,16 +129,16 @@ bool readPngImage(const char *filename, uint8_t *&imageT, size_t *imageDims) {
     png_read_image(png_ptr, row_pointers);
     png_read_end(png_ptr, info_ptr);
 
-    imageDims[0] = width;
-    imageDims[1] = height;
+    imageDims[0] = height;
+    imageDims[1] = width;
     imageDims[2] = numChannels;
-    imageT = static_cast<uint8_t *>(calloc(1, width * height * numChannels * sizeof(uint8_t)));
+    imageT = static_cast<float *>(calloc(1, width * height * numChannels * sizeof(float)));
 
     for (size_t row_n = 0; row_n < height; row_n++) {
         png_byte *row = row_pointers[row_n];
         for (size_t col_n = 0; col_n < width; col_n++) {
             png_byte *ptr = &(row[col_n * (hasAlpha ? (numChannels + 1) : numChannels)]);
-            imageT[getXYZ(imageDims, row_n, col_n, 0)] = int(ptr[0]);
+            imageT[getXYZ(imageDims, row_n, col_n, 0)] = float(ptr[0]);
         }
     }
 
@@ -155,15 +155,15 @@ bool readPngImage(const char *filename, uint8_t *&imageT, size_t *imageDims) {
 
 /// Loads and normalizes all PNGs into a tensor memory block \p resultT in the
 /// NCHW 3x224x224 format.
-static void loadImagesAndPreprocess(const std::vector<std::string> &filenames, uint8_t *&resultT, size_t *resultDims) {
+static void loadImagesAndPreprocess(const std::vector<std::string> &filenames, float *&resultT, size_t *resultDims) {
     assert(filenames.size() > 0 && "There must be at least one filename in filenames");
 //    std::pair<float, float> range = std::make_pair(0., 1.0);
     unsigned numImages = filenames.size();
     // N x C x H x W
     resultDims[0] = numImages;
-    resultDims[1] = 1;
-    resultDims[2] = DEFAULT_HEIGHT;
-    resultDims[3] = DEFAULT_WIDTH;
+    resultDims[1] = DEFAULT_HEIGHT;
+    resultDims[2] = DEFAULT_WIDTH;
+    resultDims[3] = 1;
     size_t resultSizeInBytes = numImages * resultDims[1] * DEFAULT_HEIGHT * DEFAULT_WIDTH * sizeof(uint8_t);
     resultT = static_cast<uint8_t *>(malloc(resultSizeInBytes));
 
@@ -272,8 +272,8 @@ static uint8_t *allocateMutableWeightVars(const BundleConfig &config) {
 static void dumpInferenceResults(const BundleConfig &config, uint8_t *mutableWeightVars) {
     const SymbolTableEntry &outputWeights = getMutableWeightVar(config, "output");
 
-    int maxIdx[5] = {0};
-    float maxValue[5] = {0.0};
+//    int maxIdx[5] = {0};
+//    float maxValue[5] = {0.0};
     float *results = (float *)(mutableWeightVars + outputWeights.offset);
 
 /*    for (int j = 0; j < 5; j++){
@@ -322,11 +322,11 @@ static void dumpInferenceResults(const BundleConfig &config, uint8_t *mutableWei
 static uint8_t *initMutableWeightVars(const BundleConfig &config) {
     uint8_t *mutableWeightVarsAddr = allocateMutableWeightVars(config);
     size_t inputDims[4];
-    uint8_t *inputT{nullptr};
+    float *inputT{nullptr};
     loadImagesAndPreprocess(inputImageFilenames, inputT, inputDims);
 
     // Copy image data into the gpu_0/data input variable in the mutableWeightVars area.
-    size_t imageDataSizeInBytes = inputDims[0] * inputDims[1] * inputDims[2] * inputDims[3] * sizeof(uint8_t);
+    size_t imageDataSizeInBytes = inputDims[0] * inputDims[1] * inputDims[2] * inputDims[3] * sizeof(float);
     printf("Copying image data into mutable weight vars: %u bytes\n", imageDataSizeInBytes);
 
     const SymbolTableEntry &inputGPUDataVar = getMutableWeightVar(config, "input");
