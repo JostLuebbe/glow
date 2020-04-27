@@ -32,7 +32,7 @@
 
 #include "libjit_defs.h"
 
-#define DEBUG 1
+#define DEBUG 0
 #define HARDWARE_ENABLE 1
 
 uint8_t num_conv = 1;
@@ -587,7 +587,7 @@ void libjit_convolution_i8_i32(int8_t *outW, const int8_t *inW, const int8_t *fi
     uint32_t _depthUnroll = (uint32_t) depthUnroll;
     uint32_t _dilation = (uint32_t) dilation;
 
-#ifdef DEBUG
+#if DEBUG
     printf("Convolution %u\n", num_conv++);
     printf("outWdims:                                     [%u,%u,%u,%u]\n", _outWdims[0], _outWdims[1], _outWdims[2], _outWdims[3]);
     printf("inWdims:                                      [%u,%u,%u,%u]\n", _inWdims[0], _inWdims[1], _inWdims[2], _inWdims[3]);
