@@ -33,7 +33,7 @@
 #include "libjit_defs.h"
 
 #define DEBUG 1
-#define HARDWARE_ENABLE 1
+#define HARDWARE_ENABLE 0
 
 uint8_t num_conv = 1;
 
