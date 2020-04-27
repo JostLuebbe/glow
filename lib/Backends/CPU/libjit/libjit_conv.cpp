@@ -602,7 +602,7 @@ void libjit_convolution_i8_i32(int8_t *outW, const int8_t *inW, const int8_t *fi
     printf("[group,depthUnroll,dilation]:                 [%u,%u,%u]\n\n", _group, _depthUnroll, _dilation);
 #endif
 
-#ifdef HARDWARE_ENABLE
+#if HARDWARE_ENABLE
     if (inWdims[0] * inWdims[1] * inWdims[2] * inWdims[3] < (19 * 4096) &&
         filterWdims[0] * filterWdims[1] * filterWdims[2] * filterWdims[3] < (14 * 4096) &&
         outWdims[0] * outWdims[1] * outWdims[2] * outWdims[3] < (19 * 4096) &&
@@ -633,7 +633,7 @@ void libjit_convolution_i8_i32(int8_t *outW, const int8_t *inW, const int8_t *fi
                                                               outPre, outPost, outScale, depthUnroll, dilation);
     }
 #endif
-#ifndef HARDWARE_ENABLE
+#if ~HARDWARE_ENABLE
     libjit_quantized_convolution_generic<int8_t, int32_t>(outW, inW, filterW, biasW, outWdims, inWdims, filterWdims, biasWdims, kernelSizes, strides,
                                                           pads, group, outOffset, inOffset, filterOffset, biasOffset, biasPre, biasPost, biasScale,
                                                           outPre, outPost, outScale, depthUnroll, dilation);
